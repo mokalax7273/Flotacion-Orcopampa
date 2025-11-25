@@ -1,356 +1,357 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluación y Optimización de Túneles: TBM vs PyV</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .active-tab { border-bottom: 2px solid #2563eb; color: #2563eb; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+import React, { useState } from 'react';
+import { 
+  Pickaxe, 
+  Shield, 
+  Droplets, 
+  CheckCircle, 
+  AlertTriangle, 
+  Clock, 
+  DollarSign, 
+  Ruler, 
+  Activity, 
+  Calculator, 
+  Briefcase,
+  Settings,
+  ArrowRight
+} from 'lucide-react';
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { 
-            Hammer, Pickaxe, Ruler, Droplets, HardHat, TrendingUp, 
-            AlertTriangle, CheckCircle, ChevronDown, ChevronUp, 
-            Activity, DollarSign, Clock, Shield 
-        } = lucide;
+// --- DATOS DEL INFORME (Basado en tus PDFs) ---
 
-        // --- Data Components based on PDF Content ---
+const comparisonData = [
+  {
+    id: 'excavation',
+    title: 'Excavación y Avance',
+    icon: <Pickaxe size={24} />,
+    description: 'La excavación define el cronograma crítico del proyecto.',
+    tbm: {
+      pros: ['Avance continuo y rápido (15-30 m/día).', 'Perfil liso (menor sobre-excavación).', 'Mayor seguridad intrínseca.'],
+      cons: ['Inversión inicial masiva (CAPEX).', 'Poca flexibilidad ante fallas geológicas.', 'Tiempo de montaje largo (3-5 meses).']
+    },
+    pyv: {
+      pros: ['Alta flexibilidad geométrica.', 'Baja inversión inicial (equipos estándar).', 'Inicio inmediato.'],
+      cons: ['Ciclo discontinuo y lento (4-8 m/día).', 'Mayor daño al macizo (perturbación).', 'Requiere más personal en frente.']
+    }
+  },
+  {
+    id: 'support',
+    title: 'Sostenimiento',
+    icon: <Shield size={24} />,
+    description: 'Garantía de estabilidad estructural y seguridad.',
+    tbm: {
+      pros: ['Sostenimiento inmediato con dovelas.', 'Calidad industrial controlada.', 'Revestimiento final en un solo paso.'],
+      cons: ['Logística compleja de dovelas.', 'Costos elevados de prefabricados.']
+    },
+    pyv: {
+      pros: ['Sostenimiento adaptable (Shotcrete/Pernos).', 'Costo variable ajustado a la roca.'],
+      cons: ['Exposición del personal antes del sostenimiento.', 'Revestimiento final es una etapa extra.']
+    }
+  },
+  {
+    id: 'water',
+    title: 'Gestión del Agua',
+    icon: <Droplets size={24} />,
+    description: 'Control de presión hidrostática y filtraciones.',
+    tbm: {
+      pros: ['Modelos EPB manejan altas presiones.', 'Revestimiento estanco inmediato.'],
+      cons: ['Riesgo de atrapamiento por presión excesiva.', 'Difícil tratamiento exterior post-paso.']
+    },
+    pyv: {
+      pros: ['Facilidad para inyecciones previas (paraguas).', 'Instalación flexible de drenes sobre la marcha.'],
+      cons: ['Ingreso constante de agua (bombeo alto).', 'Riesgo de lavado de finos en el frente.']
+    }
+  }
+];
 
-        const comparisonData = [
-            {
-                id: 'excavation',
-                title: 'Excavación y Avance',
-                icon: <Pickaxe size={24} />,
-                description: 'La excavación implica la remoción de grandes volúmenes y define el cronograma crítico.',
-                tbm: {
-                    pros: ['Avance continuo y rápido en roca competente.', 'Perfil de excavación liso (menor sobre-excavación).', 'Mayor seguridad intrínseca para el personal.'],
-                    cons: ['Alta inversión inicial y tiempos de montaje.', 'Poca flexibilidad ante cambios geológicos abruptos.', 'Dificultad en secciones variables.']
-                },
-                pyv: {
-                    pros: ['Alta flexibilidad geométrica y geológica.', 'Menor inversión inicial en maquinaria.', 'Adaptable a secciones cortas y complejas.'],
-                    cons: ['Ciclo discontinuo (perforación, carga, voladura, ventilación).', 'Mayor daño al macizo rocoso (sobre-excavación).', 'Requiere mayor sostenimiento pasivo.']
-                }
-            },
-            {
-                id: 'support',
-                title: 'Sostenimiento y Revestimiento',
-                icon: <Shield size={24} />,
-                description: 'Esencial para la estabilidad, previniendo hundimientos y asegurando la vida útil.',
-                tbm: {
-                    pros: ['Colocación inmediata de dovelas (seguridad inmediata).', 'Calidad de revestimiento industrializada.', 'Menor necesidad de sostenimiento primario en roca buena.'],
-                    cons: ['Logística compleja de dovelas.', 'Costos elevados de prefabricados.']
-                },
-                pyv: {
-                    pros: ['Sostenimiento flexible (pernos, shotcrete, mallas).', 'Adaptable a la calidad de la roca metro a metro.'],
-                    cons: ['Exposición del personal antes del sostenimiento.', 'Revestimiento final requiere encofrados adicionales.', 'Mayor variabilidad en costos de materiales.']
-                }
-            },
-            {
-                id: 'water',
-                title: 'Gestión Hidrogeológica',
-                icon: <Droplets size={24} />,
-                description: 'El control de presión y drenaje es fundamental para la estabilidad y evitar colapsos.',
-                tbm: {
-                    pros: ['Modelos EPB/Slurry manejan altas presiones de agua en el frente.', 'Revestimiento estanco inmediato (dovelas con juntas).'],
-                    cons: ['Riesgo de atrapamiento si la presión supera la capacidad de diseño.', 'Dificultad para tratamientos externos una vez pasada la máquina.']
-                },
-                pyv: {
-                    pros: ['Facilidad para realizar inyecciones previas (paraguas, grouting).', 'Instalación flexible de drenes y galerías de alivio durante el avance.'],
-                    cons: ['Ingreso constante de agua al túnel (necesidad de bombeo fuerte).', 'Riesgo de lavado de finos y desestabilización del frente.']
-                }
-            }
-        ];
+const scenarios = [
+  {
+    id: 'short',
+    title: 'Escenario A: Túnel Corto (< 3km)',
+    type: 'Minería / Acceso',
+    bestChoice: 'Perforación y Voladura (PyV)',
+    color: 'bg-orange-100 border-orange-500 text-orange-800',
+    reason: 'Costos y Flexibilidad',
+    desc: 'El costo de traer y montar una TBM no se amortiza en distancias cortas. PyV permite cambios de sección y galerías laterales.'
+  },
+  {
+    id: 'long',
+    title: 'Escenario B: Túnel Largo (> 6km)',
+    type: 'Infraestructura / Drenaje',
+    bestChoice: 'Tuneladora (TBM)',
+    color: 'bg-blue-100 border-blue-500 text-blue-800',
+    reason: 'Velocidad y Economía de Escala',
+    desc: 'La alta velocidad de la TBM diluye los costos fijos. El perfil circular optimiza la ventilación y estabilidad a largo plazo.'
+  }
+];
 
-        const drainageMethods = [
-            {
-                title: "Drenes Horizontales",
-                desc: "Se instalan en el fondo o hastiales. Permiten el flujo controlado hacia cunetas, reduciendo la presión hidrostática detrás de las paredes.",
-                icon: <TrendingUp className="text-blue-500" />
-            },
-            {
-                title: "Pozos de Drenaje",
-                desc: "Perforaciones verticales estratégicas para recolectar agua subterránea y abatir el nivel freático antes o durante la excavación.",
-                icon: <Activity className="text-blue-500" />
-            },
-            {
-                title: "Galerías de Alivio",
-                desc: "Túneles paralelos auxiliares que evacúan agua acumulada, reduciendo drásticamente la presión sobre la estructura principal.",
-                icon: <Ruler className="text-blue-500" />
-            }
-        ];
+const CostCalculator = () => {
+  const [lengthKm, setLengthKm] = useState(4);
+  
+  // Lógica de Costos Simplificada para la Industria
+  // PyV: Bajo Fijo ($2M), Alto Variable ($5k/m)
+  // TBM: Alto Fijo ($15M), Bajo Variable ($2.5k/m)
+  const pyvFixed = 2; 
+  const pyvVar = 5000; 
+  const tbmFixed = 15; 
+  const tbmVar = 2500; 
 
-        const injectionMaterials = [
-            { name: "Lechada de Cemento", use: "Roca dura, fisuras grandes", benefit: "Sella filtraciones masivas y consolida el macizo." },
-            { name: "Resinas Epoxi", use: "Fisuras finas", benefit: "Alta adherencia y curado rápido para zonas críticas." },
-            { name: "Polímeros (Poliuretanos)", use: "Terrenos frágiles / Agua activa", benefit: "Se expanden con el agua, sellado flexible." },
-            { name: "Silicatos", use: "Rocas porosas", benefit: "Alta penetración para impermeabilidad en porosidad." }
-        ];
+  const totalPyV = pyvFixed + (lengthKm * 1000 * pyvVar / 1000000);
+  const totalTBM = tbmFixed + (lengthKm * 1000 * tbmVar / 1000000);
+  
+  const recommendation = totalTBM < totalPyV ? 'TBM' : 'Perforación y Voladura';
+  const savings = Math.abs(totalTBM - totalPyV).toFixed(1);
 
-        // --- Sub-Components ---
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <Calculator className="text-blue-600"/> Simulador de Costos
+      </h3>
 
-        const Hero = ({ setActiveSection }) => (
-            <div className="bg-slate-900 text-white p-8 rounded-xl mb-8 shadow-2xl relative overflow-hidden">
-                <div className="relative z-10">
-                    <h1 className="text-4xl font-bold mb-4">Evaluación y Optimización de Túneles</h1>
-                    <p className="text-xl text-slate-300 max-w-2xl mb-6">
-                        Plataforma técnica para el análisis comparativo entre métodos mecanizados (TBM) y convencionales (Perforación y Voladura), con énfasis en costos, optimización y control hidrogeológico.
-                    </p>
-                    <div className="flex gap-4">
-                        <button onClick={() => setActiveSection('compare')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2">
-                            <Activity size={20} /> Comparativa Técnica
-                        </button>
-                        <button onClick={() => setActiveSection('water')} className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2">
-                            <Droplets size={20} /> Hidrogeología
-                        </button>
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Longitud del Túnel: <span className="text-blue-600 font-bold text-lg">{lengthKm} km</span>
+        </label>
+        <input 
+          type="range" 
+          min="1" 
+          max="15" 
+          step="0.5" 
+          value={lengthKm} 
+          onChange={(e) => setLengthKm(parseFloat(e.target.value))}
+          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        />
+        <div className="flex justify-between text-xs text-slate-500 mt-2 font-mono">
+          <span>1 km</span>
+          <span>5 km (Punto de Inflexión)</span>
+          <span>15 km</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className={`p-4 rounded-lg border-l-4 ${recommendation === 'Perforación y Voladura' ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-slate-50'}`}>
+          <h4 className="font-bold text-slate-700 text-sm">Perforación y Voladura</h4>
+          <p className="text-2xl font-bold text-slate-800">${totalPyV.toFixed(1)} M</p>
+          <p className="text-xs text-slate-500 mt-1">Inversión Baja / Costo Variable Alto</p>
+        </div>
+        <div className={`p-4 rounded-lg border-l-4 ${recommendation === 'TBM' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-slate-50'}`}>
+          <h4 className="font-bold text-slate-700 text-sm">TBM (Tuneladora)</h4>
+          <p className="text-2xl font-bold text-slate-800">${totalTBM.toFixed(1)} M</p>
+          <p className="text-xs text-slate-500 mt-1">Inversión Alta / Costo Variable Bajo</p>
+        </div>
+      </div>
+
+      <div className="bg-slate-800 text-white p-4 rounded-lg flex items-start gap-3">
+        <CheckCircle className="text-green-400 shrink-0 mt-1" size={20} />
+        <div>
+          <p className="font-bold">Recomendación: {recommendation}</p>
+          <p className="text-slate-300 text-sm mt-1">
+            Ahorro estimado de <span className="text-green-400 font-bold">${savings} Millones</span> seleccionando este método.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('compare');
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 p-4 md:p-8">
+      <div className="max-w-5xl mx-auto">
+        
+        {/* Header */}
+        <header className="mb-10 text-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">
+            Evaluación Técnica de Túneles
+          </h1>
+          <p className="text-slate-500 max-w-2xl mx-auto text-lg">
+            Herramienta de análisis para la selección de métodos constructivos y gestión hidrogeológica.
+          </p>
+        </header>
+
+        {/* Navigation */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <button 
+            onClick={() => setActiveTab('compare')}
+            className={`px-5 py-2 rounded-full font-medium transition-all ${activeTab === 'compare' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+          >
+            Comparativa Técnica
+          </button>
+          <button 
+            onClick={() => setActiveTab('calculator')}
+            className={`px-5 py-2 rounded-full font-medium transition-all ${activeTab === 'calculator' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+          >
+            Simulador de Costos
+          </button>
+          <button 
+            onClick={() => setActiveTab('scenarios')}
+            className={`px-5 py-2 rounded-full font-medium transition-all ${activeTab === 'scenarios' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+          >
+            Escenarios & Hidrogeología
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="transition-all duration-300 ease-in-out">
+          
+          {/* TAB: Comparativa */}
+          {activeTab === 'compare' && (
+            <div className="space-y-4">
+              {comparisonData.map((item) => (
+                <div key={item.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="p-6 bg-slate-50 border-b border-slate-100 flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 text-blue-700 rounded-lg">
+                      {item.icon}
                     </div>
-                </div>
-                <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-blue-900 to-transparent opacity-50"></div>
-            </div>
-        );
-
-        const ComparisonCard = ({ data }) => {
-            const [isOpen, setIsOpen] = useState(false);
-
-            return (
-                <div className="bg-white rounded-lg shadow-md mb-4 overflow-hidden border border-slate-200 card-hover transition-all duration-300">
-                    <div 
-                        className="p-6 cursor-pointer flex justify-between items-center bg-slate-50 hover:bg-slate-100"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-100 text-blue-700 rounded-full">
-                                {data.icon}
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-800">{data.title}</h3>
-                                <p className="text-slate-500 text-sm hidden md:block">{data.description}</p>
-                            </div>
-                        </div>
-                        {isOpen ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
-                    </div>
-                    
-                    {isOpen && (
-                        <div className="p-6 grid md:grid-cols-2 gap-6 bg-white fade-in border-t border-slate-100">
-                            {/* TBM Column */}
-                            <div className="bg-blue-50 p-5 rounded-lg border border-blue-100">
-                                <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div> TBM (Mecanizado)
-                                </h4>
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-xs font-semibold text-blue-600 uppercase mb-1">Ventajas</p>
-                                        <ul className="text-sm text-slate-700 space-y-1">
-                                            {data.tbm.pros.map((item, i) => <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="mt-1 text-green-600 shrink-0"/> {item}</li>)}
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-semibold text-red-500 uppercase mb-1">Desafíos</p>
-                                        <ul className="text-sm text-slate-700 space-y-1">
-                                            {data.tbm.cons.map((item, i) => <li key={i} className="flex items-start gap-2"><AlertTriangle size={14} className="mt-1 text-red-500 shrink-0"/> {item}</li>)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* PyV Column */}
-                            <div className="bg-orange-50 p-5 rounded-lg border border-orange-100">
-                                <h4 className="font-bold text-orange-900 mb-3 flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div> Perforación y Voladura
-                                </h4>
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-xs font-semibold text-orange-600 uppercase mb-1">Ventajas</p>
-                                        <ul className="text-sm text-slate-700 space-y-1">
-                                            {data.pyv.pros.map((item, i) => <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="mt-1 text-green-600 shrink-0"/> {item}</li>)}
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-semibold text-red-500 uppercase mb-1">Desafíos</p>
-                                        <ul className="text-sm text-slate-700 space-y-1">
-                                            {data.pyv.cons.map((item, i) => <li key={i} className="flex items-start gap-2"><AlertTriangle size={14} className="mt-1 text-red-500 shrink-0"/> {item}</li>)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        const OptimizationSection = () => (
-            <div className="grid md:grid-cols-3 gap-6 fade-in">
-                <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-green-500">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Clock className="text-green-600" />
-                        <h3 className="font-bold text-lg">Optimización de Tiempo</h3>
-                    </div>
-                    <ul className="text-slate-600 text-sm space-y-2">
-                        <li>• Planificación meticulosa para anticipar geología adversa.</li>
-                        <li>• Uso de software de gestión para seguimiento en tiempo real.</li>
-                        <li>• Capacitación intensiva del personal para reducir errores.</li>
-                    </ul>
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-blue-500">
-                    <div className="flex items-center gap-3 mb-4">
-                        <DollarSign className="text-blue-600" />
-                        <h3 className="font-bold text-lg">Costos Operativos</h3>
-                    </div>
-                    <ul className="text-slate-600 text-sm space-y-2">
-                        <li>• <strong>Mantenimiento:</strong> Revisiones regulares previenen paradas costosas.</li>
-                        <li>• <strong>Servicios:</strong> Ventilación e iluminación son costos recurrentes altos.</li>
-                        <li>• <strong>Personal:</strong> Inversión clave para eficiencia operativa.</li>
-                    </ul>
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-purple-500">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Ruler className="text-purple-600" />
-                        <h3 className="font-bold text-lg">Diseño y Materiales</h3>
-                    </div>
-                    <ul className="text-slate-600 text-sm space-y-2">
-                        <li>• Diseño geométrico que minimice tensiones estructurales.</li>
-                        <li>• Materiales sostenibles adecuados al terreno.</li>
-                        <li>• Balance entre sobre-excavación y espesor de revestimiento.</li>
-                    </ul>
-                </div>
-            </div>
-        );
-
-        const HydrogeologySection = () => (
-            <div className="fade-in space-y-8">
-                <div className="bg-blue-900 text-white p-6 rounded-lg">
-                    <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><AlertTriangle className="text-yellow-400"/> Riesgos Críticos</h3>
-                    <p className="text-blue-200">El agua subterránea genera presiones hidrostáticas que desestabilizan las paredes, causan filtraciones corrosivas y pueden provocar sifonamiento (movimiento de agua bajo presión).</p>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-8">
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Sistemas de Drenaje</h3>
-                        <div className="space-y-4">
-                            {drainageMethods.map((method, idx) => (
-                                <div key={idx} className="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-start">
-                                    <div className="p-2 bg-blue-50 rounded-lg shrink-0">{method.icon}</div>
-                                    <div>
-                                        <h4 className="font-bold text-slate-800">{method.title}</h4>
-                                        <p className="text-sm text-slate-600">{method.desc}</p>
-                                    </div>
-                                </div>
+                      <h3 className="text-xl font-bold text-slate-800">{item.title}</h3>
+                      <p className="text-slate-500 text-sm">{item.description}</p>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                    <div className="p-6">
+                      <h4 className="font-bold text-blue-800 mb-4 flex items-center gap-2">
+                        <Settings size={16}/> TBM (Mecanizado)
+                      </h4>
+                      <div className="space-y-4">
+                        <div>
+                          <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Ventajas</span>
+                          <ul className="mt-2 space-y-2">
+                            {item.tbm.pros.map((p, i) => (
+                              <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                <CheckCircle size={14} className="mt-1 text-green-500 shrink-0"/> {p}
+                              </li>
                             ))}
+                          </ul>
                         </div>
-                    </div>
-
-                    <div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Tecnologías de Inyección</h3>
-                        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-slate-100 text-slate-700">
-                                    <tr>
-                                        <th className="p-3">Material</th>
-                                        <th className="p-3">Uso Principal</th>
-                                        <th className="p-3">Beneficio</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {injectionMaterials.map((mat, idx) => (
-                                        <tr key={idx} className="hover:bg-slate-50">
-                                            <td className="p-3 font-medium text-blue-900">{mat.name}</td>
-                                            <td className="p-3 text-slate-600">{mat.use}</td>
-                                            <td className="p-3 text-slate-500 text-xs">{mat.benefit}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <div className="p-4 bg-slate-50 border-t border-slate-100 text-xs text-slate-500">
-                                <p><strong>Proceso:</strong> Perforación &rarr; Inyección &rarr; Control de Presión &rarr; Curado.</p>
-                            </div>
+                        <div>
+                          <span className="text-xs font-bold text-red-500 uppercase tracking-wide">Desafíos</span>
+                          <ul className="mt-2 space-y-2">
+                            {item.tbm.cons.map((c, i) => (
+                              <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                <AlertTriangle size={14} className="mt-1 text-red-400 shrink-0"/> {c}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
+                      </div>
                     </div>
+                    <div className="p-6 bg-orange-50/30">
+                      <h4 className="font-bold text-orange-800 mb-4 flex items-center gap-2">
+                        <Activity size={16}/> Perforación y Voladura
+                      </h4>
+                      <div className="space-y-4">
+                        <div>
+                          <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Ventajas</span>
+                          <ul className="mt-2 space-y-2">
+                            {item.pyv.pros.map((p, i) => (
+                              <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                <CheckCircle size={14} className="mt-1 text-green-500 shrink-0"/> {p}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-red-500 uppercase tracking-wide">Desafíos</span>
+                          <ul className="mt-2 space-y-2">
+                            {item.pyv.cons.map((c, i) => (
+                              <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                <AlertTriangle size={14} className="mt-1 text-red-400 shrink-0"/> {c}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              ))}
             </div>
-        );
+          )}
 
-        // --- Main App Component ---
-
-        const App = () => {
-            const [activeSection, setActiveSection] = useState('compare');
-
-            return (
-                <div className="max-w-6xl mx-auto p-4 md:p-8">
-                    <Hero setActiveSection={setActiveSection} />
-
-                    {/* Navigation Tabs */}
-                    <div className="flex border-b border-slate-300 mb-8 overflow-x-auto">
-                        <button 
-                            onClick={() => setActiveSection('compare')}
-                            className={`px-6 py-3 font-medium text-slate-600 hover:text-blue-600 transition whitespace-nowrap ${activeSection === 'compare' ? 'active-tab' : ''}`}
-                        >
-                            Comparativa de Métodos
-                        </button>
-                        <button 
-                            onClick={() => setActiveSection('optimize')}
-                            className={`px-6 py-3 font-medium text-slate-600 hover:text-blue-600 transition whitespace-nowrap ${activeSection === 'optimize' ? 'active-tab' : ''}`}
-                        >
-                            Optimización y Costos
-                        </button>
-                        <button 
-                            onClick={() => setActiveSection('water')}
-                            className={`px-6 py-3 font-medium text-slate-600 hover:text-blue-600 transition whitespace-nowrap ${activeSection === 'water' ? 'active-tab' : ''}`}
-                        >
-                            Drenaje e Impermeabilización
-                        </button>
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="min-h-[400px]">
-                        {activeSection === 'compare' && (
-                            <div className="fade-in">
-                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Análisis Comparativo: Criterios de Selección</h2>
-                                {comparisonData.map(data => (
-                                    <ComparisonCard key={data.id} data={data} />
-                                ))}
-                            </div>
-                        )}
-
-                        {activeSection === 'optimize' && (
-                            <div className="fade-in">
-                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Estrategias de Optimización del Proyecto</h2>
-                                <OptimizationSection />
-                            </div>
-                        )}
-
-                        {activeSection === 'water' && (
-                            <div className="fade-in">
-                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Gestión Hidrogeológica y Riesgos</h2>
-                                <HydrogeologySection />
-                            </div>
-                        )}
-                    </div>
-
-                    <footer className="mt-12 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
-                        <p>© 2024 Informe Técnico de Ingeniería. Basado en documentación de "Evaluación y Optimización de Túneles" y "Sistemas de Drenaje".</p>
-                    </footer>
+          {/* TAB: Calculadora */}
+          {activeTab === 'calculator' && (
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-2">
+                <CostCalculator />
+              </div>
+              <div className="space-y-4">
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                  <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <Clock className="text-slate-400" size={18}/> Factor Tiempo
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Si el proyecto es urgente y corto, <strong>PyV</strong> es superior porque evita los 4-6 meses de fabricación y montaje de la TBM.
+                  </p>
                 </div>
-            );
-        };
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                  <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <Ruler className="text-slate-400" size={18}/> Geometría
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    TBM obliga a una sección circular. Si el túnel requiere base plana amplia o secciones variables, PyV evita rellenos costosos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+          {/* TAB: Escenarios */}
+          {activeTab === 'scenarios' && (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-6">
+                {scenarios.map((sc) => (
+                  <div key={sc.id} className={`p-6 rounded-xl border-2 ${sc.color} bg-white shadow-sm hover:shadow-md transition-shadow`}>
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="px-2 py-1 bg-white/80 rounded text-xs font-bold uppercase tracking-wider">{sc.type}</span>
+                      {sc.bestChoice.includes('TBM') ? <Settings/> : <Pickaxe/>}
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{sc.title}</h3>
+                    <div className="mb-4">
+                      <span className="text-sm font-semibold opacity-75">Mejor Elección: </span>
+                      <span className="font-bold">{sc.bestChoice}</span>
+                    </div>
+                    <p className="text-sm opacity-90 mb-4">{sc.desc}</p>
+                    <div className="bg-white/50 p-3 rounded text-sm font-medium">
+                      Razón: {sc.reason}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
+              <div className="bg-blue-900 text-white p-8 rounded-xl shadow-lg">
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                  <Droplets className="text-blue-300"/> Gestión Hidrogeológica Crítica
+                </h3>
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div>
+                    <h4 className="font-bold text-blue-200 mb-2 border-b border-blue-700 pb-2">Drenajes</h4>
+                    <ul className="text-sm text-blue-100 space-y-2 mt-3">
+                      <li>• <strong>Drenes Horizontales:</strong> Alivian presión detrás de muros.</li>
+                      <li>• <strong>Pozos Verticales:</strong> Abaten el nivel freático antes de excavar.</li>
+                      <li>• <strong>Galerías de Alivio:</strong> Túneles paralelos de desagüe.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-blue-200 mb-2 border-b border-blue-700 pb-2">Inyecciones (Grouting)</h4>
+                    <ul className="text-sm text-blue-100 space-y-2 mt-3">
+                      <li>• <strong>Cemento:</strong> Para roca dura y fisuras grandes.</li>
+                      <li>• <strong>Resinas:</strong> Para fisuras finas (alta adherencia).</li>
+                      <li>• <strong>Poliuretanos:</strong> Sellado reactivo con agua.</li>
+                    </ul>
+                  </div>
+                  <div className="bg-blue-800 p-4 rounded-lg">
+                    <p className="text-xs text-blue-200 italic">
+                      "El agua a presión es la principal causa de colapso en túneles profundos. La TBM ofrece revestimiento estanco inmediato, mientras que PyV requiere gestión activa de drenaje."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
