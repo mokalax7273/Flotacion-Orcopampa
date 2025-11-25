@@ -3,413 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orcopampa: Guía Técnica</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Evaluación y Optimización de Túneles: TBM vs PyV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
-        :root {
-            --primary: #0f766e;
-            --primary-dark: #134e4a;
-            --secondary: #2dd4bf;
-            --accent-blue: #e0f2fe;
-            --accent-orange: #ffedd5;
-            --text: #334155;
-            --bg: #f1f5f9;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Lato', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
-        
-        /* HEADER PRO */
-        header {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            color: white;
-            padding: 35px 20px 50px 20px;
-            border-radius: 0 0 30px 30px;
-            box-shadow: 0 10px 25px rgba(15, 118, 110, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-        .header-content { position: relative; z-index: 2; }
-        header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; letter-spacing: -0.5px; }
-        header .subtitle { font-family: 'Roboto Mono', monospace; font-size: 0.85rem; color: var(--secondary); margin-top: 5px; opacity: 0.9; }
-        
-        /* FLOAT STATS */
-        .float-stats {
-            display: flex; gap: 10px; padding: 0 20px; margin-top: -30px; position: relative; z-index: 5;
-            overflow-x: auto; scrollbar-width: none;
-        }
-        .f-stat {
-            background: white; padding: 12px 15px; border-radius: 12px; min-width: 120px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-left: 3px solid var(--secondary);
-        }
-        .f-stat h4 { font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 700; }
-        .f-stat p { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
-
-        /* NAV */
-        .status-bar {
-            background: white; margin: 20px; padding: 5px; border-radius: 50px;
-            display: flex; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .status-item { 
-            padding: 10px 20px; border-radius: 40px; color: #64748b; font-weight: 600; font-size: 0.85rem; 
-            text-decoration: none; transition: 0.3s; width: 33%; text-align: center;
-        }
-        .status-item.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3); }
-
-        /* PROCESS TABS */
-        .process-scroller { overflow-x: auto; padding: 10px 20px; display: flex; gap: 12px; scrollbar-width: none; }
-        .p-tab {
-            background: white; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; color: #64748b;
-            border: 1px solid #e2e8f0; white-space: nowrap; transition: 0.3s; display: flex; align-items: center; gap: 8px;
-        }
-        .p-tab i { font-size: 0.8rem; }
-        .p-tab.active { border-color: var(--primary); color: var(--primary); background: var(--accent-blue); }
-
-        /* DETAILED CARD */
-        .card-container { padding: 0 20px; margin-top: 10px; }
-        .detail-card {
-            background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-            display: none; animation: slideUp 0.4s ease;
-        }
-        .detail-card.active { display: block; }
-        
-        .card-header { padding: 25px; background: white; border-bottom: 1px solid #f1f5f9; }
-        .step-number { font-family: 'Roboto Mono', monospace; color: var(--secondary); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; }
-        .card-header h2 { font-family: 'Montserrat', sans-serif; color: var(--primary-dark); font-size: 1.6rem; margin: 5px 0 10px 0; }
-        .main-desc { color: #475569; line-height: 1.6; font-size: 0.95rem; }
-
-        /* DATA GRID */
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #f1f5f9; border-top: 1px solid #f1f5f9; }
-        .data-cell { background: white; padding: 20px; }
-        .data-cell h4 { font-size: 0.75rem; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .data-cell p { font-weight: 700; color: var(--text); font-size: 1rem; }
-        .data-cell p span { font-size: 0.8rem; font-weight: 400; color: #64748b; }
-
-        /* TECH SPECS TOGGLE */
-        .tech-specs-container { background: #f8fafc; padding: 0 25px; }
-        .tech-toggle {
-            width: 100%; padding: 20px 0; text-align: left; background: none; border: none; 
-            color: var(--primary); font-weight: 700; font-family: 'Montserrat', sans-serif;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-        }
-        .tech-details { display: none; padding-bottom: 25px; border-top: 1px solid #e2e8f0; }
-        .tech-details.open { display: block; }
-        
-        .spec-list li { margin-bottom: 12px; font-size: 0.9rem; padding-left: 20px; position: relative; color: #475569; }
-        .spec-list li::before { content: "•"; color: var(--secondary); font-weight: bold; position: absolute; left: 0; font-size: 1.2em; top: -2px; }
-
-        /* INTERACTIVE WIDGETS */
-        .widget-box { margin: 20px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .widget-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--primary-dark); }
-        
-        /* pH Meter Visualization */
-        .ph-meter { height: 10px; background: linear-gradient(to right, #ef4444, #eab308, #22c55e, #3b82f6, #a855f7); border-radius: 5px; position: relative; margin-top: 30px; }
-        .ph-marker { position: absolute; top: -25px; transform: translateX(-50%); text-align: center; transition: 0.5s; }
-        .ph-marker span { background: var(--primary-dark); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .ph-marker::after { content: ''; display: block; width: 2px; height: 15px; background: var(--primary-dark); margin: 0 auto; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* DESKTOP FIX */
-        @media (min-width: 768px) { body { max-width: 600px; margin: 0 auto; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; min-height: 100vh; } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .active-tab { border-bottom: 2px solid #2563eb; color: #2563eb; }
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <header>
-        <div class="header-content">
-            <h1>Mina Orcopampa</h1>
-            <p class="subtitle">COMPANION APP v2.0</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">Ingeniería de Minas - UCSM</p>
-        </div>
-    </header>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { 
+            Hammer, Pickaxe, Ruler, Droplets, HardHat, TrendingUp, 
+            AlertTriangle, CheckCircle, ChevronDown, ChevronUp, 
+            Activity, DollarSign, Clock, Shield 
+        } = lucide;
 
-    <div class="float-stats">
-        <div class="f-stat">
-            <h4>Ley Au</h4>
-            <p>Alta</p>
-        </div>
-        <div class="f-stat">
-            <h4>P80</h4>
-            <p>90 µm</p>
-        </div>
-        <div class="f-stat">
-            <h4>Recup. Au</h4>
-            <p>95.0%</p>
-        </div>
-    </div>
+        // --- Data Components based on PDF Content ---
 
-    <!-- Navegación Superior -->
-    <div class="status-bar">
-        <a href="#" onclick="showSection('proceso'); return false;" class="status-item active" id="nav-proceso">Proceso</a>
-        <a href="#" onclick="showSection('kpis'); return false;" class="status-item" id="nav-kpis">KPIs</a>
-        <a href="#" onclick="showSection('sostenibilidad'); return false;" class="status-item" id="nav-sostenibilidad">Ambiente</a>
-    </div>
-
-    <!-- SECCION PROCESO -->
-    <div id="sec-proceso">
-        <div class="process-scroller">
-            <div class="p-tab active" onclick="switchCard('chancado', this)"><i class="fa-solid fa-gem"></i> Chancado</div>
-            <div class="p-tab" onclick="switchCard('molienda', this)"><i class="fa-solid fa-industry"></i> Molienda</div>
-            <div class="p-tab" onclick="switchCard('gravimetria', this)"><i class="fa-solid fa-magnet"></i> Gravimetría</div>
-            <div class="p-tab" onclick="switchCard('cianuracion', this)"><i class="fa-solid fa-flask"></i> Cianuración</div>
-            <div class="p-tab" onclick="switchCard('flotacion', this)"><i class="fa-solid fa-soap"></i> Flotación</div>
-        </div>
-
-        <div class="card-container">
-            
-            <!-- TARJETA 1: CHANCADO -->
-            <div id="chancado" class="detail-card active">
-                <div class="card-header">
-                    <span class="step-number">ETAPA 01</span>
-                    <h2>Conminución</h2>
-                    <p class="main-desc">Reducción mecánica del mineral ROM (Run of Mine) mediante trituración en seco y lavado preliminar para eliminar arcillas perjudiciales.</p>
-                </div>
-                <div class="data-grid">
-                    <div class="data-cell">
-                        <h4>Alimentación</h4>
-                        <p>12 - 18 <span>pulgadas</span></p>
-                    </div>
-                    <div class="data-cell">
-                        <h4>Producto Final</h4>
-                        <p>1.5 <span>pulgadas</span></p>
-                    </div>
-                </div>
-                <div class="tech-specs-container">
-                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
-                    <div class="tech-details">
-                        <ul class="spec-list">
-                            <li><strong>Chancado 1°:</strong> Trituradora de Mandíbulas (Jaw Crusher). Reduce a 6".</li>
-                            <li><strong>Lavado:</strong> Uso de "Scrubbers" (cilindros lavadores) para retirar arcillas que consumen cianuro innecesariamente.</li>
-                            <li><strong>Chancado 2°:</strong> Trituradora Cónica Standard. Reduce a 1.5" para alimentar al molino.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TARJETA 2: MOLIENDA -->
-            <div id="molienda" class="detail-card">
-                <div class="card-header">
-                    <span class="step-number">ETAPA 02</span>
-                    <h2>Molienda</h2>
-                    <p class="main-desc">Circuito combinado SAG + Bolas para alcanzar la liberación de las partículas de oro encapsuladas en cuarzo.</p>
-                </div>
-                <div class="data-grid">
-                    <div class="data-cell">
-                        <h4>P80 Objetivo</h4>
-                        <p>90 <span>micras</span></p>
-                    </div>
-                    <div class="data-cell">
-                        <h4>Circuito</h4>
-                        <p>Cerrado <span>con Ciclones</span></p>
-                    </div>
-                </div>
-                <div class="tech-specs-container">
-                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
-                    <div class="tech-details">
-                        <ul class="spec-list">
-                            <li><strong>Molino SAG:</strong> 15.5' x 11'. Realiza la molienda gruesa.</li>
-                            <li><strong>Molino de Bolas:</strong> 12' x 16'. Refinamiento final.</li>
-                            <li><strong>Clasificación:</strong> Batería de Hidrociclones D-20. El "Overflow" (finos) pasa a procesos si tiene < 106 µm.</li>
-                            <li><strong>Control:</strong> Monitoreo constante de densidad de pulpa para evitar sobremolienda (generación de lamas).</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TARJETA 3: GRAVIMETRIA -->
-            <div id="gravimetria" class="detail-card">
-                <div class="card-header">
-                    <span class="step-number">ETAPA 03</span>
-                    <h2>Gravimetría</h2>
-                    <p class="main-desc">Recuperación física aprovechando la alta densidad del oro frente a la ganga liviana, antes de cualquier químico.</p>
-                </div>
-                <div class="data-grid">
-                    <div class="data-cell">
-                        <h4>Tecnología</h4>
-                        <p>Falcon <span>Centrífuga</span></p>
-                    </div>
-                    <div class="data-cell">
-                        <h4>Recuperación Ag</h4>
-                        <p>~9% <span>del total</span></p>
-                    </div>
-                </div>
-                <div class="tech-specs-container">
-                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
-                    <div class="tech-details">
-                        <ul class="spec-list">
-                            <li><strong>Principio:</strong> Fuerza centrífuga (hasta 60G) separa partículas pesadas.</li>
-                            <li><strong>Producto:</strong> Concentrado de alta ley que va directo a Mesa Vibratoria y luego a Fundición.</li>
-                            <li><strong>Ventaja:</strong> Reduce la carga de oro grueso que entra a cianuración, acelerando la cinética global.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TARJETA 4: CIANURACION -->
-            <div id="cianuracion" class="detail-card">
-                <div class="card-header">
-                    <span class="step-number">ETAPA 04</span>
-                    <h2>Cianuración Dual</h2>
-                    <p class="main-desc">Proceso químico principal. Se divide la corriente en solución rica (líquido) y pulpa (sólido) para maximizar eficiencia.</p>
-                </div>
-                <div class="data-grid">
-                    <div class="data-cell">
-                        <h4>pH Operativo</h4>
-                        <p>10.5 - 11.0</p>
-                    </div>
-                    <div class="data-cell">
-                        <h4>Tiempo</h4>
-                        <p>48 - 72 <span>horas</span></p>
-                    </div>
-                </div>
-                
-                <!-- pH Visualizer -->
-                <div style="padding: 0 25px 25px 25px;">
-                    <div class="ph-meter">
-                        <div class="ph-marker" style="left: 85%;"><span>pH 11</span></div>
-                    </div>
-                    <p style="font-size: 0.8rem; text-align: center; margin-top: 5px; color: #94a3b8;">Rango alcalino para evitar gas HCN</p>
-                </div>
-
-                <div class="tech-specs-container">
-                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
-                    <div class="tech-details">
-                        <ul class="spec-list">
-                            <li><strong>Merrill-Crowe:</strong> Procesa la solución clara rica en plata. Requiere clarificación (<5 NTU) y desoxigenación. Precipita con Polvo de Zinc.</li>
-                            <li><strong>CIL (Carbón en Lixiviación):</strong> 6 Tanques agitados. El carbón activado (15 g/L) adsorbe el oro disuelto remanente ("barrido").</li>
-                            <li><strong>Reactivos:</strong> Cianuro de Sodio (NaCN) y Cal (CaO) para control de pH.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TARJETA 5: FLOTACION -->
-            <div id="flotacion" class="detail-card">
-                <div class="card-header">
-                    <span class="step-number">ETAPA 05</span>
-                    <h2>Flotación Scavenger</h2>
-                    <p class="main-desc">Tratamiento de los relaves (colas) del proceso CIL para recuperar sulfuros de plata refractarios.</p>
-                </div>
-                <div class="data-grid">
-                    <div class="data-cell">
-                        <h4>Tipo</h4>
-                        <p>Scavenger <span>(Barrido)</span></p>
-                    </div>
-                    <div class="data-cell">
-                        <h4>Aporte Ag</h4>
-                        <p>+15% <span>Extra</span></p>
-                    </div>
-                </div>
-                <div class="tech-specs-container">
-                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
-                    <div class="tech-details">
-                        <ul class="spec-list">
-                            <li><strong>Objetivo:</strong> Recuperar sulfuros de plata encapsulados que no se disolvieron con cianuro.</li>
-                            <li><strong>Reactivos:</strong> Colectores (Xantatos) para volver hidrofóbicos a los sulfuros y Espumantes.</li>
-                            <li><strong>Producto:</strong> Concentrado de flotación que se comercializa aparte de las barras Doré.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- SECCION KPI (Oculta por defecto) -->
-    <div id="sec-kpis" style="display:none;">
-        <div class="widget-box">
-            <div class="widget-header">
-                <i class="fa-solid fa-chart-line fa-lg"></i>
-                <h3>Balance Metalúrgico</h3>
-            </div>
-            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Contribución por proceso a la recuperación total de Plata:</p>
-            
-            <!-- Simple Bar Chart CSS -->
-            <div style="display: flex; height: 150px; align-items: flex-end; gap: 10px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
-                <div style="width: 25%; background: #94a3b8; height: 12%; border-radius: 5px 5px 0 0; position: relative;">
-                    <span style="position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; font-weight: bold;">9%</span>
-                    <span style="position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.7rem;">Grav</span>
-                </div>
-                <div style="width: 25%; background: var(--secondary); height: 77%; border-radius: 5px 5px 0 0; position: relative;">
-                    <span style="position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; font-weight: bold;">77%</span>
-                    <span style="position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.7rem;">Cian</span>
-                </div>
-                <div style="width: 25%; background: var(--primary); height: 15%; border-radius: 5px 5px 0 0; position: relative;">
-                    <span style="position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; font-weight: bold;">15%</span>
-                    <span style="position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.7rem;">Flot</span>
-                </div>
-            </div>
-            <p style="margin-top: 30px; font-size: 0.85rem; font-style: italic; color: #64748b;">
-                *La flotación recupera lo que la cianuración no pudo disolver.
-            </p>
-        </div>
-    </div>
-
-    <!-- SECCION AMBIENTE (Oculta por defecto) -->
-    <div id="sec-sostenibilidad" style="display:none;">
-        <div class="widget-box" style="border-left: 5px solid #22c55e;">
-            <div class="widget-header">
-                <i class="fa-solid fa-leaf fa-lg" style="color: #22c55e;"></i>
-                <h3>Destrucción de Cianuro</h3>
-            </div>
-            <p style="margin-bottom: 15px;">Uso de Ácido de Caro (H₂SO₅) para neutralizar efluentes.</p>
-            
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
-                <h4 style="font-size: 0.8rem; color: #15803d; margin-bottom: 5px;">ENTRADA (Relave)</h4>
-                <p style="font-size: 1.2rem; font-weight: 800; color: #ef4444;">280 ppm <span style="font-size: 0.8rem; font-weight: 400; color: #64748b;">CN WAD</span></p>
-            </div>
-            <div style="text-align: center; color: #cbd5e1;"><i class="fa-solid fa-arrow-down"></i></div>
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin-top: 10px;">
-                <h4 style="font-size: 0.8rem; color: #15803d; margin-bottom: 5px;">SALIDA (Vertido)</h4>
-                <p style="font-size: 1.2rem; font-weight: 800; color: #22c55e;">50 ppm <span style="font-size: 0.8rem; font-weight: 400; color: #64748b;">CN WAD</span></p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Cambiar Tarjetas
-        function switchCard(cardId, tab) {
-            // Reset Tabs
-            document.querySelectorAll('.p-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-
-            // Reset Cards
-            document.querySelectorAll('.detail-card').forEach(c => c.classList.remove('active'));
-            document.getElementById(cardId).classList.add('active');
-        }
-
-        // Toggle Specs
-        function toggleTech(btn) {
-            const details = btn.nextElementSibling;
-            const isOpen = details.classList.contains('open');
-            
-            if (isOpen) {
-                details.classList.remove('open');
-                btn.innerHTML = 'Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i>';
-            } else {
-                details.classList.add('open');
-                btn.innerHTML = 'Ocultar Detalles <i class="fa-solid fa-chevron-up"></i>';
+        const comparisonData = [
+            {
+                id: 'excavation',
+                title: 'Excavación y Avance',
+                icon: <Pickaxe size={24} />,
+                description: 'La excavación implica la remoción de grandes volúmenes y define el cronograma crítico.',
+                tbm: {
+                    pros: ['Avance continuo y rápido en roca competente.', 'Perfil de excavación liso (menor sobre-excavación).', 'Mayor seguridad intrínseca para el personal.'],
+                    cons: ['Alta inversión inicial y tiempos de montaje.', 'Poca flexibilidad ante cambios geológicos abruptos.', 'Dificultad en secciones variables.']
+                },
+                pyv: {
+                    pros: ['Alta flexibilidad geométrica y geológica.', 'Menor inversión inicial en maquinaria.', 'Adaptable a secciones cortas y complejas.'],
+                    cons: ['Ciclo discontinuo (perforación, carga, voladura, ventilación).', 'Mayor daño al macizo rocoso (sobre-excavación).', 'Requiere mayor sostenimiento pasivo.']
+                }
+            },
+            {
+                id: 'support',
+                title: 'Sostenimiento y Revestimiento',
+                icon: <Shield size={24} />,
+                description: 'Esencial para la estabilidad, previniendo hundimientos y asegurando la vida útil.',
+                tbm: {
+                    pros: ['Colocación inmediata de dovelas (seguridad inmediata).', 'Calidad de revestimiento industrializada.', 'Menor necesidad de sostenimiento primario en roca buena.'],
+                    cons: ['Logística compleja de dovelas.', 'Costos elevados de prefabricados.']
+                },
+                pyv: {
+                    pros: ['Sostenimiento flexible (pernos, shotcrete, mallas).', 'Adaptable a la calidad de la roca metro a metro.'],
+                    cons: ['Exposición del personal antes del sostenimiento.', 'Revestimiento final requiere encofrados adicionales.', 'Mayor variabilidad en costos de materiales.']
+                }
+            },
+            {
+                id: 'water',
+                title: 'Gestión Hidrogeológica',
+                icon: <Droplets size={24} />,
+                description: 'El control de presión y drenaje es fundamental para la estabilidad y evitar colapsos.',
+                tbm: {
+                    pros: ['Modelos EPB/Slurry manejan altas presiones de agua en el frente.', 'Revestimiento estanco inmediato (dovelas con juntas).'],
+                    cons: ['Riesgo de atrapamiento si la presión supera la capacidad de diseño.', 'Dificultad para tratamientos externos una vez pasada la máquina.']
+                },
+                pyv: {
+                    pros: ['Facilidad para realizar inyecciones previas (paraguas, grouting).', 'Instalación flexible de drenes y galerías de alivio durante el avance.'],
+                    cons: ['Ingreso constante de agua al túnel (necesidad de bombeo fuerte).', 'Riesgo de lavado de finos y desestabilización del frente.']
+                }
             }
-        }
+        ];
 
-        // Navegación principal
-        function showSection(sectionId) {
-            // Ocultar todo
-            document.getElementById('sec-proceso').style.display = 'none';
-            document.getElementById('sec-kpis').style.display = 'none';
-            document.getElementById('sec-sostenibilidad').style.display = 'none';
-            
-            // Reset Nav
-            document.querySelectorAll('.status-item').forEach(i => i.classList.remove('active'));
+        const drainageMethods = [
+            {
+                title: "Drenes Horizontales",
+                desc: "Se instalan en el fondo o hastiales. Permiten el flujo controlado hacia cunetas, reduciendo la presión hidrostática detrás de las paredes.",
+                icon: <TrendingUp className="text-blue-500" />
+            },
+            {
+                title: "Pozos de Drenaje",
+                desc: "Perforaciones verticales estratégicas para recolectar agua subterránea y abatir el nivel freático antes o durante la excavación.",
+                icon: <Activity className="text-blue-500" />
+            },
+            {
+                title: "Galerías de Alivio",
+                desc: "Túneles paralelos auxiliares que evacúan agua acumulada, reduciendo drásticamente la presión sobre la estructura principal.",
+                icon: <Ruler className="text-blue-500" />
+            }
+        ];
 
-            // Mostrar seleccinado
-            document.getElementById('sec-' + sectionId).style.display = 'block';
-            document.getElementById('nav-' + sectionId).classList.add('active');
-        }
+        const injectionMaterials = [
+            { name: "Lechada de Cemento", use: "Roca dura, fisuras grandes", benefit: "Sella filtraciones masivas y consolida el macizo." },
+            { name: "Resinas Epoxi", use: "Fisuras finas", benefit: "Alta adherencia y curado rápido para zonas críticas." },
+            { name: "Polímeros (Poliuretanos)", use: "Terrenos frágiles / Agua activa", benefit: "Se expanden con el agua, sellado flexible." },
+            { name: "Silicatos", use: "Rocas porosas", benefit: "Alta penetración para impermeabilidad en porosidad." }
+        ];
+
+        // --- Sub-Components ---
+
+        const Hero = ({ setActiveSection }) => (
+            <div className="bg-slate-900 text-white p-8 rounded-xl mb-8 shadow-2xl relative overflow-hidden">
+                <div className="relative z-10">
+                    <h1 className="text-4xl font-bold mb-4">Evaluación y Optimización de Túneles</h1>
+                    <p className="text-xl text-slate-300 max-w-2xl mb-6">
+                        Plataforma técnica para el análisis comparativo entre métodos mecanizados (TBM) y convencionales (Perforación y Voladura), con énfasis en costos, optimización y control hidrogeológico.
+                    </p>
+                    <div className="flex gap-4">
+                        <button onClick={() => setActiveSection('compare')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                            <Activity size={20} /> Comparativa Técnica
+                        </button>
+                        <button onClick={() => setActiveSection('water')} className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                            <Droplets size={20} /> Hidrogeología
+                        </button>
+                    </div>
+                </div>
+                <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-blue-900 to-transparent opacity-50"></div>
+            </div>
+        );
+
+        const ComparisonCard = ({ data }) => {
+            const [isOpen, setIsOpen] = useState(false);
+
+            return (
+                <div className="bg-white rounded-lg shadow-md mb-4 overflow-hidden border border-slate-200 card-hover transition-all duration-300">
+                    <div 
+                        className="p-6 cursor-pointer flex justify-between items-center bg-slate-50 hover:bg-slate-100"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100 text-blue-700 rounded-full">
+                                {data.icon}
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-800">{data.title}</h3>
+                                <p className="text-slate-500 text-sm hidden md:block">{data.description}</p>
+                            </div>
+                        </div>
+                        {isOpen ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
+                    </div>
+                    
+                    {isOpen && (
+                        <div className="p-6 grid md:grid-cols-2 gap-6 bg-white fade-in border-t border-slate-100">
+                            {/* TBM Column */}
+                            <div className="bg-blue-50 p-5 rounded-lg border border-blue-100">
+                                <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div> TBM (Mecanizado)
+                                </h4>
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-xs font-semibold text-blue-600 uppercase mb-1">Ventajas</p>
+                                        <ul className="text-sm text-slate-700 space-y-1">
+                                            {data.tbm.pros.map((item, i) => <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="mt-1 text-green-600 shrink-0"/> {item}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-red-500 uppercase mb-1">Desafíos</p>
+                                        <ul className="text-sm text-slate-700 space-y-1">
+                                            {data.tbm.cons.map((item, i) => <li key={i} className="flex items-start gap-2"><AlertTriangle size={14} className="mt-1 text-red-500 shrink-0"/> {item}</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PyV Column */}
+                            <div className="bg-orange-50 p-5 rounded-lg border border-orange-100">
+                                <h4 className="font-bold text-orange-900 mb-3 flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div> Perforación y Voladura
+                                </h4>
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-xs font-semibold text-orange-600 uppercase mb-1">Ventajas</p>
+                                        <ul className="text-sm text-slate-700 space-y-1">
+                                            {data.pyv.pros.map((item, i) => <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="mt-1 text-green-600 shrink-0"/> {item}</li>)}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-red-500 uppercase mb-1">Desafíos</p>
+                                        <ul className="text-sm text-slate-700 space-y-1">
+                                            {data.pyv.cons.map((item, i) => <li key={i} className="flex items-start gap-2"><AlertTriangle size={14} className="mt-1 text-red-500 shrink-0"/> {item}</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const OptimizationSection = () => (
+            <div className="grid md:grid-cols-3 gap-6 fade-in">
+                <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-green-500">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Clock className="text-green-600" />
+                        <h3 className="font-bold text-lg">Optimización de Tiempo</h3>
+                    </div>
+                    <ul className="text-slate-600 text-sm space-y-2">
+                        <li>• Planificación meticulosa para anticipar geología adversa.</li>
+                        <li>• Uso de software de gestión para seguimiento en tiempo real.</li>
+                        <li>• Capacitación intensiva del personal para reducir errores.</li>
+                    </ul>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-blue-500">
+                    <div className="flex items-center gap-3 mb-4">
+                        <DollarSign className="text-blue-600" />
+                        <h3 className="font-bold text-lg">Costos Operativos</h3>
+                    </div>
+                    <ul className="text-slate-600 text-sm space-y-2">
+                        <li>• <strong>Mantenimiento:</strong> Revisiones regulares previenen paradas costosas.</li>
+                        <li>• <strong>Servicios:</strong> Ventilación e iluminación son costos recurrentes altos.</li>
+                        <li>• <strong>Personal:</strong> Inversión clave para eficiencia operativa.</li>
+                    </ul>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-purple-500">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Ruler className="text-purple-600" />
+                        <h3 className="font-bold text-lg">Diseño y Materiales</h3>
+                    </div>
+                    <ul className="text-slate-600 text-sm space-y-2">
+                        <li>• Diseño geométrico que minimice tensiones estructurales.</li>
+                        <li>• Materiales sostenibles adecuados al terreno.</li>
+                        <li>• Balance entre sobre-excavación y espesor de revestimiento.</li>
+                    </ul>
+                </div>
+            </div>
+        );
+
+        const HydrogeologySection = () => (
+            <div className="fade-in space-y-8">
+                <div className="bg-blue-900 text-white p-6 rounded-lg">
+                    <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><AlertTriangle className="text-yellow-400"/> Riesgos Críticos</h3>
+                    <p className="text-blue-200">El agua subterránea genera presiones hidrostáticas que desestabilizan las paredes, causan filtraciones corrosivas y pueden provocar sifonamiento (movimiento de agua bajo presión).</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Sistemas de Drenaje</h3>
+                        <div className="space-y-4">
+                            {drainageMethods.map((method, idx) => (
+                                <div key={idx} className="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-start">
+                                    <div className="p-2 bg-blue-50 rounded-lg shrink-0">{method.icon}</div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800">{method.title}</h4>
+                                        <p className="text-sm text-slate-600">{method.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Tecnologías de Inyección</h3>
+                        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <table className="w-full text-sm text-left">
+                                <thead className="bg-slate-100 text-slate-700">
+                                    <tr>
+                                        <th className="p-3">Material</th>
+                                        <th className="p-3">Uso Principal</th>
+                                        <th className="p-3">Beneficio</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {injectionMaterials.map((mat, idx) => (
+                                        <tr key={idx} className="hover:bg-slate-50">
+                                            <td className="p-3 font-medium text-blue-900">{mat.name}</td>
+                                            <td className="p-3 text-slate-600">{mat.use}</td>
+                                            <td className="p-3 text-slate-500 text-xs">{mat.benefit}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <div className="p-4 bg-slate-50 border-t border-slate-100 text-xs text-slate-500">
+                                <p><strong>Proceso:</strong> Perforación &rarr; Inyección &rarr; Control de Presión &rarr; Curado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- Main App Component ---
+
+        const App = () => {
+            const [activeSection, setActiveSection] = useState('compare');
+
+            return (
+                <div className="max-w-6xl mx-auto p-4 md:p-8">
+                    <Hero setActiveSection={setActiveSection} />
+
+                    {/* Navigation Tabs */}
+                    <div className="flex border-b border-slate-300 mb-8 overflow-x-auto">
+                        <button 
+                            onClick={() => setActiveSection('compare')}
+                            className={`px-6 py-3 font-medium text-slate-600 hover:text-blue-600 transition whitespace-nowrap ${activeSection === 'compare' ? 'active-tab' : ''}`}
+                        >
+                            Comparativa de Métodos
+                        </button>
+                        <button 
+                            onClick={() => setActiveSection('optimize')}
+                            className={`px-6 py-3 font-medium text-slate-600 hover:text-blue-600 transition whitespace-nowrap ${activeSection === 'optimize' ? 'active-tab' : ''}`}
+                        >
+                            Optimización y Costos
+                        </button>
+                        <button 
+                            onClick={() => setActiveSection('water')}
+                            className={`px-6 py-3 font-medium text-slate-600 hover:text-blue-600 transition whitespace-nowrap ${activeSection === 'water' ? 'active-tab' : ''}`}
+                        >
+                            Drenaje e Impermeabilización
+                        </button>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="min-h-[400px]">
+                        {activeSection === 'compare' && (
+                            <div className="fade-in">
+                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Análisis Comparativo: Criterios de Selección</h2>
+                                {comparisonData.map(data => (
+                                    <ComparisonCard key={data.id} data={data} />
+                                ))}
+                            </div>
+                        )}
+
+                        {activeSection === 'optimize' && (
+                            <div className="fade-in">
+                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Estrategias de Optimización del Proyecto</h2>
+                                <OptimizationSection />
+                            </div>
+                        )}
+
+                        {activeSection === 'water' && (
+                            <div className="fade-in">
+                                <h2 className="text-2xl font-bold text-slate-800 mb-6">Gestión Hidrogeológica y Riesgos</h2>
+                                <HydrogeologySection />
+                            </div>
+                        )}
+                    </div>
+
+                    <footer className="mt-12 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
+                        <p>© 2024 Informe Técnico de Ingeniería. Basado en documentación de "Evaluación y Optimización de Túneles" y "Sistemas de Drenaje".</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
+
