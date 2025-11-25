@@ -3,343 +3,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guía Interactiva: Orcopampa</title>
+    <title>Orcopampa: Guía Técnica</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --primary: #0f766e;
+            --primary-dark: #134e4a;
             --secondary: #2dd4bf;
-            --accent-blue: #dbeafe;
-            --accent-green: #d1fae5;
+            --accent-blue: #e0f2fe;
+            --accent-orange: #ffedd5;
             --text: #334155;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Lato', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 60px; }
+        body { font-family: 'Lato', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
         
-        /* HEADER */
+        /* HEADER PRO */
         header {
-            background: linear-gradient(135deg, var(--primary), #115e59);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             color: white;
-            padding: 30px 20px;
-            text-align: center;
-            border-radius: 0 0 25px 25px;
-            box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
+            padding: 35px 20px 50px 20px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 25px rgba(15, 118, 110, 0.4);
             position: relative;
             overflow: hidden;
         }
-        header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; margin-bottom: 5px; position: relative; z-index: 2;}
-        header p { font-size: 0.9rem; opacity: 0.9; position: relative; z-index: 2; }
-        .circle-bg { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .header-content { position: relative; z-index: 2; }
+        header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; letter-spacing: -0.5px; }
+        header .subtitle { font-family: 'Roboto Mono', monospace; font-size: 0.85rem; color: var(--secondary); margin-top: 5px; opacity: 0.9; }
         
+        /* FLOAT STATS */
+        .float-stats {
+            display: flex; gap: 10px; padding: 0 20px; margin-top: -30px; position: relative; z-index: 5;
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .f-stat {
+            background: white; padding: 12px 15px; border-radius: 12px; min-width: 120px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-left: 3px solid var(--secondary);
+        }
+        .f-stat h4 { font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 700; }
+        .f-stat p { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+
         /* NAV */
         .status-bar {
-            background: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 0.8rem;
+            background: white; margin: 20px; padding: 5px; border-radius: 50px;
+            display: flex; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .status-item { color: var(--text); opacity: 0.6; transition: 0.3s; cursor: pointer; text-decoration: none; }
-        .status-item.active { color: var(--primary); opacity: 1; border-bottom: 2px solid var(--secondary); }
+        .status-item { 
+            padding: 10px 20px; border-radius: 40px; color: #64748b; font-weight: 600; font-size: 0.85rem; 
+            text-decoration: none; transition: 0.3s; width: 33%; text-align: center;
+        }
+        .status-item.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3); }
 
-        /* SECTIONS */
-        section { padding: 25px 20px; }
-        h2 { font-family: 'Montserrat', sans-serif; color: var(--primary); margin-bottom: 20px; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        /* PROCESS TABS */
+        .process-scroller { overflow-x: auto; padding: 10px 20px; display: flex; gap: 12px; scrollbar-width: none; }
+        .p-tab {
+            background: white; padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; color: #64748b;
+            border: 1px solid #e2e8f0; white-space: nowrap; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .p-tab i { font-size: 0.8rem; }
+        .p-tab.active { border-color: var(--primary); color: var(--primary); background: var(--accent-blue); }
+
+        /* DETAILED CARD */
+        .card-container { padding: 0 20px; margin-top: 10px; }
+        .detail-card {
+            background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            display: none; animation: slideUp 0.4s ease;
+        }
+        .detail-card.active { display: block; }
         
-        /* PROCESS EXPLORER */
-        .process-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
-        .process-tabs::-webkit-scrollbar { display: none; }
-        .p-tab { 
-            background: white; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 20px; 
-            white-space: nowrap; cursor: pointer; transition: 0.3s; font-weight: 600; color: var(--text);
-        }
-        .p-tab.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3); }
+        .card-header { padding: 25px; background: white; border-bottom: 1px solid #f1f5f9; }
+        .step-number { font-family: 'Roboto Mono', monospace; color: var(--secondary); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; }
+        .card-header h2 { font-family: 'Montserrat', sans-serif; color: var(--primary-dark); font-size: 1.6rem; margin: 5px 0 10px 0; }
+        .main-desc { color: #475569; line-height: 1.6; font-size: 0.95rem; }
 
-        .process-card {
-            background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            display: none; animation: fadeIn 0.4s ease; border-left: 5px solid var(--secondary);
-        }
-        .process-card.show { display: block; }
-        .process-card h3 { color: var(--primary); margin-bottom: 10px; }
-        .tag { display: inline-block; background: var(--accent-blue); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 15px; font-weight: bold; }
-        .stat-row { display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
-        .stat-item h4 { font-size: 0.8rem; color: #64748b; }
-        .stat-item p { font-weight: bold; font-size: 1.1rem; }
+        /* DATA GRID */
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #f1f5f9; border-top: 1px solid #f1f5f9; }
+        .data-cell { background: white; padding: 20px; }
+        .data-cell h4 { font-size: 0.75rem; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .data-cell p { font-weight: 700; color: var(--text); font-size: 1rem; }
+        .data-cell p span { font-size: 0.8rem; font-weight: 400; color: #64748b; }
 
-        /* KPI DASHBOARD */
-        .kpi-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .progress-container { margin-top: 10px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
-        .progress-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 5px; width: 0%; transition: width 1.5s ease-out; }
+        /* TECH SPECS TOGGLE */
+        .tech-specs-container { background: #f8fafc; padding: 0 25px; }
+        .tech-toggle {
+            width: 100%; padding: 20px 0; text-align: left; background: none; border: none; 
+            color: var(--primary); font-weight: 700; font-family: 'Montserrat', sans-serif;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+        }
+        .tech-details { display: none; padding-bottom: 25px; border-top: 1px solid #e2e8f0; }
+        .tech-details.open { display: block; }
         
-        .bg-gold { background: linear-gradient(90deg, #fbbf24, #d97706); }
-        .bg-silver { background: linear-gradient(90deg, #94a3b8, #64748b); }
-        .bg-green { background: linear-gradient(90deg, #4ade80, #16a34a); }
+        .spec-list li { margin-bottom: 12px; font-size: 0.9rem; padding-left: 20px; position: relative; color: #475569; }
+        .spec-list li::before { content: "•"; color: var(--secondary); font-weight: bold; position: absolute; left: 0; font-size: 1.2em; top: -2px; }
 
-        /* CYANIDE TOGGLE */
-        .cyanide-toggle {
-            background: #fee2e2; border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
-        }
-        .cyanide-toggle:hover { transform: scale(1.02); }
-        .cyanide-val { font-size: 2.5rem; font-weight: 800; color: #ef4444; transition: 0.3s; }
-        .cyanide-text { font-size: 0.9rem; color: #7f1d1d; }
+        /* INTERACTIVE WIDGETS */
+        .widget-box { margin: 20px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .widget-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--primary-dark); }
+        
+        /* pH Meter Visualization */
+        .ph-meter { height: 10px; background: linear-gradient(to right, #ef4444, #eab308, #22c55e, #3b82f6, #a855f7); border-radius: 5px; position: relative; margin-top: 30px; }
+        .ph-marker { position: absolute; top: -25px; transform: translateX(-50%); text-align: center; transition: 0.5s; }
+        .ph-marker span { background: var(--primary-dark); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .ph-marker::after { content: ''; display: block; width: 2px; height: 15px; background: var(--primary-dark); margin: 0 auto; }
 
-        /* FOOTER */
-        footer { text-align: center; font-size: 0.8rem; color: #94a3b8; padding: 20px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* RESPONSIVE */
-        @media (min-width: 768px) {
-            body { max-width: 800px; margin: 0 auto; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; min-height: 100vh;}
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* DESKTOP FIX */
+        @media (min-width: 768px) { body { max-width: 600px; margin: 0 auto; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; min-height: 100vh; } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="circle-bg" style="width: 150px; height: 150px; top: -50px; left: -50px;"></div>
-        <div class="circle-bg" style="width: 100px; height: 100px; bottom: -20px; right: -20px;"></div>
-        <h1>Mina Orcopampa</h1>
-        <p>Guía de Procesos Metalúrgicos</p>
-        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">Presentado por: Juan Diego García López</p>
+        <div class="header-content">
+            <h1>Mina Orcopampa</h1>
+            <p class="subtitle">COMPANION APP v2.0</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">Ingeniería de Minas - UCSM</p>
+        </div>
     </header>
 
-    <div class="status-bar">
-        <a href="#process" class="status-item active">Proceso</a>
-        <a href="#data" class="status-item">Datos</a>
-        <a href="#conclusion" class="status-item">Conclusiones</a>
+    <div class="float-stats">
+        <div class="f-stat">
+            <h4>Ley Au</h4>
+            <p>Alta</p>
+        </div>
+        <div class="f-stat">
+            <h4>P80</h4>
+            <p>90 µm</p>
+        </div>
+        <div class="f-stat">
+            <h4>Recup. Au</h4>
+            <p>95.0%</p>
+        </div>
     </div>
 
-    <!-- SECCION 1: EXPLORADOR DE PROCESOS -->
-    <section id="process">
-        <h2><i class="fa-solid fa-gears"></i> Explorador del Flujo</h2>
-        <p style="margin-bottom: 15px; font-size: 0.9rem; color: #64748b;">Toca las etapas para ver los detalles técnicos:</p>
-        
-        <div class="process-tabs">
-            <div class="p-tab active" onclick="openStep('chancado', this)">1. Chancado</div>
-            <div class="p-tab" onclick="openStep('molienda', this)">2. Molienda</div>
-            <div class="p-tab" onclick="openStep('gravimetria', this)">3. Gravimetría</div>
-            <div class="p-tab" onclick="openStep('cianuracion', this)">4. Cianuración</div>
-            <div class="p-tab" onclick="openStep('flotacion', this)">5. Flotación</div>
+    <!-- Navegación Superior -->
+    <div class="status-bar">
+        <a href="#" onclick="showSection('proceso'); return false;" class="status-item active" id="nav-proceso">Proceso</a>
+        <a href="#" onclick="showSection('kpis'); return false;" class="status-item" id="nav-kpis">KPIs</a>
+        <a href="#" onclick="showSection('sostenibilidad'); return false;" class="status-item" id="nav-sostenibilidad">Ambiente</a>
+    </div>
+
+    <!-- SECCION PROCESO -->
+    <div id="sec-proceso">
+        <div class="process-scroller">
+            <div class="p-tab active" onclick="switchCard('chancado', this)"><i class="fa-solid fa-gem"></i> Chancado</div>
+            <div class="p-tab" onclick="switchCard('molienda', this)"><i class="fa-solid fa-industry"></i> Molienda</div>
+            <div class="p-tab" onclick="switchCard('gravimetria', this)"><i class="fa-solid fa-magnet"></i> Gravimetría</div>
+            <div class="p-tab" onclick="switchCard('cianuracion', this)"><i class="fa-solid fa-flask"></i> Cianuración</div>
+            <div class="p-tab" onclick="switchCard('flotacion', this)"><i class="fa-solid fa-soap"></i> Flotación</div>
         </div>
 
-        <!-- CARDS -->
-        <div id="chancado" class="process-card show">
-            <span class="tag">Conminución</span>
-            <h3>Chancado (Trituración)</h3>
-            <p>Reducción física del mineral ROM (Run of Mine) mediante fuerza mecánica.</p>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <h4>Entrada (ROM)</h4>
-                    <p>12-18"</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Salida Final</h4>
-                    <p>1.5"</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Equipos</h4>
-                    <p>Mandíbulas y Cónicas</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="molienda" class="process-card">
-            <span class="tag">Liberación</span>
-            <h3>Molienda y Clasificación</h3>
-            <p>El corazón de la liberación. Se usan molinos SAG y de Bolas en circuito cerrado con hidrociclones.</p>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <h4>Parámetro Crítico</h4>
-                    <p style="color: var(--primary);">P80</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Tamaño Objetivo</h4>
-                    <p>90 µm</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Rango Operativo</h4>
-                    <p>74 - 106 µm</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="gravimetria" class="process-card">
-            <span class="tag">Recuperación Física</span>
-            <h3>Gravimetría (Falcon)</h3>
-            <p>Recuperación temprana de oro libre y grueso aprovechando su densidad, antes de usar químicos.</p>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <h4>Equipo</h4>
-                    <p>Centrífuga Falcon</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Objetivo</h4>
-                    <p>Oro grueso</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Aporte Ag</h4>
-                    <p>~9% Recup.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="cianuracion" class="process-card">
-            <span class="tag">Químico</span>
-            <h3>Cianuración Dual</h3>
-            <p>Uso de dos métodos complementarios según la riqueza de la solución.</p>
-            <ul style="margin-top: 10px; padding-left: 20px; font-size: 0.9rem;">
-                <li><strong>Merrill-Crowe:</strong> Para solución rica (alto Ag). Usa polvo de Zinc.</li>
-                <li><strong>CIL (Carbón):</strong> Para "barrer" el oro disuelto remanente.</li>
-            </ul>
-        </div>
-
-        <div id="flotacion" class="process-card">
-            <span class="tag">Scavenger</span>
-            <h3>Flotación de Colas</h3>
-            <p>Procesamiento de los relaves de cianuración para recuperar sulfuros encapsulados.</p>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <h4>Tipo</h4>
-                    <p>Scavenger (Barrido)</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Reactivos</h4>
-                    <p>Xantatos</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Aporte Extra</h4>
-                    <p>+15% Plata</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECCION 2: DATOS -->
-    <section id="data">
-        <h2><i class="fa-solid fa-chart-pie"></i> Resultados Clave</h2>
-        
-        <div class="kpi-card">
-            <h3>Recuperación Global</h3>
+        <div class="card-container">
             
-            <div class="progress-container">
-                <div class="progress-label"><span>Oro (Au)</span> <span>95%</span></div>
-                <div class="progress-bar"><div class="progress-fill bg-gold" style="width: 95%;"></div></div>
+            <!-- TARJETA 1: CHANCADO -->
+            <div id="chancado" class="detail-card active">
+                <div class="card-header">
+                    <span class="step-number">ETAPA 01</span>
+                    <h2>Conminución</h2>
+                    <p class="main-desc">Reducción mecánica del mineral ROM (Run of Mine) mediante trituración en seco y lavado preliminar para eliminar arcillas perjudiciales.</p>
+                </div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <h4>Alimentación</h4>
+                        <p>12 - 18 <span>pulgadas</span></p>
+                    </div>
+                    <div class="data-cell">
+                        <h4>Producto Final</h4>
+                        <p>1.5 <span>pulgadas</span></p>
+                    </div>
+                </div>
+                <div class="tech-specs-container">
+                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
+                    <div class="tech-details">
+                        <ul class="spec-list">
+                            <li><strong>Chancado 1°:</strong> Trituradora de Mandíbulas (Jaw Crusher). Reduce a 6".</li>
+                            <li><strong>Lavado:</strong> Uso de "Scrubbers" (cilindros lavadores) para retirar arcillas que consumen cianuro innecesariamente.</li>
+                            <li><strong>Chancado 2°:</strong> Trituradora Cónica Standard. Reduce a 1.5" para alimentar al molino.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div class="progress-container">
-                <div class="progress-label"><span>Plata (Ag)</span> <span>~80%</span></div>
-                <div class="progress-bar"><div class="progress-fill bg-silver" style="width: 80%;"></div></div>
-                <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">(77% Cianuración + 15% Flotación)</p>
+            <!-- TARJETA 2: MOLIENDA -->
+            <div id="molienda" class="detail-card">
+                <div class="card-header">
+                    <span class="step-number">ETAPA 02</span>
+                    <h2>Molienda</h2>
+                    <p class="main-desc">Circuito combinado SAG + Bolas para alcanzar la liberación de las partículas de oro encapsuladas en cuarzo.</p>
+                </div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <h4>P80 Objetivo</h4>
+                        <p>90 <span>micras</span></p>
+                    </div>
+                    <div class="data-cell">
+                        <h4>Circuito</h4>
+                        <p>Cerrado <span>con Ciclones</span></p>
+                    </div>
+                </div>
+                <div class="tech-specs-container">
+                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
+                    <div class="tech-details">
+                        <ul class="spec-list">
+                            <li><strong>Molino SAG:</strong> 15.5' x 11'. Realiza la molienda gruesa.</li>
+                            <li><strong>Molino de Bolas:</strong> 12' x 16'. Refinamiento final.</li>
+                            <li><strong>Clasificación:</strong> Batería de Hidrociclones D-20. El "Overflow" (finos) pasa a procesos si tiene < 106 µm.</li>
+                            <li><strong>Control:</strong> Monitoreo constante de densidad de pulpa para evitar sobremolienda (generación de lamas).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA 3: GRAVIMETRIA -->
+            <div id="gravimetria" class="detail-card">
+                <div class="card-header">
+                    <span class="step-number">ETAPA 03</span>
+                    <h2>Gravimetría</h2>
+                    <p class="main-desc">Recuperación física aprovechando la alta densidad del oro frente a la ganga liviana, antes de cualquier químico.</p>
+                </div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <h4>Tecnología</h4>
+                        <p>Falcon <span>Centrífuga</span></p>
+                    </div>
+                    <div class="data-cell">
+                        <h4>Recuperación Ag</h4>
+                        <p>~9% <span>del total</span></p>
+                    </div>
+                </div>
+                <div class="tech-specs-container">
+                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
+                    <div class="tech-details">
+                        <ul class="spec-list">
+                            <li><strong>Principio:</strong> Fuerza centrífuga (hasta 60G) separa partículas pesadas.</li>
+                            <li><strong>Producto:</strong> Concentrado de alta ley que va directo a Mesa Vibratoria y luego a Fundición.</li>
+                            <li><strong>Ventaja:</strong> Reduce la carga de oro grueso que entra a cianuración, acelerando la cinética global.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA 4: CIANURACION -->
+            <div id="cianuracion" class="detail-card">
+                <div class="card-header">
+                    <span class="step-number">ETAPA 04</span>
+                    <h2>Cianuración Dual</h2>
+                    <p class="main-desc">Proceso químico principal. Se divide la corriente en solución rica (líquido) y pulpa (sólido) para maximizar eficiencia.</p>
+                </div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <h4>pH Operativo</h4>
+                        <p>10.5 - 11.0</p>
+                    </div>
+                    <div class="data-cell">
+                        <h4>Tiempo</h4>
+                        <p>48 - 72 <span>horas</span></p>
+                    </div>
+                </div>
+                
+                <!-- pH Visualizer -->
+                <div style="padding: 0 25px 25px 25px;">
+                    <div class="ph-meter">
+                        <div class="ph-marker" style="left: 85%;"><span>pH 11</span></div>
+                    </div>
+                    <p style="font-size: 0.8rem; text-align: center; margin-top: 5px; color: #94a3b8;">Rango alcalino para evitar gas HCN</p>
+                </div>
+
+                <div class="tech-specs-container">
+                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
+                    <div class="tech-details">
+                        <ul class="spec-list">
+                            <li><strong>Merrill-Crowe:</strong> Procesa la solución clara rica en plata. Requiere clarificación (<5 NTU) y desoxigenación. Precipita con Polvo de Zinc.</li>
+                            <li><strong>CIL (Carbón en Lixiviación):</strong> 6 Tanques agitados. El carbón activado (15 g/L) adsorbe el oro disuelto remanente ("barrido").</li>
+                            <li><strong>Reactivos:</strong> Cianuro de Sodio (NaCN) y Cal (CaO) para control de pH.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA 5: FLOTACION -->
+            <div id="flotacion" class="detail-card">
+                <div class="card-header">
+                    <span class="step-number">ETAPA 05</span>
+                    <h2>Flotación Scavenger</h2>
+                    <p class="main-desc">Tratamiento de los relaves (colas) del proceso CIL para recuperar sulfuros de plata refractarios.</p>
+                </div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <h4>Tipo</h4>
+                        <p>Scavenger <span>(Barrido)</span></p>
+                    </div>
+                    <div class="data-cell">
+                        <h4>Aporte Ag</h4>
+                        <p>+15% <span>Extra</span></p>
+                    </div>
+                </div>
+                <div class="tech-specs-container">
+                    <button class="tech-toggle" onclick="toggleTech(this)">Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i></button>
+                    <div class="tech-details">
+                        <ul class="spec-list">
+                            <li><strong>Objetivo:</strong> Recuperar sulfuros de plata encapsulados que no se disolvieron con cianuro.</li>
+                            <li><strong>Reactivos:</strong> Colectores (Xantatos) para volver hidrofóbicos a los sulfuros y Espumantes.</li>
+                            <li><strong>Producto:</strong> Concentrado de flotación que se comercializa aparte de las barras Doré.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SECCION KPI (Oculta por defecto) -->
+    <div id="sec-kpis" style="display:none;">
+        <div class="widget-box">
+            <div class="widget-header">
+                <i class="fa-solid fa-chart-line fa-lg"></i>
+                <h3>Balance Metalúrgico</h3>
+            </div>
+            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Contribución por proceso a la recuperación total de Plata:</p>
+            
+            <!-- Simple Bar Chart CSS -->
+            <div style="display: flex; height: 150px; align-items: flex-end; gap: 10px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+                <div style="width: 25%; background: #94a3b8; height: 12%; border-radius: 5px 5px 0 0; position: relative;">
+                    <span style="position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; font-weight: bold;">9%</span>
+                    <span style="position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.7rem;">Grav</span>
+                </div>
+                <div style="width: 25%; background: var(--secondary); height: 77%; border-radius: 5px 5px 0 0; position: relative;">
+                    <span style="position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; font-weight: bold;">77%</span>
+                    <span style="position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.7rem;">Cian</span>
+                </div>
+                <div style="width: 25%; background: var(--primary); height: 15%; border-radius: 5px 5px 0 0; position: relative;">
+                    <span style="position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; font-weight: bold;">15%</span>
+                    <span style="position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.7rem;">Flot</span>
+                </div>
+            </div>
+            <p style="margin-top: 30px; font-size: 0.85rem; font-style: italic; color: #64748b;">
+                *La flotación recupera lo que la cianuración no pudo disolver.
+            </p>
+        </div>
+    </div>
+
+    <!-- SECCION AMBIENTE (Oculta por defecto) -->
+    <div id="sec-sostenibilidad" style="display:none;">
+        <div class="widget-box" style="border-left: 5px solid #22c55e;">
+            <div class="widget-header">
+                <i class="fa-solid fa-leaf fa-lg" style="color: #22c55e;"></i>
+                <h3>Destrucción de Cianuro</h3>
+            </div>
+            <p style="margin-bottom: 15px;">Uso de Ácido de Caro (H₂SO₅) para neutralizar efluentes.</p>
+            
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                <h4 style="font-size: 0.8rem; color: #15803d; margin-bottom: 5px;">ENTRADA (Relave)</h4>
+                <p style="font-size: 1.2rem; font-weight: 800; color: #ef4444;">280 ppm <span style="font-size: 0.8rem; font-weight: 400; color: #64748b;">CN WAD</span></p>
+            </div>
+            <div style="text-align: center; color: #cbd5e1;"><i class="fa-solid fa-arrow-down"></i></div>
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin-top: 10px;">
+                <h4 style="font-size: 0.8rem; color: #15803d; margin-bottom: 5px;">SALIDA (Vertido)</h4>
+                <p style="font-size: 1.2rem; font-weight: 800; color: #22c55e;">50 ppm <span style="font-size: 0.8rem; font-weight: 400; color: #64748b;">CN WAD</span></p>
             </div>
         </div>
-
-        <div class="kpi-card">
-            <h3>Gestión Ambiental: Cianuro</h3>
-            <p style="font-size: 0.9rem; margin-bottom: 15px;">Toca para aplicar Ácido de Caro:</p>
-            <div class="cyanide-toggle" onclick="neutralize(this)">
-                <div class="cyanide-val">280 ppm</div>
-                <div class="cyanide-text">Concentración WAD (Entrada)</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECCION 3: CONCLUSIONES -->
-    <section id="conclusion">
-        <h2><i class="fa-solid fa-clipboard-check"></i> Conclusiones</h2>
-        <div style="display: grid; gap: 10px;">
-            <div style="background: var(--accent-green); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary);">
-                <strong>Estrategia Mixta:</strong> La combinación de Gravimetría + MC + CIL + Flotación es obligatoria debido a la complejidad epitermal.
-            </div>
-            <div style="background: var(--accent-blue); padding: 15px; border-radius: 10px; border-left: 4px solid #3b82f6;">
-                <strong>Control P80:</strong> Mantener la molienda en 90 micras es el factor económico más crítico (energía vs. recuperación).
-            </div>
-            <div style="background: #fef3c7; padding: 15px; border-radius: 10px; border-left: 4px solid #d97706;">
-                <strong>Sostenibilidad:</strong> La destrucción química del cianuro y recirculación de agua garantizan la viabilidad ambiental.
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <p>Universidad Católica de Santa María - 2025</p>
-        <p>Procesos Metalúrgicos</p>
-    </footer>
+    </div>
 
     <script>
-        // Lógica de Pestañas
-        function openStep(stepId, element) {
-            // Ocultar todos
-            document.querySelectorAll('.process-card').forEach(c => c.classList.remove('show'));
+        // Cambiar Tarjetas
+        function switchCard(cardId, tab) {
+            // Reset Tabs
             document.querySelectorAll('.p-tab').forEach(t => t.classList.remove('active'));
-            
-            // Mostrar actual
-            document.getElementById(stepId).classList.add('show');
-            element.classList.add('active');
+            tab.classList.add('active');
+
+            // Reset Cards
+            document.querySelectorAll('.detail-card').forEach(c => c.classList.remove('active'));
+            document.getElementById(cardId).classList.add('active');
         }
 
-        // Lógica de Destrucción de Cianuro
-        let neutralized = false;
-        function neutralize(el) {
-            const val = el.querySelector('.cyanide-val');
-            const txt = el.querySelector('.cyanide-text');
+        // Toggle Specs
+        function toggleTech(btn) {
+            const details = btn.nextElementSibling;
+            const isOpen = details.classList.contains('open');
             
-            if (!neutralized) {
-                val.style.opacity = 0;
-                setTimeout(() => {
-                    val.innerHTML = "50 ppm";
-                    val.style.color = "#16a34a"; // Green
-                    txt.innerHTML = "Concentración WAD (Salida - Seguro)";
-                    el.style.background = "#dcfce7";
-                    val.style.opacity = 1;
-                }, 300);
-                neutralized = true;
+            if (isOpen) {
+                details.classList.remove('open');
+                btn.innerHTML = 'Ver Detalles Técnicos <i class="fa-solid fa-chevron-down"></i>';
             } else {
-                // Reset (opcional)
-                val.style.opacity = 0;
-                setTimeout(() => {
-                    val.innerHTML = "280 ppm";
-                    val.style.color = "#ef4444"; // Red
-                    txt.innerHTML = "Concentración WAD (Entrada)";
-                    el.style.background = "#fee2e2";
-                    val.style.opacity = 1;
-                }, 300);
-                neutralized = false;
+                details.classList.add('open');
+                btn.innerHTML = 'Ocultar Detalles <i class="fa-solid fa-chevron-up"></i>';
             }
         }
 
-        // Scroll Spy simple
-        window.addEventListener('scroll', () => {
-            const sections = document.querySelectorAll('section');
-            const navLinks = document.querySelectorAll('.status-item');
+        // Navegación principal
+        function showSection(sectionId) {
+            // Ocultar todo
+            document.getElementById('sec-proceso').style.display = 'none';
+            document.getElementById('sec-kpis').style.display = 'none';
+            document.getElementById('sec-sostenibilidad').style.display = 'none';
             
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 150) {
-                    current = section.getAttribute('id');
-                }
-            });
+            // Reset Nav
+            document.querySelectorAll('.status-item').forEach(i => i.classList.remove('active'));
 
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href').includes(current)) {
-                    link.classList.add('active');
-                }
-            });
-        });
+            // Mostrar seleccinado
+            document.getElementById('sec-' + sectionId).style.display = 'block';
+            document.getElementById('nav-' + sectionId).classList.add('active');
+        }
     </script>
 </body>
 </html>
