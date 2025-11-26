@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Túneles UCSM</title>
+    <title>Proyecto Túneles UCSM - Expert Edition</title>
     
     <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     
     <!-- Fuentes -->
-    <link href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Roboto+Condensed:wght@400;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -24,6 +24,7 @@
                     fontFamily: {
                         stencil: ['"Saira Stencil One"', 'cursive'],
                         sans: ['"Roboto Condensed"', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace'],
                     }
                 }
             }
@@ -35,7 +36,7 @@
         
         /* --- MOTOR 3D CSS --- */
         .viewport-3d { 
-            width: 100%; height: 250px; 
+            width: 100%; height: 280px; 
             background: #000; 
             position: relative; 
             overflow: hidden; 
@@ -43,12 +44,8 @@
             border-bottom: 4px solid #FFCD11;
         }
 
-        /* ESCENA TBM (GIRATORIA) */
-        .tbm-tunnel {
-            width: 100%; height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-        }
+        /* ESCENA TBM */
+        .tbm-tunnel { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; }
         .tunnel-wall {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -74,7 +71,7 @@
         .disc { position: absolute; width: 18px; height: 18px; background: #888; border-radius: 50%; box-shadow: 2px 2px 5px #000; border: 1px solid #444; }
         @keyframes spinHead { from { transform: translateZ(-100px) rotate(0deg); } to { transform: translateZ(-100px) rotate(360deg); } }
 
-        /* ESCENA PyV (ESTÁTICA) */
+        /* ESCENA PyV */
         .pyv-scene {
             width: 100%; height: 100%; background: radial-gradient(circle at center, #2a2a2a 0%, #000 80%);
             display: flex; align-items: center; justify-content: center; position: relative;
@@ -92,8 +89,8 @@
 
         /* UI */
         input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; background: #FFCD11; border: 3px solid #000; border-radius: 50%; margin-top: -10px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; background: #FFCD11; border: 2px solid #000; border-radius: 0; margin-top: -6px; transform: rotate(45deg); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #444; }
         
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -112,7 +109,7 @@
             gear: "M12 2v20M2 12h20M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10",
             scale: "M12 3v18m-9-6l9 6 9-6m-18-6l9 6 9-6",
             check: "M20 6L9 17l-5-5",
-            info: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            time: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
         };
 
         // --- COMPONENTES VISUALES ---
@@ -128,7 +125,7 @@
                         <div className="disc" style={{top:'45px', left:'45px', width:'10px', height:'10px', background:'#000'}}></div>
                     </div>
                 </div>
-                <div className="absolute top-3 left-3 bg-cat text-black font-bold text-xs px-2 py-1 rounded">VISTA TBM</div>
+                <div className="absolute top-3 left-3 bg-cat text-black font-bold text-xs px-2 py-1 rounded font-mono">VISTA TBM</div>
             </div>
         );
 
@@ -144,84 +141,149 @@
                     </div>
                     <div className="jumbo-arm"></div>
                 </div>
-                <div className="absolute top-3 left-3 bg-orange-600 text-white font-bold text-xs px-2 py-1 rounded">VISTA JUMBO</div>
+                <div className="absolute top-3 left-3 bg-orange-600 text-white font-bold text-xs px-2 py-1 rounded font-mono">VISTA JUMBO</div>
             </div>
         );
 
-        // --- SIMULADOR ---
+        // --- 1. SIMULADOR DE COSTOS AVANZADO ---
         const Simulator = () => {
-            const [len, setLen] = useState(6);
-            const [pyvInv, setPyvInv] = useState(2); 
-            const [pyvVar, setPyvVar] = useState(5); 
-            const [tbmInv, setTbmInv] = useState(15); 
-            const [tbmVar, setTbmVar] = useState(2.5); 
+            const [len, setLen] = useState(6); // km
+            
+            // Variables PyV
+            const [pyvInv, setPyvInv] = useState(2); // $M Inversión
+            const [pyvMat, setPyvMat] = useState(4); // $k/m Materiales
+            const [pyvSpeed, setPyvSpeed] = useState(5); // m/día Avance
+            const [pyvHourly, setPyvHourly] = useState(500); // $/h Costo Operativo
 
-            const totalPyV = pyvInv + len * pyvVar;
-            const totalTBM = tbmInv + len * tbmVar;
+            // Variables TBM
+            const [tbmInv, setTbmInv] = useState(15); // $M Inversión
+            const [tbmMat, setTbmMat] = useState(2); // $k/m Materiales
+            const [tbmSpeed, setTbmSpeed] = useState(20); // m/día Avance
+            const [tbmHourly, setTbmHourly] = useState(2000); // $/h Costo Operativo
+
+            // Cálculos
+            // Costo Materiales = Longitud * Costo/m
+            // Tiempo Total (Días) = (Longitud * 1000) / Velocidad
+            // Costo Operativo Total = (Tiempo Total * 24h) * Costo Hora
+            
+            const daysPyV = (len * 1000) / pyvSpeed;
+            const opCostPyV = (daysPyV * 24 * pyvHourly) / 1000000; // A millones
+            const matCostPyV = (len * 1000 * (pyvMat * 1000)) / 1000000; // A millones
+            const totalPyV = pyvInv + matCostPyV + opCostPyV;
+
+            const daysTBM = (len * 1000) / tbmSpeed;
+            const opCostTBM = (daysTBM * 24 * tbmHourly) / 1000000; // A millones
+            const matCostTBM = (len * 1000 * (tbmMat * 1000)) / 1000000; // A millones
+            const totalTBM = tbmInv + matCostTBM + opCostTBM;
+
             const winner = totalTBM < totalPyV ? 'TBM' : 'PyV';
             const savings = Math.abs(totalTBM - totalPyV).toFixed(1);
 
             return (
                 <div className="animate-fade-in space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="bg-cat-panel rounded-lg overflow-hidden shadow-lg border border-gray-800">
-                            {winner === 'TBM' ? <TBMView /> : <PyVView />}
-                            <div className="p-4 bg-black/50">
-                                <div className="flex justify-between items-center text-gray-400 text-sm mb-1">
-                                    <span>Longitud Total</span><span className="text-white font-mono text-xl">{len} km</span>
+                    <div className="grid lg:grid-cols-12 gap-4">
+                        
+                        {/* IZQUIERDA: Panel de Resultados Visual */}
+                        <div className="lg:col-span-7 space-y-4">
+                            <div className="bg-cat-panel rounded-lg overflow-hidden shadow-lg border border-gray-800">
+                                {winner === 'TBM' ? <TBMView /> : <PyVView />}
+                                <div className="p-4 bg-black/80 border-t border-cat flex justify-between items-center">
+                                    <div>
+                                        <div className="text-[10px] text-gray-400 uppercase">Opción Más Rentable</div>
+                                        <div className={`text-2xl font-black ${winner==='TBM'?'text-cat':'text-orange-500'}`}>
+                                            {winner === 'TBM' ? 'TUNELADORA' : 'VOLADURA'}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-gray-400 uppercase">Ahorro Estimado</div>
+                                        <div className="text-2xl font-mono text-white">${savings}M</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Resumen de Tiempos */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-gray-900 p-3 rounded border border-gray-800">
+                                    <div className="text-[10px] text-orange-500 font-bold uppercase mb-1">Tiempo PyV</div>
+                                    <div className="text-xl font-mono text-white">{Math.round(daysPyV)} <span className="text-xs text-gray-500">días</span></div>
+                                </div>
+                                <div className="bg-gray-900 p-3 rounded border border-gray-800">
+                                    <div className="text-[10px] text-cat font-bold uppercase mb-1">Tiempo TBM</div>
+                                    <div className="text-xl font-mono text-white">{Math.round(daysTBM)} <span className="text-xs text-gray-500">días</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* DERECHA: Controles Avanzados */}
+                        <div className="lg:col-span-5 space-y-4 overflow-y-auto max-h-[600px] pr-1">
+                            {/* Control Global */}
+                            <div className="bg-cat-panel p-4 rounded border border-gray-700">
+                                <div className="flex justify-between text-sm font-bold text-white mb-2 uppercase">
+                                    <span>Distancia</span> <span className="text-cat font-mono">{len} km</span>
                                 </div>
                                 <input type="range" min="1" max="20" step="0.5" value={len} onChange={e=>setLen(+e.target.value)} />
                             </div>
-                        </div>
-                        <div className="space-y-4">
-                            <div className={`p-4 rounded-lg border-l-4 bg-[#1a1a1a] ${winner==='PyV' ? 'border-orange-500 shadow-lg' : 'border-gray-600 opacity-60'}`}>
-                                <div className="flex justify-between mb-3 border-b border-gray-700 pb-2">
-                                    <h3 className="font-bold text-orange-500">CONVENCIONAL (PyV)</h3><span className="font-mono text-xl text-white">${totalPyV.toFixed(1)}M</span>
+
+                            {/* Variables PyV */}
+                            <div className="bg-[#1a1a1a] p-4 rounded border-l-4 border-orange-500">
+                                <div className="flex justify-between border-b border-gray-700 pb-2 mb-3">
+                                    <h3 className="font-bold text-orange-500 text-sm">CONVENCIONAL (PyV)</h3>
+                                    <span className="font-mono text-sm text-white">${totalPyV.toFixed(1)}M</span>
                                 </div>
                                 <div className="space-y-3">
-                                    <div><div className="text-xs text-gray-400 font-bold mb-1">INVERSIÓN: <span className="text-orange-400">${pyvInv}M</span></div><input type="range" min="0.5" max="5" step="0.5" value={pyvInv} onChange={e=>setPyvInv(+e.target.value)} /></div>
-                                    <div><div className="text-xs text-gray-400 font-bold mb-1">COSTO/M: <span className="text-orange-400">${pyvVar}k</span></div><input type="range" min="3" max="8" step="0.5" value={pyvVar} onChange={e=>setPyvVar(+e.target.value)} /></div>
+                                    <ControlRow label="Inversión ($M)" val={pyvInv} set={setPyvInv} min={0.5} max={5} step={0.5} color="text-orange-400" />
+                                    <ControlRow label="Materiales ($k/m)" val={pyvMat} set={setPyvMat} min={1} max={8} step={0.5} color="text-orange-400" />
+                                    <ControlRow label="Avance (m/día)" val={pyvSpeed} set={setPyvSpeed} min={2} max={10} step={1} color="text-orange-400" />
+                                    <ControlRow label="Costo Hora ($/h)" val={pyvHourly} set={setPyvHourly} min={200} max={1000} step={50} color="text-orange-400" />
                                 </div>
                             </div>
-                            <div className={`p-4 rounded-lg border-l-4 bg-[#1a1a1a] ${winner==='TBM' ? 'border-cat shadow-lg' : 'border-gray-600 opacity-60'}`}>
-                                <div className="flex justify-between mb-3 border-b border-gray-700 pb-2">
-                                    <h3 className="font-bold text-cat">MECANIZADO (TBM)</h3><span className="font-mono text-xl text-white">${totalTBM.toFixed(1)}M</span>
+
+                            {/* Variables TBM */}
+                            <div className="bg-[#1a1a1a] p-4 rounded border-l-4 border-cat">
+                                <div className="flex justify-between border-b border-gray-700 pb-2 mb-3">
+                                    <h3 className="font-bold text-cat text-sm">MECANIZADO (TBM)</h3>
+                                    <span className="font-mono text-sm text-white">${totalTBM.toFixed(1)}M</span>
                                 </div>
                                 <div className="space-y-3">
-                                    <div><div className="text-xs text-gray-400 font-bold mb-1">INVERSIÓN: <span className="text-cat">${tbmInv}M</span></div><input type="range" min="10" max="30" step="1" value={tbmInv} onChange={e=>setTbmInv(+e.target.value)} /></div>
-                                    <div><div className="text-xs text-gray-400 font-bold mb-1">COSTO/M: <span className="text-cat">${tbmVar}k</span></div><input type="range" min="1" max="4" step="0.5" value={tbmVar} onChange={e=>setTbmVar(+e.target.value)} /></div>
+                                    <ControlRow label="Inversión ($M)" val={tbmInv} set={setTbmInv} min={10} max={40} step={1} color="text-cat" />
+                                    <ControlRow label="Materiales ($k/m)" val={tbmMat} set={setTbmMat} min={1} max={5} step={0.5} color="text-cat" />
+                                    <ControlRow label="Avance (m/día)" val={tbmSpeed} set={setTbmSpeed} min={10} max={40} step={1} color="text-cat" />
+                                    <ControlRow label="Costo Hora ($/h)" val={tbmHourly} set={setTbmHourly} min={1000} max={5000} step={100} color="text-cat" />
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="bg-cat text-black p-4 rounded font-bold text-center uppercase tracking-widest shadow-lg">
-                        MEJOR OPCIÓN: {winner === 'TBM' ? 'TUNELADORA' : 'VOLADURA'} (AHORRO ${savings}M)
                     </div>
                 </div>
             );
         };
 
-        // --- ASISTENTE DE DECISIÓN (MEJORADO) ---
+        // Helper para sliders
+        const ControlRow = ({ label, val, set, min, max, step, color }) => (
+            <div>
+                <div className="flex justify-between text-[10px] text-gray-400 uppercase font-bold mb-1">
+                    {label} <span className={color}>{val}</span>
+                </div>
+                <input type="range" min={min} max={max} step={step} value={val} onChange={e=>set(+e.target.value)} />
+            </div>
+        );
+
+        // --- 2. ASISTENTE CON REPORTE DE CAUSALIDAD ---
         const Wizard = () => {
             const [step, setStep] = useState(0);
             const [score, setScore] = useState(0);
-            const [reasons, setReasons] = useState([]); // Almacena el "por qué"
+            const [log, setLog] = useState([]); // Almacena el historial de decisiones
 
-            // Cuestionario ampliado a 6 preguntas
             const qs = [
-                { t: "Longitud", q: "1. LONGITUD DEL TÚNEL", opts: [{l:"< 3 KM (Corto)", s:-5, r:"La corta longitud (<3km) hace inviable amortizar el alto costo inicial de la TBM."}, {l:"3 - 7 KM (Medio)", s:0, r:"Longitud intermedia; la decisión depende de otros factores geológicos."}, {l:"> 7 KM (Largo)", s:5, r:"La gran longitud (>7km) permite diluir la inversión inicial de la TBM y aprovechar su velocidad."}] },
-                { t: "Roca", q: "2. CALIDAD DE LA ROCA", opts: [{l:"ROCA DURA / SANA", s:3, r:"La roca dura es ideal para TBM, ofreciendo avances rápidos sin mucho soporte inmediato."}, {l:"SUELO BLANDO / MIXTO", s:5, r:"En suelo blando, la TBM (Escudo/EPB) es superior por seguridad y control de subsidencia."}, {l:"FALLAS / INESTABLE", s:-3, r:"La geología inestable favorece PyV por su flexibilidad para cambiar el sostenimiento metro a metro."}] },
-                { t: "Plazo", q: "3. PLAZO DE INICIO", opts: [{l:"INMEDIATO (< 2 meses)", s:-5, r:"La urgencia de inicio descarta la TBM, que requiere meses de fabricación y montaje."}, {l:"PLANIFICADO (> 6 meses)", s:2, r:"Hay tiempo suficiente para la logística compleja de importación y montaje de una TBM."}] },
-                { t: "Vida Útil", q: "4. VIDA ÚTIL PROYECTO", opts: [{l:"TEMPORAL (Acceso)", s:-2, r:"Para obras temporales, la inversión en TBM no se justifica; PyV es más económico."}, {l:"LARGA (Infraestructura)", s:3, r:"La calidad final y durabilidad del revestimiento de dovelas TBM favorece obras de larga vida."}] },
-                { t: "Agua", q: "5. PRESENCIA DE AGUA", opts: [{l:"BAJA / SECO", s:0, r:"Sin problemas de agua, ambos métodos son viables operativamente."}, {l:"ALTA PRESIÓN / ACUÍFERO", s:5, r:"La TBM EPB puede trabajar bajo presión de agua, sellando el túnel inmediatamente."}] },
-                { t: "Espacio", q: "6. ÁREA DISPONIBLE", opts: [{l:"LIMITADA (Portal Pequeño)", s:-3, r:"El espacio reducido en el portal impide el montaje del tren de la TBM; favorece PyV."}, {l:"AMPLIA (Patio TBM)", s:2, r:"El área amplia permite el montaje y logística de dovelas necesarios para la TBM."}] }
+                { t: "Longitud", q: "1. LONGITUD TOTAL", opts: [{l:"< 3 KM", s:-5, why:"La longitud corta no amortiza el CAPEX de TBM."}, {l:"3 - 7 KM", s:0, why:"Longitud media; decisión depende de la geología."}, {l:"> 7 KM", s:5, why:"Gran longitud diluye la inversión y aprovecha velocidad TBM."}] },
+                { t: "Geología", q: "2. TIPO DE ROCA", opts: [{l:"ROCA DURA", s:3, why:"Roca competente favorece avance rápido de TBM."}, {l:"SUELO BLANDO", s:5, why:"Riesgo de colapso alto en PyV; TBM Escudo es necesaria."}, {l:"FALLAS / MIXTO", s:-3, why:"Riesgo de atrapamiento TBM; PyV es más flexible."}] },
+                { t: "Plazo", q: "3. TIEMPO DE INICIO", opts: [{l:"URGENTE (<2m)", s:-5, why:"No hay tiempo para fabricar/importar TBM."}, {l:"PLANIFICADO", s:2, why:"El cronograma permite la logística de TBM."}] },
+                { t: "Vida Útil", q: "4. VIDA DEL TÚNEL", opts: [{l:"TEMPORAL", s:-2, why:"Inversión TBM injustificada para obra temporal."}, {l:"PERMANENTE", s:3, why:"Acabado de dovelas TBM ofrece mejor calidad final."}] },
+                { t: "Agua", q: "5. NIVEL FREÁTICO", opts: [{l:"BAJO / SECO", s:0, why:"Sin impacto crítico en la elección."}, {l:"ALTA PRESIÓN", s:5, why:"TBM EPB es la única que garantiza estanqueidad durante excavación."}] }
             ];
 
             const vote = (opt) => {
-                const newScore = score + opt.s;
-                const newReasons = [...reasons, { topic: qs[step].t, text: opt.r, type: opt.s > 0 ? 'TBM' : opt.s < 0 ? 'PyV' : 'Neutral' }];
-                setScore(newScore);
-                setReasons(newReasons);
+                setScore(score + opt.s);
+                setLog([...log, { factor: qs[step].t, choice: opt.l, impact: opt.s, reason: opt.why }]);
                 setStep(step + 1);
             };
 
@@ -229,31 +291,41 @@
                 const isTBM = score > 0;
                 return (
                     <div className="animate-fade-in flex flex-col h-full">
-                        <div className="bg-cat-panel rounded border border-gray-800 p-6 text-center mb-6">
+                        {/* Resultado Principal */}
+                        <div className="bg-cat-panel rounded border border-gray-800 p-6 text-center mb-6 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-2 h-full bg-cat"></div>
                             <h2 className="text-3xl font-stencil text-white mb-2">RECOMENDACIÓN</h2>
                             <div className={`text-5xl font-black mb-2 ${isTBM ? 'text-cat' : 'text-orange-500'}`}>
-                                {isTBM ? 'USAR TBM' : 'USAR PyV'}
+                                {isTBM ? 'MÉTODO TBM' : 'MÉTODO PyV'}
                             </div>
-                            <p className="text-gray-400 text-xs font-mono mb-0">PUNTAJE NETO: {score}</p>
+                            <p className="text-gray-400 text-xs font-mono mb-0">PUNTAJE DE DECISIÓN: {score}</p>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto pr-2">
-                            <h3 className="text-cat font-bold text-sm uppercase border-b border-gray-800 pb-2 mb-4">RAZONAMIENTO DETALLADO</h3>
+                        {/* Reporte de Causalidad (EL POR QUÉ) */}
+                        <div className="flex-1 overflow-y-auto pr-2 bg-[#151515] rounded border border-gray-800 p-4">
+                            <h3 className="text-cat font-bold text-sm uppercase border-b border-gray-700 pb-2 mb-4 font-mono flex items-center gap-2">
+                                <Icon d={icons.check} c="w-4 h-4"/> REPORTE DE CAUSALIDAD
+                            </h3>
                             <div className="space-y-3">
-                                {reasons.map((r, i) => (
-                                    <div key={i} className={`p-3 rounded text-sm border-l-4 ${r.type === 'TBM' ? 'bg-cat/10 border-cat' : r.type === 'PyV' ? 'bg-orange-900/20 border-orange-500' : 'bg-gray-800 border-gray-600'}`}>
-                                        <div className="flex justify-between mb-1">
-                                            <span className="font-bold text-white uppercase text-xs">{r.topic}</span>
-                                            <span className="text-[10px] opacity-50 font-mono">{r.type === 'Neutral' ? 'NEUTRO' : `FAVORECE ${r.type}`}</span>
+                                {log.map((entry, i) => (
+                                    <div key={i} className="flex gap-3 text-xs border-b border-gray-800 pb-2 last:border-0">
+                                        <div className="font-mono text-gray-500 w-16 pt-1">{entry.factor}</div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between mb-1">
+                                                <span className="text-white font-bold uppercase">{entry.choice}</span>
+                                                <span className={`font-mono ${entry.impact > 0 ? 'text-cat' : entry.impact < 0 ? 'text-orange-500' : 'text-gray-500'}`}>
+                                                    {entry.impact > 0 ? 'FAVORECE TBM' : entry.impact < 0 ? 'FAVORECE PyV' : 'NEUTRO'}
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-400 leading-relaxed">{entry.reason}</p>
                                         </div>
-                                        <p className="text-gray-400 text-xs leading-relaxed">{r.text}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
                         
-                        <button onClick={()=>{setStep(0);setScore(0);setReasons([])}} className="mt-6 bg-cat text-black font-bold py-3 w-full rounded uppercase tracking-widest hover:bg-white transition-colors">
-                            REINICIAR ANÁLISIS
+                        <button onClick={()=>{setStep(0);setScore(0);setLog([])}} className="mt-6 bg-cat text-black font-bold py-3 w-full rounded uppercase tracking-widest hover:bg-white transition-colors">
+                            NUEVO ANÁLISIS
                         </button>
                     </div>
                 )
@@ -261,13 +333,13 @@
 
             return (
                 <div className="animate-fade-in p-6 h-[550px] flex flex-col justify-center bg-cat-panel rounded border border-gray-800">
-                    <div className="text-cat text-xs font-mono mb-2">PASO {step+1} / {qs.length}</div>
+                    <div className="text-cat text-xs font-mono mb-2">DECISIÓN {step+1} / {qs.length}</div>
                     <h2 className="text-3xl font-stencil text-white mb-8">{qs[step].q}</h2>
                     <div className="space-y-4">
                         {qs[step].opts.map((o,i) => (
                             <button key={i} onClick={()=>vote(o)} className="w-full py-4 px-6 bg-black border border-gray-700 text-white font-bold text-lg hover:border-cat hover:text-cat transition-all rounded-sm uppercase text-left flex justify-between items-center group">
                                 <span>{o.l}</span>
-                                <Icon d={icons.check} c="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-cat" />
+                                <span className="text-xs text-gray-500 group-hover:text-black font-mono opacity-0 group-hover:opacity-100 transition-opacity">SELECCIONAR</span>
                             </button>
                         ))}
                     </div>
@@ -275,20 +347,17 @@
             );
         };
 
-        // --- COMPARATIVA (EXPANDIDA) ---
+        // --- 3. COMPARATIVA ---
         const Comparison = () => (
             <div className="animate-fade-in space-y-4 pb-24">
                 {[
-                    { t: "INVERSIÓN INICIAL (CAPEX)", v1: "MUY ALTA ($15M+)", v2: "BAJA ($2M+)", w: 2 },
-                    { t: "VELOCIDAD DE AVANCE", v1: "RÁPIDA (15-30 m/día)", v2: "LENTA (4-8 m/día)", w: 1 },
-                    { t: "FLEXIBILIDAD SECCIÓN", v1: "NULA (Circular)", v2: "ALTA (Herradura)", w: 2 },
-                    { t: "SEGURIDAD PERSONAL", v1: "MÁXIMA (Bajo Escudo)", v2: "MEDIA (Exposición)", w: 1 },
-                    { t: "VIDA ÚTIL EQUIPO", v1: "UN PROYECTO", v2: "REUTILIZABLE", w: 2 },
-                    { t: "TIEMPO MOVILIZACIÓN", v1: "LARGO (3-6 meses)", v2: "CORTO (Semanas)", w: 2 },
-                    { t: "VENTILACIÓN", v1: "EFICIENTE (Ducto)", v2: "COMPLEJA (Gases)", w: 1 },
-                    { t: "SOSTENIMIENTO", v1: "DOVELAS (Final)", v2: "SHOTCRETE (Temp)", w: 1 },
-                    { t: "CONSUMO ENERGÉTICO", v1: "ALTO (Eléctrico)", v2: "MEDIO (Diesel)", w: 1 },
-                    { t: "PERSONAL REQUERIDO", v1: "ESPECIALIZADO", v2: "OPERATIVO", w: 2 }
+                    { t: "INVERSIÓN (CAPEX)", v1: "MUY ALTA", v2: "BAJA", w: 2 },
+                    { t: "VELOCIDAD", v1: "RÁPIDA (25m/d)", v2: "LENTA (5m/d)", w: 1 },
+                    { t: "FLEXIBILIDAD", v1: "BAJA (Circular)", v2: "ALTA (Variable)", w: 2 },
+                    { t: "SEGURIDAD", v1: "MÁXIMA (Escudo)", v2: "MEDIA", w: 1 },
+                    { t: "MOVILIZACIÓN", v1: "LENTA (Meses)", v2: "RÁPIDA (Semanas)", w: 2 },
+                    { t: "VENTILACIÓN", v1: "EFICIENTE", v2: "COMPLEJA", w: 1 },
+                    { t: "ENERGÍA", v1: "ELÉCTRICA", v2: "DIESEL / ELEC", w: 1 }
                 ].map((item, i) => (
                     <div key={i} className="bg-cat-panel border border-gray-800 rounded overflow-hidden">
                         <div className="bg-black p-2 text-center text-xs font-bold text-cat uppercase tracking-widest border-b border-gray-800">
@@ -309,12 +378,13 @@
             </div>
         );
 
-        // --- APP ---
+        // --- APP PRINCIPAL ---
         const App = () => {
             const [tab, setTab] = useState('sim');
 
             return (
                 <div className="min-h-screen font-sans text-gray-200 bg-black pb-20">
+                    {/* HEADER */}
                     <header className="bg-cat-panel border-b-4 border-cat p-4 sticky top-0 z-50 shadow-lg mb-6">
                         <div className="flex justify-between items-end">
                             <div>
@@ -326,7 +396,8 @@
                         </div>
                     </header>
 
-                    <main className="max-w-4xl mx-auto px-4">
+                    {/* CONTENIDO */}
+                    <main className="max-w-5xl mx-auto px-4">
                         {tab === 'sim' && <Simulator />}
                         {tab === 'wiz' && <Wizard />}
                         {tab === 'comp' && <Comparison />}
@@ -340,8 +411,9 @@
                         </div>
                     </main>
 
+                    {/* NAVEGACIÓN */}
                     <nav className="fixed bottom-0 w-full bg-cat-panel border-t border-gray-800 pb-safe z-50">
-                        <div className="flex justify-around h-16 max-w-4xl mx-auto">
+                        <div className="flex justify-around h-16 max-w-5xl mx-auto">
                             <button onClick={()=>setTab('sim')} className={`flex-1 flex flex-col items-center justify-center ${tab==='sim' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
                                 <Icon d={icons.chart} c="w-6 h-6 mb-1" /><span className="text-[10px] font-bold uppercase">Simulador</span>
                             </button>
