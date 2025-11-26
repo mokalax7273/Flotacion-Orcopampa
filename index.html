@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Túneles UCSM - Expert Edition</title>
+    <title>Proyecto Túneles UCSM</title>
     
     <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -109,7 +109,9 @@
             gear: "M12 2v20M2 12h20M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10",
             scale: "M12 3v18m-9-6l9 6 9-6m-18-6l9 6 9-6",
             check: "M20 6L9 17l-5-5",
-            time: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            time: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+            info: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            down: "M19 9l-7 7-7-7"
         };
 
         // --- COMPONENTES VISUALES ---
@@ -147,33 +149,29 @@
 
         // --- 1. SIMULADOR DE COSTOS AVANZADO ---
         const Simulator = () => {
-            const [len, setLen] = useState(6); // km
+            const [len, setLen] = useState(6);
             
             // Variables PyV
-            const [pyvInv, setPyvInv] = useState(2); // $M Inversión
-            const [pyvMat, setPyvMat] = useState(4); // $k/m Materiales
-            const [pyvSpeed, setPyvSpeed] = useState(5); // m/día Avance
-            const [pyvHourly, setPyvHourly] = useState(500); // $/h Costo Operativo
+            const [pyvInv, setPyvInv] = useState(2);
+            const [pyvMat, setPyvMat] = useState(4);
+            const [pyvSpeed, setPyvSpeed] = useState(5);
+            const [pyvHourly, setPyvHourly] = useState(500);
 
             // Variables TBM
-            const [tbmInv, setTbmInv] = useState(15); // $M Inversión
-            const [tbmMat, setTbmMat] = useState(2); // $k/m Materiales
-            const [tbmSpeed, setTbmSpeed] = useState(20); // m/día Avance
-            const [tbmHourly, setTbmHourly] = useState(2000); // $/h Costo Operativo
+            const [tbmInv, setTbmInv] = useState(15);
+            const [tbmMat, setTbmMat] = useState(2);
+            const [tbmSpeed, setTbmSpeed] = useState(20);
+            const [tbmHourly, setTbmHourly] = useState(2000);
 
             // Cálculos
-            // Costo Materiales = Longitud * Costo/m
-            // Tiempo Total (Días) = (Longitud * 1000) / Velocidad
-            // Costo Operativo Total = (Tiempo Total * 24h) * Costo Hora
-            
             const daysPyV = (len * 1000) / pyvSpeed;
-            const opCostPyV = (daysPyV * 24 * pyvHourly) / 1000000; // A millones
-            const matCostPyV = (len * 1000 * (pyvMat * 1000)) / 1000000; // A millones
+            const opCostPyV = (daysPyV * 24 * pyvHourly) / 1000000;
+            const matCostPyV = (len * 1000 * (pyvMat * 1000)) / 1000000;
             const totalPyV = pyvInv + matCostPyV + opCostPyV;
 
             const daysTBM = (len * 1000) / tbmSpeed;
-            const opCostTBM = (daysTBM * 24 * tbmHourly) / 1000000; // A millones
-            const matCostTBM = (len * 1000 * (tbmMat * 1000)) / 1000000; // A millones
+            const opCostTBM = (daysTBM * 24 * tbmHourly) / 1000000;
+            const matCostTBM = (len * 1000 * (tbmMat * 1000)) / 1000000;
             const totalTBM = tbmInv + matCostTBM + opCostTBM;
 
             const winner = totalTBM < totalPyV ? 'TBM' : 'PyV';
@@ -216,7 +214,6 @@
 
                         {/* DERECHA: Controles Avanzados */}
                         <div className="lg:col-span-5 space-y-4 overflow-y-auto max-h-[600px] pr-1">
-                            {/* Control Global */}
                             <div className="bg-cat-panel p-4 rounded border border-gray-700">
                                 <div className="flex justify-between text-sm font-bold text-white mb-2 uppercase">
                                     <span>Distancia</span> <span className="text-cat font-mono">{len} km</span>
@@ -224,7 +221,6 @@
                                 <input type="range" min="1" max="20" step="0.5" value={len} onChange={e=>setLen(+e.target.value)} />
                             </div>
 
-                            {/* Variables PyV */}
                             <div className="bg-[#1a1a1a] p-4 rounded border-l-4 border-orange-500">
                                 <div className="flex justify-between border-b border-gray-700 pb-2 mb-3">
                                     <h3 className="font-bold text-orange-500 text-sm">CONVENCIONAL (PyV)</h3>
@@ -238,7 +234,6 @@
                                 </div>
                             </div>
 
-                            {/* Variables TBM */}
                             <div className="bg-[#1a1a1a] p-4 rounded border-l-4 border-cat">
                                 <div className="flex justify-between border-b border-gray-700 pb-2 mb-3">
                                     <h3 className="font-bold text-cat text-sm">MECANIZADO (TBM)</h3>
@@ -257,7 +252,6 @@
             );
         };
 
-        // Helper para sliders
         const ControlRow = ({ label, val, set, min, max, step, color }) => (
             <div>
                 <div className="flex justify-between text-[10px] text-gray-400 uppercase font-bold mb-1">
@@ -271,7 +265,7 @@
         const Wizard = () => {
             const [step, setStep] = useState(0);
             const [score, setScore] = useState(0);
-            const [log, setLog] = useState([]); // Almacena el historial de decisiones
+            const [log, setLog] = useState([]);
 
             const qs = [
                 { t: "Longitud", q: "1. LONGITUD TOTAL", opts: [{l:"< 3 KM", s:-5, why:"La longitud corta no amortiza el CAPEX de TBM."}, {l:"3 - 7 KM", s:0, why:"Longitud media; decisión depende de la geología."}, {l:"> 7 KM", s:5, why:"Gran longitud diluye la inversión y aprovecha velocidad TBM."}] },
@@ -291,7 +285,6 @@
                 const isTBM = score > 0;
                 return (
                     <div className="animate-fade-in flex flex-col h-full">
-                        {/* Resultado Principal */}
                         <div className="bg-cat-panel rounded border border-gray-800 p-6 text-center mb-6 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-2 h-full bg-cat"></div>
                             <h2 className="text-3xl font-stencil text-white mb-2">RECOMENDACIÓN</h2>
@@ -301,7 +294,6 @@
                             <p className="text-gray-400 text-xs font-mono mb-0">PUNTAJE DE DECISIÓN: {score}</p>
                         </div>
 
-                        {/* Reporte de Causalidad (EL POR QUÉ) */}
                         <div className="flex-1 overflow-y-auto pr-2 bg-[#151515] rounded border border-gray-800 p-4">
                             <h3 className="text-cat font-bold text-sm uppercase border-b border-gray-700 pb-2 mb-4 font-mono flex items-center gap-2">
                                 <Icon d={icons.check} c="w-4 h-4"/> REPORTE DE CAUSALIDAD
@@ -347,36 +339,51 @@
             );
         };
 
-        // --- 3. COMPARATIVA ---
-        const Comparison = () => (
-            <div className="animate-fade-in space-y-4 pb-24">
-                {[
-                    { t: "INVERSIÓN (CAPEX)", v1: "MUY ALTA", v2: "BAJA", w: 2 },
-                    { t: "VELOCIDAD", v1: "RÁPIDA (25m/d)", v2: "LENTA (5m/d)", w: 1 },
-                    { t: "FLEXIBILIDAD", v1: "BAJA (Circular)", v2: "ALTA (Variable)", w: 2 },
-                    { t: "SEGURIDAD", v1: "MÁXIMA (Escudo)", v2: "MEDIA", w: 1 },
-                    { t: "MOVILIZACIÓN", v1: "LENTA (Meses)", v2: "RÁPIDA (Semanas)", w: 2 },
-                    { t: "VENTILACIÓN", v1: "EFICIENTE", v2: "COMPLEJA", w: 1 },
-                    { t: "ENERGÍA", v1: "ELÉCTRICA", v2: "DIESEL / ELEC", w: 1 }
-                ].map((item, i) => (
-                    <div key={i} className="bg-cat-panel border border-gray-800 rounded overflow-hidden">
-                        <div className="bg-black p-2 text-center text-xs font-bold text-cat uppercase tracking-widest border-b border-gray-800">
-                            {item.t}
-                        </div>
-                        <div className="grid grid-cols-2 divide-x divide-gray-800">
-                            <div className={`p-4 text-center ${item.w === 1 ? 'bg-cat/5' : ''}`}>
-                                <div className="text-[10px] text-gray-500 mb-1">TBM</div>
-                                <div className={`text-sm font-bold ${item.w === 1 ? 'text-cat' : 'text-gray-400'}`}>{item.v1}</div>
+        // --- 3. COMPARATIVA CON EXPLICACIONES DESPLEGABLES ---
+        const Comparison = () => {
+            const [open, setOpen] = useState(null);
+
+            const items = [
+                { t: "INVERSIÓN INICIAL (CAPEX)", v1: "MUY ALTA", v2: "BAJA", w: 2, exp: "La TBM requiere la fabricación de una máquina a medida, transporte y montaje (meses). PyV utiliza equipos estándar (Jumbos) fácilmente alquilables." },
+                { t: "VELOCIDAD DE AVANCE", v1: "RÁPIDA (15-30m/d)", v2: "LENTA (4-8m/d)", w: 1, exp: "La TBM excava y sostiene simultáneamente en un proceso continuo. PyV es cíclico (perforar, cargar, volar, ventilar, desescombrar)." },
+                { t: "FLEXIBILIDAD SECCIÓN", v1: "NULA (Circular)", v2: "ALTA (Herradura)", w: 2, exp: "Una TBM está diseñada para un solo diámetro. PyV permite cambiar la forma del túnel y hacer ensanches o galerías fácilmente." },
+                { t: "SEGURIDAD PERSONAL", v1: "MÁXIMA (Escudo)", v2: "MEDIA", w: 1, exp: "En TBM, el personal trabaja protegido por el escudo de acero y el revestimiento ya instalado. En PyV, hay exposición al frente abierto antes del sostenimiento." },
+                { t: "MOVILIZACIÓN", v1: "LENTA (Meses)", v2: "RÁPIDA (Semanas)", w: 2, exp: "Iniciar con TBM toma de 3 a 6 meses por fabricación y logística. PyV puede iniciar casi de inmediato si hay equipos disponibles." },
+                { t: "VENTILACIÓN", v1: "EFICIENTE", v2: "COMPLEJA", w: 1, exp: "La TBM usa ductos eficientes y no genera gases de explosivos. PyV requiere tiempos muertos para ventilar los gases tóxicos post-voladura." },
+                { t: "ENERGÍA", v1: "ELÉCTRICA", v2: "DIESEL / ELEC", w: 1, exp: "La TBM opera principalmente con electricidad de alta tensión (menor huella carbono operativa). PyV usa mucho diesel (equipos de carga y transporte)." }
+            ];
+
+            return (
+                <div className="animate-fade-in space-y-4 pb-24">
+                    {items.map((item, i) => (
+                        <div key={i} className="bg-cat-panel border border-gray-800 rounded overflow-hidden cursor-pointer hover:border-cat transition-colors" onClick={() => setOpen(open === i ? null : i)}>
+                            <div className="bg-black p-3 flex justify-between items-center border-b border-gray-800">
+                                <span className="text-xs font-bold text-cat uppercase tracking-widest">{item.t}</span>
+                                <Icon d={icons.down} c={`w-4 h-4 text-gray-500 transform transition-transform ${open === i ? 'rotate-180' : ''}`} />
                             </div>
-                            <div className={`p-4 text-center ${item.w === 2 ? 'bg-orange-900/10' : ''}`}>
-                                <div className="text-[10px] text-gray-500 mb-1">PyV</div>
-                                <div className={`text-sm font-bold ${item.w === 2 ? 'text-orange-500' : 'text-gray-400'}`}>{item.v2}</div>
+                            
+                            <div className="grid grid-cols-2 divide-x divide-gray-800">
+                                <div className={`p-4 text-center ${item.w === 1 ? 'bg-cat/5' : ''}`}>
+                                    <div className="text-[10px] text-gray-500 mb-1">TBM</div>
+                                    <div className={`text-sm font-bold ${item.w === 1 ? 'text-cat' : 'text-gray-400'}`}>{item.v1}</div>
+                                </div>
+                                <div className={`p-4 text-center ${item.w === 2 ? 'bg-orange-900/10' : ''}`}>
+                                    <div className="text-[10px] text-gray-500 mb-1">PyV</div>
+                                    <div className={`text-sm font-bold ${item.w === 2 ? 'text-orange-500' : 'text-gray-400'}`}>{item.v2}</div>
+                                </div>
                             </div>
+
+                            {open === i && (
+                                <div className="p-4 bg-[#151515] text-gray-400 text-xs leading-relaxed border-t border-gray-800 animation-fade-in">
+                                    <strong className="text-white block mb-1 uppercase text-[10px]">Explicación Técnica:</strong>
+                                    {item.exp}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
-            </div>
-        );
+                    ))}
+                </div>
+            );
+        };
 
         // --- APP PRINCIPAL ---
         const App = () => {
