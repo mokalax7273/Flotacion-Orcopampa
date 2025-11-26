@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Túneles UCSM - CAT Edition</title>
+    <title>Proyecto Túneles UCSM - v10.0</title>
     
     <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     
-    <!-- Fuente Industrial -->
+    <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
 
     <script>
@@ -19,20 +19,11 @@
             theme: {
                 extend: {
                     colors: {
-                        cat: { 
-                            DEFAULT: '#FFCD11', // Caterpillar Yellow Oficial
-                            dark: '#DAAA00',
-                            black: '#101010',
-                            panel: '#1E1E1E',
-                            metal: '#2D2D2D'
-                        }
+                        cat: { DEFAULT: '#FFCD11', dark: '#DAAA00', black: '#101010', panel: '#1E1E1E' }
                     },
                     fontFamily: {
                         stencil: ['"Saira Stencil One"', 'cursive'],
                         sans: ['"Roboto Condensed"', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'cat': '0 4px 0 0 #DAAA00',
                     }
                 }
             }
@@ -40,256 +31,303 @@
     </script>
     
     <style>
-        body { background-color: #0a0a0a; color: #e5e5e5; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #050505; color: #e5e5e5; }
         
-        /* --- VISUALIZADORES DE TÚNEL CSS --- */
-        .tunnel-viewport { 
-            width: 100%; height: 200px; 
+        /* --- MOTOR 3D CSS --- */
+        .viewport-3d { 
+            width: 100%; height: 250px; 
             background: #000; 
             position: relative; 
             overflow: hidden; 
-            border: 2px solid #333;
-            border-radius: 8px;
-            box-shadow: inset 0 0 20px #000;
+            perspective: 800px;
+            border-bottom: 4px solid #FFCD11;
         }
 
-        /* TÚNEL LARGO (TBM - Circular / Profundidad) */
-        .long-tunnel-scene {
+        /* ESCENA TBM (GIRATORIA) */
+        .tbm-tunnel {
             width: 100%; height: 100%;
-            perspective: 600px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .tunnel-ring {
             position: absolute;
-            border-radius: 50%;
-            border: 2px solid #444;
-            box-shadow: 0 0 10px rgba(0,0,0,0.8);
-            background: transparent;
+            transform-style: preserve-3d;
         }
-        .ring-1 { width: 300px; height: 300px; transform: translateZ(-50px); border-color: #333; background: radial-gradient(circle, transparent 60%, #222 65%); z-index: 10; }
-        .ring-2 { width: 300px; height: 300px; transform: translateZ(-200px); border-color: #444; background: radial-gradient(circle, transparent 60%, #111 65%); z-index: 5; animation: pulseDepth 4s infinite; }
-        .ring-3 { width: 300px; height: 300px; transform: translateZ(-400px); border-color: #555; background: #000; z-index: 1; }
         
-        .dovela-lines {
-            position: absolute; width: 100%; height: 100%;
-            background: repeating-conic-gradient(transparent 0deg 30deg, rgba(255,205,17,0.1) 30deg 31deg);
+        /* Paredes del túnel (Efecto velocidad) */
+        .tunnel-wall {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #333;
             border-radius: 50%;
+            box-shadow: 0 0 50px #000;
+            opacity: 0;
+            animation: moveTunnel 3s linear infinite;
+        }
+        .w1 { width: 800px; height: 800px; animation-delay: 0s; }
+        .w2 { width: 800px; height: 800px; animation-delay: 1s; }
+        .w3 { width: 800px; height: 800px; animation-delay: 2s; }
+
+        @keyframes moveTunnel {
+            0% { transform: translate(-50%, -50%) translateZ(-500px); opacity: 0; border-color: #111; }
+            20% { opacity: 1; border-color: #444; }
+            100% { transform: translate(-50%, -50%) translateZ(200px); opacity: 0; border-color: #666; width: 900px; height: 900px; }
         }
 
-        /* TÚNEL CORTO (PyV - Herradura / Irregular) */
-        .short-tunnel-scene {
-            width: 100%; height: 100%;
-            background: #1a1a1a;
-            position: relative;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .rock-wall {
-            width: 100%; height: 100%;
-            background-image: radial-gradient(#333 15%, transparent 16%), radial-gradient(#222 15%, transparent 16%);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
-            opacity: 0.5;
-            position: absolute;
-        }
-        .herradura-shape {
-            width: 180px; height: 140px;
-            background: #000;
-            border-radius: 50% 50% 10% 10%; /* Forma de herradura */
-            border: 4px dashed #FFCD11; /* Shotcrete */
-            box-shadow: inset 0 0 30px #111;
-            position: relative;
+        /* Cabeza de Corte Giratoria */
+        .cutter-head {
+            position: absolute; top: 50%; left: 50%;
+            width: 140px; height: 140px;
+            margin-top: -70px; margin-left: -70px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #222 30%, #FFCD11 35%, #997a00 40%, #111 100%);
+            border: 4px dashed #333;
+            box-shadow: inset 0 0 20px #000, 0 0 30px rgba(0,0,0,0.8);
+            transform: translateZ(-100px);
+            animation: spinHead 4s linear infinite;
             z-index: 10;
         }
-        .rock-bolt {
-            position: absolute; width: 40px; height: 2px; background: #888;
-            transform-origin: left center;
+        .disc { position: absolute; width: 18px; height: 18px; background: #888; border-radius: 50%; box-shadow: 2px 2px 5px #000; border: 1px solid #444; }
+        
+        @keyframes spinHead { from { transform: translateZ(-100px) rotate(0deg); } to { transform: translateZ(-100px) rotate(360deg); } }
+
+        /* ESCENA PyV (ESTÁTICA CON DETALLES) */
+        .pyv-scene {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #2a2a2a 0%, #000 80%);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .rock-face-irregular {
+            width: 200px; height: 160px;
+            background: #1a1a1a;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
+            position: relative;
+            box-shadow: inset 0 0 40px #000;
+            border: 1px solid #333;
+        }
+        .drill-hole { width: 6px; height: 6px; background: #000; border-radius: 50%; position: absolute; box-shadow: 0 0 2px #fff; }
+        .jumbo-arm {
+            position: absolute; bottom: -20px; right: -20px;
+            width: 150px; height: 20px; background: #FFCD11;
+            transform: rotate(-30deg);
+            border: 1px solid #000;
         }
 
-        @keyframes pulseDepth { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
-        /* Sliders Estilo CAT */
-        input[type=range] { width: 100%; height: 30px; -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { 
-            -webkit-appearance: none; height: 24px; width: 12px; 
-            background: #FFCD11; border: 2px solid #000; border-radius: 2px;
-            margin-top: -8px; box-shadow: 0 0 5px #000; 
-        }
-        input[type=range]::-webkit-slider-runnable-track { 
-            width: 100%; height: 8px; 
-            background: #333; border: 1px solid #555; 
-            background-image: repeating-linear-gradient(45deg, #333, #333 5px, #444 5px, #444 10px);
-        }
+        /* UI Elements */
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; background: #FFCD11; border: 3px solid #000; border-radius: 50%; margin-top: -10px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; }
+        
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="pb-24 md:pb-0">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState } = React;
 
-        // Iconos SVG
-        const Icon = ({ d, className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={d} /></svg>;
+        const Icon = ({ d, c }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={c}><path d={d} /></svg>;
         
         const icons = {
             chart: "M3 3v18h18 M18 17V9 M13 17V5 M8 17v-3",
             gear: "M12 2v20M2 12h20M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10",
             scale: "M12 3v18m-9-6l9 6 9-6m-18-6l9 6 9-6",
-            drill: "M12 2L2 22h20L12 2zm0 6v6",
-            tbm: "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"
+            check: "M20 6L9 17l-5-5"
         };
 
-        // --- VISUALIZADORES DE TÚNEL ---
-        
-        // 1. Modelo Túnel Largo (TBM - Circular)
-        const LongTunnelModel = () => (
-            <div className="tunnel-viewport">
-                <div className="long-tunnel-scene">
-                    <div className="tunnel-ring ring-3"></div>
-                    <div className="tunnel-ring ring-2">
-                        <div className="dovela-lines"></div>
+        // --- MODELO 3D: TBM GIRATORIA ---
+        const TBMView = () => (
+            <div className="viewport-3d">
+                <div className="tbm-tunnel">
+                    {/* Anillos de concreto pasando */}
+                    <div className="tunnel-wall w1"></div>
+                    <div className="tunnel-wall w2"></div>
+                    <div className="tunnel-wall w3"></div>
+                    
+                    {/* Cabeza de Corte */}
+                    <div className="cutter-head">
+                        <div className="disc" style={{top:'20px', left:'60px'}}></div>
+                        <div className="disc" style={{bottom:'20px', left:'60px'}}></div>
+                        <div className="disc" style={{top:'60px', left:'20px'}}></div>
+                        <div className="disc" style={{top:'60px', right:'20px'}}></div>
+                        <div className="disc" style={{top:'45px', left:'45px', width:'10px', height:'10px', background:'#000'}}></div>
                     </div>
-                    <div className="tunnel-ring ring-1">
-                        <div className="dovela-lines"></div>
-                    </div>
-                    {/* Rieles al fondo */}
-                    <div style={{position:'absolute', bottom:'20px', width:'40px', height:'200px', background:'#222', transform:'perspective(300px) rotateX(60deg)', zIndex:2}}></div>
                 </div>
-                <div className="absolute top-2 left-2 bg-cat text-black text-[10px] font-bold px-2 py-1 rounded font-sans">
-                    SECCIÓN TBM (DOVELAS)
-                </div>
+                <div className="absolute top-3 left-3 bg-cat text-black font-bold text-xs px-2 py-1 rounded">VISTA TBM</div>
             </div>
         );
 
-        // 2. Modelo Túnel Corto (PyV - Herradura)
-        const ShortTunnelModel = () => (
-            <div className="tunnel-viewport">
-                <div className="short-tunnel-scene">
-                    <div className="rock-wall"></div>
-                    <div className="herradura-shape">
-                        {/* Pernos de anclaje simulados */}
-                        <div className="rock-bolt" style={{top:'20px', left:'-30px', transform:'rotate(-30deg)'}}></div>
-                        <div className="rock-bolt" style={{top:'-20px', left:'70px', transform:'rotate(-90deg)'}}></div>
-                        <div className="rock-bolt" style={{top:'20px', right:'-30px', transform:'rotate(210deg)'}}></div>
+        // --- MODELO 3D: PyV (FRENTE DE PERFORACIÓN) ---
+        const PyVView = () => (
+            <div className="viewport-3d">
+                <div className="pyv-scene">
+                    <div className="rock-face-irregular">
+                        {/* Patrón de Taladros */}
+                        <div className="drill-hole" style={{top:'30%', left:'30%'}}></div>
+                        <div className="drill-hole" style={{top:'30%', right:'30%'}}></div>
+                        <div className="drill-hole" style={{top:'50%', left:'50%'}}></div>
+                        <div className="drill-hole" style={{bottom:'30%', left:'30%'}}></div>
+                        <div className="drill-hole" style={{bottom:'30%', right:'30%'}}></div>
                     </div>
-                    {/* Piso irregular */}
-                    <div style={{position:'absolute', bottom:'0', width:'100%', height:'30px', background:'#111', borderTop:'2px solid #555'}}></div>
+                    <div className="jumbo-arm"></div>
                 </div>
-                <div className="absolute top-2 left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-1 rounded font-sans">
-                    SECCIÓN PyV (HERRADURA)
-                </div>
+                <div className="absolute top-3 left-3 bg-orange-600 text-white font-bold text-xs px-2 py-1 rounded">VISTA JUMBO</div>
             </div>
         );
 
-        // --- SIMULADOR PRINCIPAL ---
+        // --- 1. SIMULADOR ---
         const Simulator = () => {
-            const [len, setLen] = useState(2); // km
-            const [pyvFixed, setPyvFixed] = useState(2); 
-            const [pyvVar, setPyvVar] = useState(5);     
-            const [tbmFixed, setTbmFixed] = useState(15); 
-            const [tbmVar, setTbmVar] = useState(2.5);    
+            const [len, setLen] = useState(6);
+            const [pyvInv, setPyvInv] = useState(2); 
+            const [pyvVar, setPyvVar] = useState(5); 
+            const [tbmInv, setTbmInv] = useState(15); 
+            const [tbmVar, setTbmVar] = useState(2.5); 
 
-            const costPyV = pyvFixed + len * pyvVar; 
-            const costTBM = tbmFixed + len * tbmVar;
-            const winner = costTBM < costPyV ? 'TBM' : 'PyV';
-            const savings = Math.abs(costTBM - costPyV).toFixed(1);
-            
-            // Lógica para mostrar el modelo según la longitud
-            // Si es corto (< 4km) mostramos modelo PyV, si es largo (> 4km) mostramos modelo TBM
-            // O mejor aún, mostramos el modelo del "Ganador" actual.
-            const isLongTunnel = winner === 'TBM';
+            const totalPyV = pyvInv + len * pyvVar;
+            const totalTBM = tbmInv + len * tbmVar;
+            const winner = totalTBM < totalPyV ? 'TBM' : 'PyV';
+            const savings = Math.abs(totalTBM - totalPyV).toFixed(1);
 
             return (
-                <div className="space-y-6 p-4">
+                <div className="animate-fade-in space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {/* VISUALIZADOR 3D */}
+                        <div className="bg-cat-panel rounded-lg overflow-hidden shadow-lg border border-gray-800">
+                            {winner === 'TBM' ? <TBMView /> : <PyVView />}
+                            
+                            <div className="p-4 bg-black/50">
+                                <div className="flex justify-between items-center text-gray-400 text-sm mb-1">
+                                    <span>Longitud Total</span>
+                                    <span className="text-white font-mono text-xl">{len} km</span>
+                                </div>
+                                <input type="range" min="1" max="20" step="0.5" value={len} onChange={e=>setLen(+e.target.value)} />
+                            </div>
+                        </div>
+
+                        {/* PANEL DE COSTOS */}
+                        <div className="space-y-4">
+                            <div className={`p-4 rounded-lg border-l-4 bg-[#1a1a1a] ${winner==='PyV' ? 'border-orange-500 shadow-lg shadow-orange-900/20' : 'border-gray-600 opacity-60'}`}>
+                                <div className="flex justify-between mb-3 border-b border-gray-700 pb-2">
+                                    <h3 className="font-bold text-orange-500 flex items-center gap-2">
+                                        <span className="w-2 h-2 bg-orange-500 rounded-full"></span> CONVENCIONAL
+                                    </h3>
+                                    <span className="font-mono text-xl text-white">${totalPyV.toFixed(1)}M</span>
+                                </div>
+                                <div className="space-y-3">
+                                    <div>
+                                        <div className="flex justify-between text-xs text-gray-400 uppercase font-bold">
+                                            Inversión <span className="text-orange-400">${pyvInv}M</span>
+                                        </div>
+                                        <input type="range" min="0.5" max="5" step="0.5" value={pyvInv} onChange={e=>setPyvInv(+e.target.value)} />
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between text-xs text-gray-400 uppercase font-bold">
+                                            Costo/m <span className="text-orange-400">${pyvVar}k</span>
+                                        </div>
+                                        <input type="range" min="3" max="8" step="0.5" value={pyvVar} onChange={e=>setPyvVar(+e.target.value)} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={`p-4 rounded-lg border-l-4 bg-[#1a1a1a] ${winner==='TBM' ? 'border-cat shadow-lg shadow-yellow-900/20' : 'border-gray-600 opacity-60'}`}>
+                                <div className="flex justify-between mb-3 border-b border-gray-700 pb-2">
+                                    <h3 className="font-bold text-cat flex items-center gap-2">
+                                        <span className="w-2 h-2 bg-cat rounded-full"></span> MECANIZADO
+                                    </h3>
+                                    <span className="font-mono text-xl text-white">${totalTBM.toFixed(1)}M</span>
+                                </div>
+                                <div className="space-y-3">
+                                    <div>
+                                        <div className="flex justify-between text-xs text-gray-400 uppercase font-bold">
+                                            Inversión <span className="text-cat">${tbmInv}M</span>
+                                        </div>
+                                        <input type="range" min="10" max="30" step="1" value={tbmInv} onChange={e=>setTbmInv(+e.target.value)} />
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between text-xs text-gray-400 uppercase font-bold">
+                                            Costo/m <span className="text-cat">${tbmVar}k</span>
+                                        </div>
+                                        <input type="range" min="1" max="4" step="0.5" value={tbmVar} onChange={e=>setTbmVar(+e.target.value)} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
-                    {/* PANEL DE RESULTADOS (Estilo Dashboard Maquinaria) */}
-                    <div className="bg-cat-panel border-2 border-cat rounded-lg p-1 shadow-[0_0_15px_rgba(255,205,17,0.2)]">
-                        <div className="bg-black/50 p-4 rounded flex justify-between items-center">
-                            <div>
-                                <div className="text-[10px] font-bold text-cat-dark uppercase tracking-widest mb-1">RECOMENDACIÓN</div>
-                                <div className={`text-3xl font-stencil uppercase ${winner === 'TBM' ? 'text-white' : 'text-orange-500'}`}>
-                                    {winner === 'TBM' ? 'MÉTODO TBM' : 'MÉTODO PyV'}
-                                </div>
-                            </div>
-                            <div className="text-right border-l border-gray-700 pl-4">
-                                <div className="text-[10px] text-gray-400 uppercase">AHORRO</div>
-                                <div className="text-2xl font-bold text-cat font-mono">${savings}M</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* VISUALIZACIÓN DEL TÚNEL (CAMBIA SEGÚN SELECCIÓN) */}
-                    <div className="relative">
-                        {winner === 'TBM' ? <LongTunnelModel /> : <ShortTunnelModel />}
-                        
-                        {/* Overlay de Datos */}
-                        <div className="absolute bottom-0 w-full bg-black/80 backdrop-blur-sm p-2 flex justify-around border-t border-gray-700">
-                            <div className="text-center">
-                                <div className="text-[10px] text-gray-500">COSTO PyV</div>
-                                <div className="text-sm font-bold text-orange-500">${costPyV.toFixed(1)}M</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-[10px] text-gray-500">COSTO TBM</div>
-                                <div className="text-sm font-bold text-cat">${costTBM.toFixed(1)}M</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* CONTROLES DESLIZANTES */}
-                    <div className="bg-cat-panel p-4 rounded-lg border border-cat-metal">
-                        <div className="mb-6">
-                            <div className="flex justify-between text-sm font-bold text-white mb-2 uppercase">
-                                <span>Distancia Total</span>
-                                <span className="text-cat font-mono">{len} km</span>
-                            </div>
-                            <input type="range" min="1" max="15" step="0.5" value={len} onChange={e=>setLen(+e.target.value)} />
-                            <div className="flex justify-between text-[10px] text-gray-500 mt-1 font-mono">
-                                <span>1 km (Corto)</span>
-                                <span>15 km (Largo)</span>
-                            </div>
-                        </div>
-
-                        <details className="group">
-                            <summary className="flex items-center justify-between cursor-pointer bg-black/30 p-3 rounded text-xs font-bold text-gray-400 uppercase hover:text-cat transition-colors">
-                                <span>Ajustar Costos Unitarios</span>
-                                <span className="transform group-open:rotate-180 transition-transform">▼</span>
-                            </summary>
-                            <div className="mt-4 space-y-4 pl-2 border-l-2 border-cat-metal">
-                                <div>
-                                    <div className="flex justify-between text-[10px] text-orange-500 mb-1">PyV: Inversión Inicial ($M)</div>
-                                    <input type="range" min="0.5" max="5" step="0.5" value={pyvFixed} onChange={e=>setPyvFixed(+e.target.value)} />
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-[10px] text-cat mb-1">TBM: Inversión Inicial ($M)</div>
-                                    <input type="range" min="10" max="30" step="1" value={tbmFixed} onChange={e=>setTbmFixed(+e.target.value)} />
-                                </div>
-                            </div>
-                        </details>
+                    {/* RESULTADO FINAL SIMULADOR */}
+                    <div className="bg-cat text-black p-4 rounded font-bold text-center uppercase tracking-widest shadow-lg">
+                        MEJOR OPCIÓN: {winner === 'TBM' ? 'TUNELADORA' : 'VOLADURA'} (AHORRO ${savings}M)
                     </div>
                 </div>
             );
         };
 
-        // --- COMPARATIVA (Sección Aparte) ---
+        // --- 2. ASISTENTE DE DECISIÓN ---
+        const Wizard = () => {
+            const [step, setStep] = useState(0);
+            const [score, setScore] = useState(0);
+
+            const qs = [
+                { q: "LONGITUD TOTAL", opts: [{l:"< 4 KM", s:-5}, {l:"4 - 7 KM", s:0}, {l:"> 7 KM", s:5}] },
+                { q: "TIPO DE ROCA", opts: [{l:"ROCA DURA", s:2}, {l:"SUELO BLANDO", s:5}, {l:"FALLADA", s:-3}] },
+                { q: "PLAZO INICIO", opts: [{l:"URGENTE", s:-5}, {l:"PLANIFICADO", s:2}] }
+            ];
+
+            const vote = (v) => {
+                const newScore = score + v;
+                if(step < qs.length - 1) { setScore(newScore); setStep(step + 1); } 
+                else { setScore(newScore); setStep(step + 1); }
+            };
+
+            if(step === qs.length) {
+                const isTBM = score > 0;
+                return (
+                    <div className="animate-fade-in p-6 text-center h-[500px] flex flex-col justify-center items-center bg-cat-panel rounded border border-gray-800">
+                        <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 border-4 ${isTBM ? 'border-cat bg-cat/10 text-cat' : 'border-orange-500 bg-orange-500/10 text-orange-500'}`}>
+                            <span className="text-4xl font-black">{isTBM ? 'TBM' : 'PyV'}</span>
+                        </div>
+                        <h2 className="text-3xl font-stencil text-white mb-2">RECOMENDACIÓN</h2>
+                        <p className="text-gray-400 text-sm mb-8 max-w-md">
+                            {isTBM ? "El proyecto justifica la industrialización con Tuneladora debido a la escala y condiciones." : "La flexibilidad del método convencional es la mejor opción para reducir riesgos iniciales."}
+                        </p>
+                        <button onClick={()=>{setStep(0);setScore(0)}} className="bg-cat text-black font-bold py-3 px-8 rounded uppercase tracking-widest hover:bg-white transition-colors">REINICIAR</button>
+                    </div>
+                )
+            }
+
+            return (
+                <div className="animate-fade-in p-6 h-[500px] flex flex-col justify-center bg-cat-panel rounded border border-gray-800">
+                    <div className="text-cat text-xs font-mono mb-2">PASO {step+1} / {qs.length}</div>
+                    <h2 className="text-3xl font-stencil text-white mb-8">{qs[step].q}</h2>
+                    <div className="space-y-4">
+                        {qs[step].opts.map((o,i) => (
+                            <button key={i} onClick={()=>vote(o.s)} className="w-full py-4 bg-black border border-gray-700 text-white font-bold text-lg hover:border-cat hover:text-cat transition-all rounded-sm uppercase">
+                                {o.l}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 3. COMPARATIVA ---
         const Comparison = () => (
-            <div className="p-4 pb-24 space-y-4">
-                <h2 className="text-2xl font-stencil text-white border-b-4 border-cat inline-block pr-4">VS. TÉCNICO</h2>
-                
+            <div className="animate-fade-in space-y-4 pb-24">
                 {[
-                    { t: "INVERSIÓN (CAPEX)", v1: "ALTA ($$$)", v2: "BAJA ($)", w: 2 },
-                    { t: "VELOCIDAD", v1: "RÁPIDA (25m/d)", v2: "LENTA (6m/d)", w: 1 },
-                    { t: "GEOMETRÍA", v1: "RÍGIDA (Circular)", v2: "FLEXIBLE (Variable)", w: 2 },
-                    { t: "SEGURIDAD", v1: "MÁXIMA (Escudo)", v2: "MEDIA (Exposición)", w: 1 }
+                    { t: "CAPEX (INVERSIÓN)", v1: "MUY ALTA", v2: "BAJA", w: 2 },
+                    { t: "VELOCIDAD AVANCE", v1: "RÁPIDA (25m/d)", v2: "LENTA (6m/d)", w: 1 },
+                    { t: "FLEXIBILIDAD", v1: "BAJA (Circular)", v2: "ALTA (Variable)", w: 2 },
+                    { t: "SEGURIDAD", v1: "MÁXIMA", v2: "MEDIA", w: 1 }
                 ].map((item, i) => (
-                    <div key={i} className="bg-cat-panel border border-cat-metal rounded-sm overflow-hidden">
-                        <div className="bg-black p-2 text-center text-xs font-bold text-cat uppercase tracking-widest border-b border-cat-metal">
+                    <div key={i} className="bg-cat-panel border border-gray-800 rounded overflow-hidden">
+                        <div className="bg-black p-2 text-center text-xs font-bold text-cat uppercase tracking-widest border-b border-gray-800">
                             {item.t}
                         </div>
-                        <div className="grid grid-cols-2 divide-x divide-cat-metal">
-                            <div className={`p-3 text-center ${item.w === 1 ? 'bg-cat/10' : ''}`}>
+                        <div className="grid grid-cols-2 divide-x divide-gray-800">
+                            <div className={`p-4 text-center ${item.w === 1 ? 'bg-cat/5' : ''}`}>
                                 <div className="text-[10px] text-gray-500 mb-1">TBM</div>
                                 <div className={`text-sm font-bold ${item.w === 1 ? 'text-cat' : 'text-gray-400'}`}>{item.v1}</div>
                             </div>
-                            <div className={`p-3 text-center ${item.w === 2 ? 'bg-orange-900/10' : ''}`}>
+                            <div className={`p-4 text-center ${item.w === 2 ? 'bg-orange-900/10' : ''}`}>
                                 <div className="text-[10px] text-gray-500 mb-1">PyV</div>
                                 <div className={`text-sm font-bold ${item.w === 2 ? 'text-orange-500' : 'text-gray-400'}`}>{item.v2}</div>
                             </div>
@@ -299,67 +337,14 @@
             </div>
         );
 
-        // --- ASISTENTE (Wizard) ---
-        const Wizard = () => {
-            const [step, setStep] = useState(0);
-            const [score, setScore] = useState(0); // >0 TBM, <0 PyV
-
-            const qs = [
-                { q: "LONGITUD TOTAL", opts: [{l:"< 3 KM", s:-5}, {l:"3 - 7 KM", s:0}, {l:"> 7 KM", s:5}] },
-                { q: "TIPO DE ROCA", opts: [{l:"ROCA DURA", s:3}, {l:"SUELO BLANDO", s:5}, {l:"FALLADA", s:-3}] },
-                { q: "PLAZO INICIO", opts: [{l:"URGENTE", s:-5}, {l:"PLANIFICADO", s:2}] }
-            ];
-
-            const vote = (v) => {
-                const newScore = score + v;
-                if(step < qs.length - 1) {
-                    setScore(newScore);
-                    setStep(step + 1);
-                } else {
-                    setScore(newScore);
-                    setStep(step + 1);
-                }
-            };
-
-            if(step === qs.length) {
-                const isTBM = score > 0;
-                return (
-                    <div className="p-6 text-center h-[60vh] flex flex-col justify-center items-center">
-                        <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 border-4 ${isTBM ? 'border-cat bg-cat/10 text-cat' : 'border-orange-500 bg-orange-500/10 text-orange-500'}`}>
-                            <span className="text-4xl font-black">{isTBM ? 'TBM' : 'PyV'}</span>
-                        </div>
-                        <h2 className="text-3xl font-stencil text-white mb-2">RESULTADO</h2>
-                        <p className="text-gray-400 text-sm mb-8">
-                            {isTBM ? "El proyecto justifica la industrialización con Tuneladora." : "La flexibilidad del método convencional es la mejor opción."}
-                        </p>
-                        <button onClick={()=>{setStep(0);setScore(0)}} className="bg-cat text-black font-bold py-3 px-8 rounded uppercase tracking-widest hover:bg-white">REINICIAR</button>
-                    </div>
-                )
-            }
-
-            return (
-                <div className="p-6 h-[60vh] flex flex-col justify-center">
-                    <div className="text-cat text-xs font-mono mb-2">PASO {step+1} / {qs.length}</div>
-                    <h2 className="text-3xl font-stencil text-white mb-8">{qs[step].q}</h2>
-                    <div className="space-y-4">
-                        {qs[step].opts.map((o,i) => (
-                            <button key={i} onClick={()=>vote(o.s)} className="w-full py-4 bg-cat-panel border border-cat-metal text-white font-bold text-lg hover:border-cat hover:text-cat transition-all rounded-sm">
-                                {o.l}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
-
         // --- APP PRINCIPAL ---
         const App = () => {
             const [tab, setTab] = useState('sim');
 
             return (
-                <div className="min-h-screen font-sans text-gray-200 bg-black">
-                    {/* HEADER INDUSTRIAL */}
-                    <header className="bg-cat-panel border-b-4 border-cat p-4 sticky top-0 z-50 shadow-lg">
+                <div className="min-h-screen font-sans text-gray-200 bg-black pb-20">
+                    {/* HEADER */}
+                    <header className="bg-cat-panel border-b-4 border-cat p-4 sticky top-0 z-50 shadow-lg mb-6">
                         <div className="flex justify-between items-end">
                             <div>
                                 <h1 className="text-2xl font-stencil text-white leading-none tracking-tighter">
@@ -368,30 +353,39 @@
                                 <div className="text-[10px] text-gray-500 font-mono tracking-widest mt-1">INGENIERÍA DE MINAS</div>
                             </div>
                             <div className="text-right">
-                                <div className="bg-cat text-black text-[10px] font-bold px-1">v8.0</div>
+                                <div className="bg-cat text-black text-[10px] font-bold px-1 mb-1 inline-block">v10.0</div>
                             </div>
                         </div>
                     </header>
 
-                    <main className="max-w-md mx-auto pt-4">
+                    {/* CONTENIDO */}
+                    <main className="max-w-4xl mx-auto px-4">
                         {tab === 'sim' && <Simulator />}
                         {tab === 'wiz' && <Wizard />}
                         {tab === 'comp' && <Comparison />}
+                        
+                        <div className="mt-12 mb-8 pt-8 border-t border-gray-800 text-center">
+                            <div className="text-cat font-bold text-xs uppercase mb-2">PROYECTO ACADÉMICO</div>
+                            <div className="text-gray-500 text-[10px] font-mono">
+                                CREADO POR: GARCÍA • FLORES • PINTO
+                            </div>
+                            <div className="text-gray-600 text-[10px] mt-1">Universidad Católica de Santa María</div>
+                        </div>
                     </main>
 
-                    {/* BARRA DE NAVEGACIÓN INFERIOR */}
-                    <nav className="fixed bottom-0 w-full bg-cat-panel border-t border-cat-metal pb-safe z-50">
-                        <div className="flex justify-around h-16">
+                    {/* NAVEGACIÓN */}
+                    <nav className="fixed bottom-0 w-full bg-cat-panel border-t border-gray-800 pb-safe z-50">
+                        <div className="flex justify-around h-16 max-w-4xl mx-auto">
                             <button onClick={()=>setTab('sim')} className={`flex-1 flex flex-col items-center justify-center ${tab==='sim' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
-                                <Icon d={icons.chart} className="w-6 h-6 mb-1" />
+                                <Icon d={icons.chart} c="w-6 h-6 mb-1" />
                                 <span className="text-[10px] font-bold uppercase">Simulador</span>
                             </button>
                             <button onClick={()=>setTab('wiz')} className={`flex-1 flex flex-col items-center justify-center ${tab==='wiz' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
-                                <Icon d={icons.gear} className="w-6 h-6 mb-1" />
+                                <Icon d={icons.gear} c="w-6 h-6 mb-1" />
                                 <span className="text-[10px] font-bold uppercase">Asistente</span>
                             </button>
                             <button onClick={()=>setTab('comp')} className={`flex-1 flex flex-col items-center justify-center ${tab==='comp' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
-                                <Icon d={icons.scale} className="w-6 h-6 mb-1" />
+                                <Icon d={icons.scale} c="w-6 h-6 mb-1" />
                                 <span className="text-[10px] font-bold uppercase">Comparar</span>
                             </button>
                         </div>
