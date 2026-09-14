@@ -49,15 +49,26 @@
       width: 6px;
       height: 6px;
     }
-    ::-webkit-scrollbar-track {
+    .dark ::-webkit-scrollbar-track {
       background: #0f172a;
     }
-    ::-webkit-scrollbar-thumb {
+    .dark ::-webkit-scrollbar-thumb {
       background: #334155;
       border-radius: 9999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
+    .dark ::-webkit-scrollbar-thumb:hover {
       background: #475569;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -69,99 +80,111 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
 
   <!-- LOGIN SCREEN (OVERLAY) -->
-  <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+  <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-900/80 dark:bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-2">
         <div class="inline-flex p-3.5 rounded-2xl bg-gradient-to-tr from-indigo-600 to-amber-500 text-white shadow-lg shadow-indigo-600/30">
           <i data-lucide="shield-check" class="w-8 h-8"></i>
         </div>
-        <h2 class="text-2xl font-black tracking-tight text-white">
-          Roster <span class="text-indigo-400">RODASER</span>
+        <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+          Roster <span class="text-indigo-600 dark:text-indigo-400">RODASER</span>
         </h2>
-        <p class="text-xs text-slate-400">Ingreso al Sistema de Control de Turnos Mineros</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Control de Turnos Mineros & Campo</p>
       </div>
 
-      <div id="loginErrorAlert" class="hidden p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+      <div id="loginErrorAlert" class="hidden p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs flex items-center gap-2">
         <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
         <span>Credenciales incorrectas. Verifique usuario o contraseña.</span>
       </div>
 
+      <!-- Admin Login Form -->
       <form id="formLogin" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Usuario</label>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Usuario Administrador</label>
           <div class="relative">
             <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
-            <input type="text" id="loginUsername" required autocomplete="username" placeholder="admin o asistente" class="w-full pl-10 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-600">
+            <input type="text" id="loginUsername" required autocomplete="username" placeholder="Ingresa tu usuario" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-600">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Contraseña</label>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Contraseña</label>
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
-            <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-600">
-            <button type="button" id="btnTogglePassword" class="absolute right-3 top-3 text-slate-400 hover:text-slate-200">
+            <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-600">
+            <button type="button" id="btnTogglePassword" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
               <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <label class="flex items-center gap-2 text-slate-400 cursor-pointer">
-            <input type="checkbox" id="rememberSessionCheck" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0">
+          <label class="flex items-center gap-2 text-slate-600 dark:text-slate-400 cursor-pointer">
+            <input type="checkbox" id="rememberSessionCheck" class="rounded bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0">
             <span>Recordar sesión</span>
           </label>
-          <span class="text-[11px] text-slate-500">v2.4 Oficial</span>
+          <span class="text-[11px] text-slate-400">v2.5 Oficial</span>
         </div>
 
         <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
           <i data-lucide="log-in" class="w-4 h-4"></i>
-          <span>Iniciar Sesión</span>
+          <span>Ingresar como Administrador</span>
         </button>
       </form>
 
-      <div class="p-3 bg-slate-950/60 rounded-2xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
-        <div class="flex justify-between">
-          <span class="font-semibold text-slate-300">Admin (Edición completa):</span>
-          <span class="font-mono text-indigo-400">admin / rod1234</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="font-semibold text-slate-300">Asistente (Solo lectura):</span>
-          <span class="font-mono text-amber-400">asistente / asisrod1234</span>
-        </div>
+      <!-- Divider -->
+      <div class="relative flex py-1 items-center">
+        <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+        <span class="flex-shrink mx-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">o consulta libre</span>
+        <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
       </div>
+
+      <!-- Guest Access Button -->
+      <button type="button" id="btnGuestMode" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-[0.99] text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 shadow-sm">
+        <i data-lucide="eye" class="w-4 h-4 text-emerald-500"></i>
+        <span>Modo Invitado (Solo Lectura)</span>
+      </button>
     </div>
   </div>
 
   <!-- APP HEADER -->
-  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-3.5 py-2.5 sm:px-6">
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3.5 py-2.5 sm:px-6 shadow-sm">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-amber-500 flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-600/30">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-amber-500 flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-600/30 shrink-0">
           R
         </div>
         <div>
-          <h1 class="text-base font-extrabold leading-tight flex items-center gap-1.5">
-            Roster <span class="text-indigo-400 font-extrabold tracking-wide">RODASER</span>
+          <h1 class="text-base font-extrabold leading-tight flex items-center gap-1.5 text-slate-900 dark:text-white">
+            Roster <span class="text-indigo-600 dark:text-indigo-400 font-extrabold tracking-wide">RODASER</span>
           </h1>
           <div class="flex items-center gap-1.5">
-            <p class="text-[11px] text-slate-400">Control de Turnos & Campo</p>
-            <span id="badgeUserRole" class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Admin</span>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Control de Turnos & Campo</p>
+            <span id="badgeUserRole" class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">Admin</span>
+            <span id="cloudStatusBadge" class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border border-slate-300 dark:border-slate-700 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+              <span>Local</span>
+            </span>
           </div>
         </div>
       </div>
       
       <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Theme Toggle Button (Light / Dark) -->
+        <button id="btnToggleTheme" title="Cambiar tema Claro/Oscuro" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-amber-400 transition shadow-sm">
+          <i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i>
+        </button>
+
         <button id="btnManualSave" title="Guardar cambios permanentemente" class="flex items-center gap-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/40 px-2.5 py-2 rounded-xl transition shadow-md shadow-emerald-600/20">
           <i data-lucide="save" class="w-4 h-4"></i>
           <span class="hidden xs:inline">Guardar</span>
         </button>
 
-        <button id="btnDatabaseModal" title="Base de Datos & Excel" class="flex items-center gap-1 text-xs font-semibold bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-emerald-400 border border-emerald-500/30 px-2.5 py-2 rounded-xl transition shadow-sm">
-          <i data-lucide="sheet" class="w-4 h-4 text-emerald-400"></i>
+        <button id="btnDatabaseModal" title="Base de Datos & Excel" class="flex items-center gap-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-2 rounded-xl transition shadow-sm">
+          <i data-lucide="sheet" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
           <span class="hidden xs:inline">Excel</span>
         </button>
 
@@ -170,7 +193,7 @@
           <span>Permiso</span>
         </button>
 
-        <button id="btnLogout" title="Cerrar Sesión" class="flex items-center justify-center text-xs font-semibold bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/30 w-8 h-8 rounded-xl transition shadow-sm">
+        <button id="btnLogout" title="Cerrar Sesión" class="flex items-center justify-center text-xs font-semibold bg-slate-100 hover:bg-rose-500/20 dark:bg-slate-800 dark:hover:bg-rose-500/20 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 border border-slate-300 hover:border-rose-500/30 dark:border-slate-700 w-8 h-8 rounded-xl transition shadow-sm">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
@@ -178,21 +201,21 @@
   </header>
 
   <!-- NAVIGATION TABS -->
-  <nav class="bg-slate-900 border-b border-slate-800 sticky top-[53px] z-20">
+  <nav class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-[53px] z-20 transition-colors">
     <div class="max-w-6xl mx-auto flex items-center justify-around px-2 text-xs font-semibold">
-      <button id="tabBtnCalendar" class="nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-500 text-indigo-400 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnCalendar" class="nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition">
         <i data-lucide="calendar" class="w-4 h-4"></i>
         <span>Calendario</span>
       </button>
-      <button id="tabBtnFieldOverview" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnFieldOverview" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
         <i data-lucide="users-round" class="w-4 h-4"></i>
         <span>En Campo</span>
       </button>
-      <button id="tabBtnDaily" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnDaily" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
         <i data-lucide="activity" class="w-4 h-4"></i>
         <span>Control Diario</span>
       </button>
-      <button id="tabBtnWorkers" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnWorkers" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
         <i data-lucide="users" class="w-4 h-4"></i>
         <span>Personal (<span id="workersCountBadge">21</span>)</span>
       </button>
@@ -205,7 +228,7 @@
     <!-- VIEW 1: CALENDAR VIEW -->
     <section id="viewCalendar" class="space-y-4">
       <!-- Selector & Filters -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <!-- Worker selector -->
         <div class="flex items-center gap-2 flex-1">
           <div id="workerAvatarCircle" class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
@@ -213,30 +236,30 @@
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <select id="workerSelect" class="bg-slate-950 text-white text-sm font-bold border border-slate-700 rounded-xl px-2.5 py-1.5 w-full focus:outline-none focus:border-indigo-500">
+              <select id="workerSelect" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 w-full focus:outline-none focus:border-indigo-500">
                 <!-- Populated by JS -->
               </select>
             </div>
-            <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
-              <span id="workerRoleBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">Supervisor</span>
-              <span id="workerBrigadeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">Brigada 1</span>
-              <span id="workerRegimeText" class="text-[11px] font-semibold text-slate-300">16x5</span>
+            <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              <span id="workerRoleBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">Supervisor</span>
+              <span id="workerBrigadeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Brigada 1</span>
+              <span id="workerRegimeText" class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">16x5</span>
             </div>
           </div>
         </div>
 
         <!-- Month Navigation -->
-        <div class="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
-          <button id="btnPrevMonth" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+        <div class="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200 dark:border-slate-800">
+          <button id="btnPrevMonth" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
-          <span id="currentMonthYearLabel" class="text-sm font-bold text-white px-2 tracking-wide capitalize text-center min-w-[130px]">
+          <span id="currentMonthYearLabel" class="text-sm font-bold text-slate-900 dark:text-white px-2 tracking-wide capitalize text-center min-w-[130px]">
             Setiembre 2026
           </span>
-          <button id="btnNextMonth" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+          <button id="btnNextMonth" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
-          <button id="btnToday" class="px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-500/30 transition">
+          <button id="btnToday" class="px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 transition">
             Hoy
           </button>
         </div>
@@ -244,48 +267,48 @@
 
       <!-- Quick Summary Cards -->
       <div class="grid grid-cols-3 gap-2 sm:gap-4">
-        <div class="bg-rose-950/30 border border-rose-600/30 rounded-2xl p-3 flex items-center gap-3">
-          <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+        <div class="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
             <i data-lucide="pickaxe" class="w-4 h-4"></i>
           </div>
           <div>
-            <span class="text-[10px] text-slate-400 block font-medium">Trabajo (Guardia)</span>
-            <span id="statWorkDays" class="text-base sm:text-lg font-black text-rose-400">0 días</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">Trabajo (Guardia)</span>
+            <span id="statWorkDays" class="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400">0 días</span>
           </div>
         </div>
 
-        <div class="bg-emerald-950/30 border border-emerald-600/30 rounded-2xl p-3 flex items-center gap-3">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <i data-lucide="home" class="w-4 h-4"></i>
           </div>
           <div>
-            <span class="text-[10px] text-slate-400 block font-medium">Bajada (Descanso)</span>
-            <span id="statRestDays" class="text-base sm:text-lg font-black text-emerald-400">0 días</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">Bajada (Descanso)</span>
+            <span id="statRestDays" class="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400">0 días</span>
           </div>
         </div>
 
-        <div class="bg-indigo-950/30 border border-indigo-600/30 rounded-2xl p-3 flex items-center gap-3">
-          <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+        <div class="bg-indigo-500/10 border border-indigo-500/30 rounded-2xl p-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
             <i data-lucide="calendar-clock" class="w-4 h-4"></i>
           </div>
           <div>
-            <span class="text-[10px] text-slate-400 block font-medium">Permisos / Excep.</span>
-            <span id="statExceptionDays" class="text-base sm:text-lg font-black text-indigo-400">0 días</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">Permisos / Excep.</span>
+            <span id="statExceptionDays" class="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400">0 días</span>
           </div>
         </div>
       </div>
 
       <!-- Calendar Grid Card -->
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-3 sm:p-5 shadow-lg">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-3 sm:p-5 shadow-sm">
         <!-- Weekdays Header -->
         <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[11px] sm:text-xs font-bold text-slate-400">
-          <div class="text-rose-400">Dom</div>
+          <div class="text-rose-500 dark:text-rose-400">Dom</div>
           <div>Lun</div>
           <div>Mar</div>
           <div>Mié</div>
           <div>Jue</div>
           <div>Vie</div>
-          <div class="text-amber-400">Sáb</div>
+          <div class="text-amber-500 dark:text-amber-400">Sáb</div>
         </div>
 
         <!-- Days Grid -->
@@ -295,7 +318,7 @@
       </div>
 
       <!-- Legend -->
-      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 flex flex-wrap items-center justify-around gap-2 text-xs text-slate-400">
+      <div class="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 flex flex-wrap items-center justify-around gap-2 text-xs text-slate-500 dark:text-slate-400">
         <div class="flex items-center gap-1.5">
           <span class="w-3 h-3 rounded-md bg-rose-600 border border-rose-400"></span>
           <span>Trabajo / Campo (G)</span>
@@ -317,34 +340,34 @@
 
     <!-- VIEW 2: EN CAMPO (MONTHLY OVERVIEW OF HEADCOUNT IN FIELD) -->
     <section id="viewFieldOverview" class="hidden space-y-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
-          <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
             <span>Personal Activo en Mina / Campo</span>
           </h2>
-          <p class="text-xs text-slate-400">Vista general mensual de presencia física en obra</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Vista general mensual de presencia física en obra</p>
         </div>
 
         <!-- Filter by Brigade -->
         <div class="flex items-center gap-2">
-          <span class="text-xs text-slate-400 font-medium">Brigada:</span>
-          <select id="filterFieldBrigade" class="bg-slate-950 text-white text-xs font-bold border border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Brigada:</span>
+          <select id="filterFieldBrigade" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
             <option value="ALL">Todas las Brigadas</option>
           </select>
         </div>
       </div>
 
       <!-- Field Monthly Grid Card -->
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-3 sm:p-5 shadow-lg">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-3 sm:p-5 shadow-sm">
         <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[11px] sm:text-xs font-bold text-slate-400">
-          <div class="text-rose-400">Dom</div>
+          <div class="text-rose-500 dark:text-rose-400">Dom</div>
           <div>Lun</div>
           <div>Mar</div>
           <div>Mié</div>
           <div>Jue</div>
           <div>Vie</div>
-          <div class="text-amber-400">Sáb</div>
+          <div class="text-amber-500 dark:text-amber-400">Sáb</div>
         </div>
 
         <div id="fieldCalendarGrid" class="grid grid-cols-7 gap-1 sm:gap-2">
@@ -356,13 +379,13 @@
     <!-- VIEW 3: CONTROL DIARIO (TODAY'S HEADCOUNT) -->
     <section id="viewDaily" class="hidden space-y-4">
       <!-- Date Selector for Daily View -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div class="flex items-center gap-2">
-          <button id="btnDailyPrev" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+          <button id="btnDailyPrev" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
-          <input type="date" id="dailyDatePicker" class="bg-slate-950 text-white text-sm font-bold border border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500">
-          <button id="btnDailyNext" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+          <input type="date" id="dailyDatePicker" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500">
+          <button id="btnDailyNext" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
         </div>
@@ -377,13 +400,13 @@
       <!-- Three Columns for Today -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Working in Field -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-rose-300">En Campo (Trabajo)</h3>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-300">En Campo (Trabajo)</h3>
             </div>
-            <span id="dailyCountWorking" class="text-xs font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">0</span>
+            <span id="dailyCountWorking" class="text-xs font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30">0</span>
           </div>
           <div id="dailyListWorking" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
             <!-- Populated by JS -->
@@ -391,13 +414,13 @@
         </div>
 
         <!-- In Rest (Bajada) -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300">En Bajada (Descanso)</h3>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-300">En Bajada (Descanso)</h3>
             </div>
-            <span id="dailyCountRest" class="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0</span>
+            <span id="dailyCountRest" class="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">0</span>
           </div>
           <div id="dailyListRest" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
             <!-- Populated by JS -->
@@ -405,13 +428,13 @@
         </div>
 
         <!-- Exceptions / Permissions -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300">Permisos & Descansos</h3>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-300">Permisos & Descansos</h3>
             </div>
-            <span id="dailyCountExceptions" class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">0</span>
+            <span id="dailyCountExceptions" class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">0</span>
           </div>
           <div id="dailyListExceptions" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
             <!-- Populated by JS -->
@@ -422,13 +445,13 @@
 
     <!-- VIEW 4: PERSONAL (WORKERS LIST) -->
     <section id="viewWorkers" class="hidden space-y-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
-          <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-            <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i>
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="users" class="w-4 h-4 text-indigo-500"></i>
             <span>Nómina del Roster RODASER</span>
           </h2>
-          <p class="text-xs text-slate-400">Gestiona integrantes, regímenes de turno, colores y brigadas</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Gestiona integrantes, regímenes de turno, colores y brigadas</p>
         </div>
 
         <div class="flex items-center gap-2">
@@ -453,31 +476,31 @@
 
   <!-- MODAL: DETALLE DE DÍA / AGREGAR EXCEPCIÓN O PERMISO -->
   <div id="modalDayAction" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <h3 id="modalDayDateTitle" class="text-sm font-bold text-white">Fecha</h3>
-          <p id="modalDayWorkerName" class="text-xs text-indigo-400 font-semibold mt-0.5">Trabajador</p>
+          <h3 id="modalDayDateTitle" class="text-sm font-bold text-slate-900 dark:text-white">Fecha</h3>
+          <p id="modalDayWorkerName" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">Trabajador</p>
         </div>
-        <button id="btnCloseDayModal" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800">
+        <button id="btnCloseDayModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <div class="space-y-3.5 text-xs">
-        <div id="modalDayDefaultInfo" class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-slate-300 flex items-center justify-between">
+        <div id="modalDayDefaultInfo" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between">
           <!-- Filled by JS -->
         </div>
 
-        <div id="modalDayReadOnlyNotice" class="hidden p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] flex items-center gap-1.5">
+        <div id="modalDayReadOnlyNotice" class="hidden p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] flex items-center gap-1.5">
           <i data-lucide="lock" class="w-3.5 h-3.5 shrink-0"></i>
           <span>Modo solo lectura: No tienes permisos para modificar este día.</span>
         </div>
 
         <div id="modalDayEditableFields" class="space-y-3.5">
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Estado Especial / Excepción</label>
-            <select id="modalDayOverrideSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Estado Especial / Excepción</label>
+            <select id="modalDayOverrideSelect" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
               <option value="default">Según ciclo regular (Automático)</option>
               <option value="permiso">Permiso con/sin goce</option>
               <option value="medico">Descanso Médico</option>
@@ -488,15 +511,15 @@
           </div>
 
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Motivo / Nota (opcional)</label>
-            <input type="text" id="modalDayNoteInput" placeholder="Ej. Permiso legal, trámite familiar..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Motivo / Nota (opcional)</label>
+            <input type="text" id="modalDayNoteInput" placeholder="Ej. Permiso legal, trámite familiar..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
           </div>
         </div>
 
         <div class="pt-2 flex items-center justify-between">
-          <button type="button" id="btnRemoveOverride" class="text-rose-400 hover:text-rose-300 font-medium">Borrar Nota</button>
+          <button type="button" id="btnRemoveOverride" class="text-rose-500 hover:text-rose-600 font-medium">Borrar Nota</button>
           <div class="flex items-center gap-2">
-            <button type="button" id="btnCancelDayModal" class="px-3.5 py-2 rounded-xl text-slate-300 hover:bg-slate-800 font-medium">Cerrar</button>
+            <button type="button" id="btnCancelDayModal" class="px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium">Cerrar</button>
             <button type="button" id="btnSaveDayOverride" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-md shadow-indigo-600/30">Guardar</button>
           </div>
         </div>
@@ -506,10 +529,10 @@
 
   <!-- MODAL: AGREGAR O EDITAR TRABAJADOR -->
   <div id="modalWorker" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 id="modalWorkerTitle" class="text-sm font-bold text-white">Nuevo Integrante</h3>
-        <button id="btnCloseWorkerModal" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 id="modalWorkerTitle" class="text-sm font-bold text-slate-900 dark:text-white">Nuevo Integrante</h3>
+        <button id="btnCloseWorkerModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -518,14 +541,14 @@
         <input type="hidden" id="workerFormId">
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Nombre Completo</label>
-          <input type="text" id="workerNameInput" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nombre Completo</label>
+          <input type="text" id="workerNameInput" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Cargo / Rol</label>
-            <select id="workerRoleSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Cargo / Rol</label>
+            <select id="workerRoleSelect" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
               <option value="Supervisor">Supervisor</option>
               <option value="Asistente">Asistente</option>
               <option value="Coordinador">Coordinador</option>
@@ -536,8 +559,8 @@
           </div>
 
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Color Identificador</label>
-            <select id="workerColorSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Color Identificador</label>
+            <select id="workerColorSelect" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
               <option value="purple">Púrpura (Topógrafo / Sup)</option>
               <option value="emerald">Esmeralda (Asistente)</option>
               <option value="amber">Ámbar (Coordinador)</option>
@@ -549,40 +572,40 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Brigada / Grupo</label>
-          <input type="text" id="workerBrigadeInput" placeholder="Ej. Brigada 1, Brigada 2, Brigada Volante" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Brigada / Grupo</label>
+          <input type="text" id="workerBrigadeInput" placeholder="Ej. Brigada 1, Brigada 2, Brigada Volante" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
         </div>
 
         <!-- Shift Regime Configuration -->
-        <div class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
-          <label class="block font-bold text-indigo-400">Régimen de Turno</label>
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+          <label class="block font-bold text-indigo-600 dark:text-indigo-400">Régimen de Turno</label>
           <div class="grid grid-cols-2 gap-2">
-            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 font-semibold hover:border-indigo-500" data-work="16" data-rest="5">16x5 Minero</button>
-            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 font-semibold hover:border-indigo-500" data-work="6" data-rest="1">6x1 Coordinador</button>
-            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 font-semibold hover:border-indigo-500" data-work="32" data-rest="10">32x10</button>
-            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 font-semibold hover:border-indigo-500" data-work="14" data-rest="7">14x7</button>
+            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold hover:border-indigo-500" data-work="16" data-rest="5">16x5 Minero</button>
+            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold hover:border-indigo-500" data-work="6" data-rest="1">6x1 Coordinador</button>
+            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold hover:border-indigo-500" data-work="32" data-rest="10">32x10</button>
+            <button type="button" class="btnRegimePreset py-1.5 px-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold hover:border-indigo-500" data-work="14" data-rest="7">14x7</button>
           </div>
 
           <div class="grid grid-cols-2 gap-3 pt-1">
             <div>
-              <span class="block text-[11px] text-slate-400 mb-1">Días de Trabajo (Subida)</span>
-              <input type="number" id="workerWorkDays" min="1" max="90" value="16" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-bold text-center focus:outline-none focus:border-indigo-500">
+              <span class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Días de Trabajo (Subida)</span>
+              <input type="number" id="workerWorkDays" min="1" max="90" value="16" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white font-bold text-center focus:outline-none focus:border-indigo-500">
             </div>
             <div>
-              <span class="block text-[11px] text-slate-400 mb-1">Días de Bajada (Descanso)</span>
-              <input type="number" id="workerRestDays" min="1" max="90" value="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-bold text-center focus:outline-none focus:border-indigo-500">
+              <span class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Días de Bajada (Descanso)</span>
+              <input type="number" id="workerRestDays" min="1" max="90" value="5" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white font-bold text-center focus:outline-none focus:border-indigo-500">
             </div>
           </div>
 
           <div>
-            <span class="block text-[11px] text-slate-400 mb-1">Fecha de Inicio del Ciclo (Día 1 de Guardia)</span>
-            <input type="date" id="workerAnchorDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-bold focus:outline-none focus:border-indigo-500">
-            <p class="text-[10px] text-slate-500 mt-1">Define el punto de sincronización para calcular subidas y bajadas exactas.</p>
+            <span class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Fecha de Inicio del Ciclo (Día 1 de Guardia)</span>
+            <input type="date" id="workerAnchorDate" required class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500">
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Define el punto de sincronización para calcular subidas y bajadas exactas.</p>
           </div>
         </div>
 
         <div class="pt-3 flex items-center justify-end gap-2">
-          <button type="button" id="btnCancelWorkerModal" class="px-3.5 py-2 rounded-xl text-slate-300 hover:bg-slate-800 font-medium">Cancelar</button>
+          <button type="button" id="btnCancelWorkerModal" class="px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium">Cancelar</button>
           <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-md shadow-indigo-600/30">Guardar Integrante</button>
         </div>
       </form>
@@ -591,28 +614,28 @@
 
   <!-- MODAL: BASE DE DATOS Y EXCEL -->
   <div id="modalDatabase" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2 text-white font-bold text-sm">
-          <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i>
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm">
+          <i data-lucide="database" class="w-4 h-4 text-emerald-500"></i>
           <span>Base de Datos & Exportaciones</span>
         </div>
-        <button id="btnCloseDatabaseModal" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800">
+        <button id="btnCloseDatabaseModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <div class="space-y-3.5 text-xs">
         <!-- Direct September 2026 JSON Download & Load Card -->
-        <div class="p-3.5 bg-gradient-to-br from-indigo-950/70 via-slate-950 to-slate-900 border border-indigo-500/50 rounded-2xl space-y-2.5 shadow-lg shadow-indigo-950/40">
+        <div class="p-3.5 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl space-y-2.5">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 text-indigo-300 font-bold">
-              <i data-lucide="file-json" class="w-4 h-4 text-indigo-400"></i>
+            <div class="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold">
+              <i data-lucide="file-json" class="w-4 h-4 text-indigo-500"></i>
               <span>Roster Setiembre 2026</span>
             </div>
-            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">21 Integrantes</span>
+            <span class="text-[10px] bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">21 Integrantes</span>
           </div>
-          <p class="text-slate-300 text-[11px] leading-relaxed">
+          <p class="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
             Nómina precargada con <strong>Christian Dávila (Coordinador 6x1)</strong>, 8 Supervisores y Asistentes de las 6 Brigadas en régimen 16x5.
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -620,20 +643,20 @@
               <i data-lucide="download" class="w-4 h-4"></i>
               <span>Descargar .JSON</span>
             </button>
-            <button id="btnApplySeptDirectly" class="admin-only-action w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">
-              <i data-lucide="check-check" class="w-4 h-4 text-emerald-400"></i>
+            <button id="btnApplySeptDirectly" class="admin-only-action w-full py-2 px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="check-check" class="w-4 h-4 text-emerald-500"></i>
               <span>Restablecer Base</span>
             </button>
           </div>
         </div>
 
         <!-- Export Excel Section -->
-        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
-          <div class="flex items-center gap-2 text-emerald-400 font-bold">
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold">
             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
             <span>Exportar Roster a Excel (.xlsx)</span>
           </div>
-          <p class="text-slate-400 text-[11px]">
+          <p class="text-slate-500 dark:text-slate-400 text-[11px]">
             Genera un archivo Excel con la nómina, brigadas, regímenes de turno y el calendario del mes activo para imprimir o reportar.
           </p>
           <button id="btnExportExcel" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
@@ -643,30 +666,30 @@
         </div>
 
         <!-- JSON Backup Section -->
-        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
-          <div class="flex items-center gap-2 text-indigo-400 font-bold">
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
             <i data-lucide="hard-drive-download" class="w-4 h-4"></i>
             <span>Copia de Seguridad Completa (Backup)</span>
           </div>
-          <p class="text-slate-400 text-[11px]">
+          <p class="text-slate-500 dark:text-slate-400 text-[11px]">
             Descarga toda tu información (trabajadores, ciclos, brigadas y permisos) en un archivo JSON seguro.
           </p>
-          <button id="btnExportBackupJson" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
+          <button id="btnExportBackupJson" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
             <i data-lucide="save" class="w-4 h-4"></i>
             <span>Guardar Copia (.json)</span>
           </button>
         </div>
 
         <!-- Import / Restore Section -->
-        <div id="sectionImportRestore" class="admin-only-action p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
-          <div class="flex items-center gap-2 text-amber-400 font-bold">
+        <div id="sectionImportRestore" class="admin-only-action p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold">
             <i data-lucide="upload-cloud" class="w-4 h-4"></i>
             <span>Cargar / Restaurar Base de Datos</span>
           </div>
-          <p class="text-slate-400 text-[11px]">
+          <p class="text-slate-500 dark:text-slate-400 text-[11px]">
             Sube un archivo de respaldo (.json) previamente guardado para restaurar tu información.
           </p>
-          <label class="w-full py-2.5 px-3 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer transition">
+          <label class="w-full py-2.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer transition">
             <i data-lucide="folder-up" class="w-4 h-4"></i>
             <span>Seleccionar Archivo JSON</span>
             <input type="file" id="inputFileImport" accept=".json" class="hidden">
@@ -678,13 +701,13 @@
 
   <!-- MODAL: DETALLE DE PERSONAL EN CAMPO POR FECHA -->
   <div id="modalFieldDayDetail" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <h3 id="modalFieldDayDate" class="text-sm font-bold text-white">Fecha</h3>
-          <p class="text-xs text-slate-400">Personal en campo en esta fecha</p>
+          <h3 id="modalFieldDayDate" class="text-sm font-bold text-slate-900 dark:text-white">Fecha</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Personal en campo en esta fecha</p>
         </div>
-        <button id="btnCloseFieldDayModal" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800">
+        <button id="btnCloseFieldDayModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -696,41 +719,183 @@
   </div>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 border border-slate-700 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2">
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white dark:bg-slate-800 border border-slate-700 text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2">
     <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
     <span id="toastMessage">Operación realizada</span>
   </div>
 
   <!-- CONFIRM DIALOG -->
   <div id="modalConfirm" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4 text-center">
-      <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 mx-auto flex items-center justify-center">
+    <div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-500 mx-auto flex items-center justify-center">
         <i data-lucide="alert-triangle" class="w-6 h-6"></i>
       </div>
       <div>
-        <h3 id="confirmTitle" class="text-sm font-bold text-white">¿Estás seguro?</h3>
-        <p id="confirmDesc" class="text-xs text-slate-400 mt-1">Esta acción no se puede deshacer.</p>
+        <h3 id="confirmTitle" class="text-sm font-bold text-slate-900 dark:text-white">¿Estás seguro?</h3>
+        <p id="confirmDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Esta acción no se puede deshacer.</p>
       </div>
       <div class="flex items-center justify-center gap-2 pt-2">
-        <button id="btnConfirmCancel" class="px-4 py-2 rounded-xl text-slate-300 hover:bg-slate-800 font-semibold text-xs">Cancelar</button>
+        <button id="btnConfirmCancel" class="px-4 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs">Cancelar</button>
         <button id="btnConfirmAccept" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md shadow-rose-600/30">Confirmar</button>
       </div>
     </div>
   </div>
 
-  <script>
+  <!-- FIREBASE & APPLICATION LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =========================================================================
+    // CONFIGURACIÓN DE FIREBASE PARA GITHUB PAGES
+    // =========================================================================
+    const customFirebaseConfig = {
+      apiKey: "AIzaSyCDFDuw0xCmsUDho5SxD55uIG2fmvAbzSg",
+      authDomain: "roster-rodaser.firebaseapp.com",
+      databaseURL: "https://roster-rodaser-default-rtdb.firebaseio.com",
+      projectId: "roster-rodaser",
+      storageBucket: "roster-rodaser.firebasestorage.app",
+      messagingSenderId: "279997001401",
+      appId: "1:279997001401:web:909d192b9b4c32e4e3f568"
+    };
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'roster-rodaser';
+    const activeFirebaseConfig = typeof __firebase_config !== 'undefined' 
+      ? JSON.parse(__firebase_config) 
+      : (customFirebaseConfig && customFirebaseConfig.projectId ? customFirebaseConfig : null);
+
+    let db = null;
+    let auth = null;
+    let isCloudConnected = false;
+
+    async function initCloudSync() {
+      if (!activeFirebaseConfig) {
+        updateCloudStatusBadge('local');
+        return;
+      }
+
+      try {
+        const app = initializeApp(activeFirebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        if (!auth.currentUser) return;
+
+        isCloudConnected = true;
+        updateCloudStatusBadge('connected');
+        setupCloudListener();
+      } catch (err) {
+        console.warn('No se pudo conectar a Firebase, operando en modo local:', err);
+        updateCloudStatusBadge('error');
+      }
+    }
+
+    function updateCloudStatusBadge(status) {
+      const badge = document.getElementById('cloudStatusBadge');
+      if (!badge) return;
+      if (status === 'connected') {
+        badge.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span>Nube Activa</span>';
+      } else if (status === 'saving') {
+        badge.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 flex items-center gap-1';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span><span>Guardando...</span>';
+      } else if (status === 'error') {
+        badge.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span>Nube Offline</span>';
+      } else {
+        badge.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border border-slate-300 dark:border-slate-700 flex items-center gap-1';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span><span>Local</span>';
+      }
+    }
+
+    function setupCloudListener() {
+      if (!db || !auth || !auth.currentUser) return;
+
+      const rosterDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roster_data', 'shared_roster');
+
+      onSnapshot(rosterDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const cloudData = docSnap.data();
+          if (cloudData.workers && Array.isArray(cloudData.workers) && cloudData.workers.length > 0) {
+            workers = cloudData.workers;
+            exceptions = cloudData.exceptions || {};
+            if (!activeWorkerId || !workers.find(w => w.id === activeWorkerId)) {
+              activeWorkerId = workers[0].id;
+            }
+            saveLocalCache();
+            renderAllViews();
+          }
+        }
+      }, (error) => {
+        console.error('Error al escuchar sincronización de la nube:', error);
+      });
+    }
+
+    async function syncToCloud() {
+      if (!db || !auth || !auth.currentUser) return;
+      try {
+        updateCloudStatusBadge('saving');
+        const rosterDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roster_data', 'shared_roster');
+        await setDoc(rosterDocRef, {
+          workers: workers,
+          exceptions: exceptions,
+          lastUpdated: new Date().toISOString(),
+          updatedBy: currentUserRole
+        });
+        updateCloudStatusBadge('connected');
+      } catch (err) {
+        console.error('Error guardando en Firestore:', err);
+        updateCloudStatusBadge('error');
+      }
+    }
+
     const STORAGE_KEY_WORKERS = 'rodaser_workers_v3';
     const STORAGE_KEY_EXCEPTIONS = 'rodaser_exceptions_v3';
     const STORAGE_KEY_AUTH = 'rodaser_auth_session';
     const STORAGE_KEY_ROLE = 'rodaser_user_role';
+    const STORAGE_KEY_THEME = 'rodaser_theme_mode';
 
     // Users and roles
     const USERS_CREDENTIALS = {
-      'admin': { pass: 'rod1234', role: 'admin', label: 'Administrador' },
-      'asistente': { pass: 'asisrod1234', role: 'asistente', label: 'Asistente (Solo Lectura)' }
+      'admin': { pass: 'rod1234', role: 'admin', label: 'Administrador' }
     };
 
-    let currentUserRole = 'admin'; // 'admin' | 'asistente'
+    let currentUserRole = 'admin'; // 'admin' | 'asistente' (invitado)
+
+    // =========================================================================
+    // THEME HANDLING (DARK / LIGHT)
+    // =========================================================================
+    function initTheme() {
+      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 'dark';
+      applyTheme(savedTheme);
+    }
+
+    function applyTheme(theme) {
+      const htmlEl = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      if (theme === 'light') {
+        htmlEl.classList.remove('dark');
+        localStorage.setItem(STORAGE_KEY_THEME, 'light');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
+      } else {
+        htmlEl.classList.add('dark');
+        localStorage.setItem(STORAGE_KEY_THEME, 'dark');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    }
 
     // September 2026 Baseline data from official Roster TM Set 2026
     const ROSTER_SETIEMBRE_2026_DATA = {
@@ -953,39 +1118,39 @@
     const ROLE_COLORS = {
       purple: {
         badgeBg: 'bg-purple-500/20',
-        badgeText: 'text-purple-300',
+        badgeText: 'text-purple-700 dark:text-purple-300',
         badgeBorder: 'border-purple-500/30',
         avatarBg: 'from-purple-600 to-indigo-600'
       },
       emerald: {
         badgeBg: 'bg-emerald-500/20',
-        badgeText: 'text-emerald-300',
+        badgeText: 'text-emerald-700 dark:text-emerald-300',
         badgeBorder: 'border-emerald-500/30',
         avatarBg: 'from-emerald-600 to-teal-600'
       },
       amber: {
         badgeBg: 'bg-amber-500/20',
-        badgeText: 'text-amber-300',
+        badgeText: 'text-amber-700 dark:text-amber-300',
         badgeBorder: 'border-amber-500/30',
         avatarBg: 'from-amber-600 to-orange-600'
       },
       sky: {
         badgeBg: 'bg-sky-500/20',
-        badgeText: 'text-sky-300',
+        badgeText: 'text-sky-700 dark:text-sky-300',
         badgeBorder: 'border-sky-500/30',
         avatarBg: 'from-sky-600 to-blue-600'
       },
       rose: {
         badgeBg: 'bg-rose-500/20',
-        badgeText: 'text-rose-300',
+        badgeText: 'text-rose-700 dark:text-rose-300',
         badgeBorder: 'border-rose-500/30',
         avatarBg: 'from-rose-600 to-pink-600'
       },
       slate: {
-        badgeBg: 'bg-slate-700/40',
-        badgeText: 'text-slate-300',
-        badgeBorder: 'border-slate-600',
-        avatarBg: 'from-slate-700 to-slate-800'
+        badgeBg: 'bg-slate-500/20',
+        badgeText: 'text-slate-700 dark:text-slate-300',
+        badgeBorder: 'border-slate-500/30',
+        avatarBg: 'from-slate-600 to-slate-700'
       }
     };
 
@@ -1026,12 +1191,19 @@
       }
     }
 
-    function saveState() {
+    function saveLocalCache() {
       try {
         localStorage.setItem(STORAGE_KEY_WORKERS, JSON.stringify(workers));
         localStorage.setItem(STORAGE_KEY_EXCEPTIONS, JSON.stringify(exceptions));
       } catch (err) {
         console.error('Error guardando en localStorage', err);
+      }
+    }
+
+    function saveState() {
+      saveLocalCache();
+      if (isCloudConnected) {
+        syncToCloud();
       }
     }
 
@@ -1188,7 +1360,7 @@
       // Leading empty cells
       for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'min-h-[64px] sm:min-h-[82px] rounded-2xl bg-slate-950/40 border border-slate-900/60 opacity-30';
+        emptyCell.className = 'min-h-[64px] sm:min-h-[82px] rounded-2xl bg-slate-100/60 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900/60 opacity-30';
         grid.appendChild(emptyCell);
       }
 
@@ -1206,37 +1378,37 @@
         const cell = document.createElement('button');
         cell.type = 'button';
         cell.className = `min-h-[64px] sm:min-h-[82px] p-1.5 sm:p-2 rounded-2xl flex flex-col justify-between text-left transition border ${
-          isCurrentDay ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-950' : ''
+          isCurrentDay ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950' : ''
         }`;
 
         let bgClasses = '';
         let badgeClasses = '';
 
         if (status.type === 'permiso' || status.type === 'vacaciones') {
-          bgClasses = 'bg-amber-950/40 hover:bg-amber-900/50 border-amber-600/40 text-amber-100';
-          badgeClasses = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+          bgClasses = 'bg-amber-500/10 hover:bg-amber-500/20 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 border-amber-500/40 text-amber-900 dark:text-amber-100';
+          badgeClasses = 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40';
         } else if (status.type === 'medico') {
-          bgClasses = 'bg-blue-950/40 hover:bg-blue-900/50 border-blue-600/40 text-blue-100';
-          badgeClasses = 'bg-blue-500/20 text-blue-300 border-blue-500/40';
+          bgClasses = 'bg-blue-500/10 hover:bg-blue-500/20 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 border-blue-500/40 text-blue-900 dark:text-blue-100';
+          badgeClasses = 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/40';
         } else if (status.isWork) {
-          bgClasses = 'bg-rose-950/40 hover:bg-rose-900/50 border-rose-600/40 text-rose-100';
-          badgeClasses = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+          bgClasses = 'bg-rose-500/10 hover:bg-rose-500/20 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 border-rose-500/40 text-rose-900 dark:text-rose-100';
+          badgeClasses = 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/40';
         } else {
-          bgClasses = 'bg-emerald-950/40 hover:bg-emerald-900/50 border-emerald-600/40 text-emerald-100';
-          badgeClasses = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+          bgClasses = 'bg-emerald-500/10 hover:bg-emerald-500/20 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 border-emerald-500/40 text-emerald-900 dark:text-emerald-100';
+          badgeClasses = 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40';
         }
 
         cell.className += ` ${bgClasses}`;
 
         cell.innerHTML = `
           <div class="flex items-center justify-between w-full">
-            <span class="text-xs sm:text-sm font-black ${isCurrentDay ? 'text-indigo-400' : 'text-slate-200'}">${day}</span>
+            <span class="text-xs sm:text-sm font-black ${isCurrentDay ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-slate-200'}">${day}</span>
             <span class="text-[9px] sm:text-[10px] font-mono px-1 py-0.2 rounded font-bold border ${badgeClasses}">
               ${status.label}
             </span>
           </div>
           <div class="mt-1 w-full">
-            <span class="text-[9px] sm:text-[10px] line-clamp-1 opacity-80 block">
+            <span class="text-[9px] sm:text-[10px] line-clamp-1 opacity-80 block font-medium">
               ${status.note || (status.isWork ? 'Campo' : 'Bajada')}
             </span>
           </div>
@@ -1272,7 +1444,7 @@
 
       for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'min-h-[72px] sm:min-h-[96px] rounded-2xl bg-slate-950/40 border border-slate-900/60 opacity-30';
+        emptyCell.className = 'min-h-[72px] sm:min-h-[96px] rounded-2xl bg-slate-100/60 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900/60 opacity-30';
         grid.appendChild(emptyCell);
       }
 
@@ -1289,8 +1461,8 @@
 
         const cell = document.createElement('button');
         cell.type = 'button';
-        cell.className = `min-h-[72px] sm:min-h-[96px] p-1.5 sm:p-2 rounded-2xl bg-slate-950/90 hover:bg-slate-800/80 border border-slate-800 flex flex-col justify-between text-left transition ${
-          isCurrentDay ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-950' : ''
+        cell.className = `min-h-[72px] sm:min-h-[96px] p-1.5 sm:p-2 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/90 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 flex flex-col justify-between text-left transition ${
+          isCurrentDay ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950' : ''
         }`;
 
         // Create avatar bubbles for workers on field
@@ -1302,7 +1474,7 @@
           const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
           const initial = w.name.charAt(0).toUpperCase();
           avatarsHtml += `
-            <span title="${w.name} (${w.role} - ${w.brigade})" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center text-[9px] font-bold border border-slate-950 shadow-sm shrink-0">
+            <span title="${w.name} (${w.role} - ${w.brigade})" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center text-[9px] font-bold border border-white dark:border-slate-950 shadow-sm shrink-0">
               ${initial}
             </span>
           `;
@@ -1311,7 +1483,7 @@
         const remaining = onFieldWorkers.length - maxDisplay;
         if (remaining > 0) {
           avatarsHtml += `
-            <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-800 text-indigo-300 flex items-center justify-center text-[8px] font-black border border-slate-950 shrink-0">
+            <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-indigo-300 flex items-center justify-center text-[8px] font-black border border-white dark:border-slate-950 shrink-0">
               +${remaining}
             </span>
           `;
@@ -1319,9 +1491,9 @@
 
         cell.innerHTML = `
           <div class="flex items-center justify-between w-full">
-            <span class="text-xs sm:text-sm font-black text-slate-200">${day}</span>
+            <span class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200">${day}</span>
             <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-              onFieldWorkers.length > 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'
+              onFieldWorkers.length > 0 ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
             }">
               ${onFieldWorkers.length} en campo
             </span>
@@ -1353,18 +1525,18 @@
           const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
           const status = getDayStatus(w, dateObj);
           const item = document.createElement('div');
-          item.className = 'p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between';
+          item.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between';
           item.innerHTML = `
             <div class="flex items-center gap-2">
               <span class="w-7 h-7 rounded-lg bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-xs">
                 ${w.name.charAt(0)}
               </span>
               <div>
-                <span class="font-bold text-white block">${w.name}</span>
-                <span class="text-[10px] text-slate-400">${w.brigade} · ${w.role}</span>
+                <span class="font-bold text-slate-900 dark:text-white block">${w.name}</span>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400">${w.brigade} · ${w.role}</span>
               </div>
             </div>
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 font-bold">
               ${status.label}
             </span>
           `;
@@ -1396,7 +1568,7 @@
         const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
 
         const card = document.createElement('div');
-        card.className = 'p-2.5 bg-slate-950 border border-slate-800/90 rounded-xl flex items-center justify-between hover:border-slate-700 cursor-pointer transition';
+        card.className = 'p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between hover:border-slate-400 dark:hover:border-slate-700 cursor-pointer transition';
         card.addEventListener('click', () => openDayActionModal(w, activeDailyDate, status));
 
         card.innerHTML = `
@@ -1405,15 +1577,15 @@
               ${w.name.charAt(0)}
             </div>
             <div class="min-w-0">
-              <h4 class="text-xs font-bold text-white truncate">${w.name}</h4>
-              <p class="text-[10px] text-slate-400">${w.role} · ${w.brigade}</p>
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${w.name}</h4>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400">${w.role} · ${w.brigade}</p>
             </div>
           </div>
           <div class="text-right shrink-0">
             <span class="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${
-              status.isException ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
-              status.isWork ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
-              'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+              status.isException ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' :
+              status.isWork ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30' :
+              'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
             }">
               ${status.label}
             </span>
@@ -1436,9 +1608,9 @@
       document.getElementById('dailyCountRest').textContent = cRest;
       document.getElementById('dailyCountExceptions').textContent = cEx;
 
-      if (cWork === 0) workingList.innerHTML = '<p class="text-slate-600 text-center py-4 text-[11px]">Nadie en campo</p>';
-      if (cRest === 0) restList.innerHTML = '<p class="text-slate-600 text-center py-4 text-[11px]">Nadie en bajada</p>';
-      if (cEx === 0) exceptionsList.innerHTML = '<p class="text-slate-600 text-center py-4 text-[11px]">Sin permisos especiales</p>';
+      if (cWork === 0) workingList.innerHTML = '<p class="text-slate-400 text-center py-4 text-[11px]">Nadie en campo</p>';
+      if (cRest === 0) restList.innerHTML = '<p class="text-slate-400 text-center py-4 text-[11px]">Nadie en bajada</p>';
+      if (cEx === 0) exceptionsList.innerHTML = '<p class="text-slate-400 text-center py-4 text-[11px]">Sin permisos especiales</p>';
     }
 
     function renderWorkersAdminList() {
@@ -1459,7 +1631,7 @@
         const chip = document.createElement('button');
         const isActive = activeBrigadeAdminFilter === b;
         chip.className = `px-3 py-1 rounded-xl font-bold whitespace-nowrap transition border ${
-          isActive ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+          isActive ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
         }`;
         chip.textContent = b === 'ALL' ? 'Todos' : b;
         chip.addEventListener('click', () => {
@@ -1476,15 +1648,15 @@
       filtered.forEach(w => {
         const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
         const item = document.createElement('div');
-        item.className = 'p-3.5 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between';
+        item.className = 'p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm';
 
         const actionButtonsHtml = isReadOnly ? '' : `
           <div class="flex items-center gap-1">
-            <button data-id="${w.id}" class="btn-edit-worker p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Editar">
+            <button data-id="${w.id}" class="btn-edit-worker p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Editar">
               <i data-lucide="pencil" class="w-4 h-4"></i>
             </button>
             ${workers.length > 1 ? `
-            <button data-id="${w.id}" class="btn-delete-worker p-2 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition" title="Eliminar">
+            <button data-id="${w.id}" class="btn-delete-worker p-2 rounded-xl text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition" title="Eliminar">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
             ` : ''}
@@ -1498,12 +1670,12 @@
             </div>
             <div>
               <div class="flex items-center gap-1.5 flex-wrap">
-                <h4 class="text-xs font-bold text-white">${w.name}</h4>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${w.name}</h4>
                 <span class="text-[10px] px-1.5 py-0.5 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder} font-bold">${w.role}</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-950 text-indigo-300 font-bold border border-slate-800">${w.brigade}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-indigo-700 dark:text-indigo-300 font-bold border border-slate-200 dark:border-slate-800">${w.brigade}</span>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1">
-                Régimen: <span class="font-bold text-slate-200">${w.workDays}x${w.restDays}</span> · Inicio ciclo: ${w.anchorDate}
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                Régimen: <span class="font-bold text-slate-800 dark:text-slate-200">${w.workDays}x${w.restDays}</span> · Inicio ciclo: ${w.anchorDate}
               </p>
             </div>
           </div>
@@ -1564,11 +1736,11 @@
       const defaultInfoBox = document.getElementById('modalDayDefaultInfo');
       defaultInfoBox.innerHTML = `
         <div>
-          <span class="text-[10px] text-slate-400 block font-semibold">Ciclo normal (${worker.workDays}x${worker.restDays}):</span>
-          <span class="text-xs font-bold text-white">${statusInfo.isWork ? 'Trabajo en Campo (Subida)' : 'Bajada (Descanso)'}</span>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Ciclo normal (${worker.workDays}x${worker.restDays}):</span>
+          <span class="text-xs font-bold text-slate-900 dark:text-white">${statusInfo.isWork ? 'Trabajo en Campo (Subida)' : 'Bajada (Descanso)'}</span>
         </div>
         <div class="text-right">
-          <span class="text-[10px] font-mono bg-slate-900 text-indigo-300 px-2 py-0.5 rounded border border-slate-800">
+          <span class="text-[10px] font-mono bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
             ${statusInfo.subLabel || statusInfo.label}
           </span>
         </div>
@@ -1884,11 +2056,11 @@
 
       if (badgeRole) {
         if (isReadOnly) {
-          badgeRole.textContent = 'Solo Lectura';
-          badgeRole.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30';
+          badgeRole.textContent = 'Invitado';
+          badgeRole.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30';
         } else {
           badgeRole.textContent = 'Admin';
-          badgeRole.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
+          badgeRole.className = 'text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30';
         }
       }
 
@@ -1897,6 +2069,19 @@
       if (btnOpenNewWorkerModal) btnOpenNewWorkerModal.style.display = isReadOnly ? 'none' : 'flex';
       if (sectionImportRestore) sectionImportRestore.style.display = isReadOnly ? 'none' : 'block';
       if (btnApplySeptDirectly) btnApplySeptDirectly.style.display = isReadOnly ? 'none' : 'flex';
+    }
+
+    function enterGuestMode() {
+      currentUserRole = 'asistente'; // Guest operates under read-only mode
+      sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');
+      sessionStorage.setItem(STORAGE_KEY_ROLE, 'asistente');
+
+      document.getElementById('loginScreen').classList.add('hidden');
+      applyUserRolePermissions();
+      showToast('Ingresó en Modo Invitado (Solo Lectura)');
+      renderAllViews();
+      initCloudSync();
+      if (window.lucide) lucide.createIcons();
     }
 
     function checkAuthentication() {
@@ -1910,6 +2095,7 @@
         loginOverlay.classList.add('hidden');
         applyUserRolePermissions();
         renderAllViews();
+        initCloudSync();
       } else {
         loginOverlay.classList.remove('hidden');
         setTimeout(() => document.getElementById('loginUsername').focus(), 150);
@@ -1945,6 +2131,7 @@
         applyUserRolePermissions();
         showToast(`Bienvenido (${account.label})`);
         renderAllViews();
+        initCloudSync();
       } else {
         errorBox.classList.remove('hidden');
         passField.value = '';
@@ -2010,10 +2197,10 @@
         const btn = document.getElementById(t.btn);
         btn.addEventListener('click', () => {
           tabs.forEach(o => {
-            document.getElementById(o.btn).className = 'nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5 transition';
+            document.getElementById(o.btn).className = 'nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition';
             document.getElementById(o.view).classList.add('hidden');
           });
-          btn.className = 'nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-500 text-indigo-400 flex items-center justify-center gap-1.5 transition';
+          btn.className = 'nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition';
           document.getElementById(t.view).classList.remove('hidden');
 
           if (t.view === 'viewFieldOverview') renderFieldOverview();
@@ -2137,16 +2324,20 @@
 
       // Confirmation Modal
       document.getElementById('btnConfirmCancel').addEventListener('click', () => {
-        document.getElementById('modalConfirm').classList.add('hidden');
+        document.getElementById('modalConfirm').classList.remove('hidden');
       });
       document.getElementById('btnConfirmAccept').addEventListener('click', () => {
         if (confirmCallback) confirmCallback();
         document.getElementById('modalConfirm').classList.add('hidden');
       });
 
-      // Login form
+      // Login form & Guest mode
       document.getElementById('formLogin').addEventListener('submit', handleLogin);
+      document.getElementById('btnGuestMode').addEventListener('click', enterGuestMode);
       document.getElementById('btnLogout').addEventListener('click', handleLogout);
+
+      // Theme toggle button
+      document.getElementById('btnToggleTheme').addEventListener('click', toggleTheme);
 
       // Toggle password visibility
       document.getElementById('btnTogglePassword').addEventListener('click', () => {
@@ -2162,7 +2353,8 @@
         if (window.lucide) lucide.createIcons();
       });
 
-      // Check credentials and start view
+      // Check credentials, theme and start view
+      initTheme();
       checkAuthentication();
     });
   </script>
