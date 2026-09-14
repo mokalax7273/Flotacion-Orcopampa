@@ -1,443 +1,2168 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Túneles UCSM</title>
-    
-    <!-- Librerías -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    
-    <!-- Fuentes -->
-    <link href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Roboto+Condensed:wght@400;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roster RODASER - Gestión de Turnos, Brigadas y Calendario de Campo</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS for authentic Excel (.xlsx) export & import -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cat: { DEFAULT: '#FFCD11', dark: '#DAAA00', black: '#101010', panel: '#1E1E1E' }
-                    },
-                    fontFamily: {
-                        stencil: ['"Saira Stencil One"', 'cursive'],
-                        sans: ['"Roboto Condensed"', 'sans-serif'],
-                        mono: ['"Fira Code"', 'monospace'],
-                    }
-                }
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
             }
+          }
         }
-    </script>
-    
-    <style>
-        body { background-color: #050505; color: #e5e5e5; }
-        
-        /* --- MOTOR 3D CSS --- */
-        .viewport-3d { 
-            width: 100%; height: 280px; 
-            background: #000; 
-            position: relative; 
-            overflow: hidden; 
-            perspective: 800px;
-            border-bottom: 4px solid #FFCD11;
-        }
+      }
+    }
+  </script>
 
-        /* ESCENA TBM */
-        .tbm-tunnel { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; }
-        .tunnel-wall {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid #333; border-radius: 50%; box-shadow: 0 0 50px #000;
-            opacity: 0; animation: moveTunnel 3s linear infinite;
-        }
-        .w1 { width: 800px; height: 800px; animation-delay: 0s; }
-        .w2 { width: 800px; height: 800px; animation-delay: 1s; }
-        .w3 { width: 800px; height: 800px; animation-delay: 2s; }
-
-        @keyframes moveTunnel {
-            0% { transform: translate(-50%, -50%) translateZ(-500px); opacity: 0; border-color: #111; }
-            20% { opacity: 1; border-color: #444; }
-            100% { transform: translate(-50%, -50%) translateZ(200px); opacity: 0; border-color: #666; width: 900px; height: 900px; }
-        }
-
-        .cutter-head {
-            position: absolute; top: 50%; left: 50%; width: 140px; height: 140px; margin-top: -70px; margin-left: -70px;
-            border-radius: 50%; background: radial-gradient(circle, #222 30%, #FFCD11 35%, #997a00 40%, #111 100%);
-            border: 4px dashed #333; box-shadow: inset 0 0 20px #000, 0 0 30px rgba(0,0,0,0.8);
-            transform: translateZ(-100px); animation: spinHead 4s linear infinite; z-index: 10;
-        }
-        .disc { position: absolute; width: 18px; height: 18px; background: #888; border-radius: 50%; box-shadow: 2px 2px 5px #000; border: 1px solid #444; }
-        @keyframes spinHead { from { transform: translateZ(-100px) rotate(0deg); } to { transform: translateZ(-100px) rotate(360deg); } }
-
-        /* ESCENA PyV */
-        .pyv-scene {
-            width: 100%; height: 100%; background: radial-gradient(circle at center, #2a2a2a 0%, #000 80%);
-            display: flex; align-items: center; justify-content: center; position: relative;
-        }
-        .rock-face-irregular {
-            width: 200px; height: 160px; background: #1a1a1a;
-            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 100%, 0% 100%, 0% 20%);
-            position: relative; box-shadow: inset 0 0 40px #000; border: 1px solid #333;
-        }
-        .drill-hole { width: 6px; height: 6px; background: #000; border-radius: 50%; position: absolute; box-shadow: 0 0 2px #fff; }
-        .jumbo-arm {
-            position: absolute; bottom: -20px; right: -20px; width: 150px; height: 20px; background: #FFCD11;
-            transform: rotate(-30deg); border: 1px solid #000;
-        }
-
-        /* UI */
-        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; background: #FFCD11; border: 2px solid #000; border-radius: 0; margin-top: -6px; transform: rotate(45deg); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #444; }
-        
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+  <style>
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .calendar-cell {
+      min-height: 86px;
+      transition: all 0.15s ease;
+    }
+    .calendar-cell:active {
+      transform: scale(0.97);
+    }
+    .general-cell {
+      min-height: 98px;
+      transition: all 0.15s ease;
+    }
+    .general-cell:active {
+      transform: scale(0.97);
+    }
+  </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between antialiased selection:bg-indigo-500 selection:text-white">
 
-    <script type="text/babel">
-        const { useState } = React;
+  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+          <i data-lucide="hard-hat" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-extrabold leading-tight flex items-center gap-1.5">
+            Roster <span class="text-indigo-400 font-extrabold tracking-wide">RODASER</span>
+          </h1>
+          <p class="text-[11px] text-slate-400">Control de Turnos, Campo & Brigadas</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button id="btnDatabaseModal" title="Base de Datos & Excel" class="flex items-center gap-1 text-xs font-semibold bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-emerald-400 border border-emerald-500/30 px-2.5 py-2 rounded-xl transition shadow-sm">
+          <i data-lucide="sheet" class="w-4 h-4 text-emerald-400"></i>
+          <span class="hidden xs:inline">Excel</span>
+        </button>
 
-        const Icon = ({ d, c }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={c}><path d={d} /></svg>;
-        
-        const icons = {
-            chart: "M3 3v18h18 M18 17V9 M13 17V5 M8 17v-3",
-            gear: "M12 2v20M2 12h20M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10",
-            scale: "M12 3v18m-9-6l9 6 9-6m-18-6l9 6 9-6",
-            check: "M20 6L9 17l-5-5",
-            time: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-            info: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-            down: "M19 9l-7 7-7-7"
-        };
+        <button id="btnQuickAddException" class="flex items-center gap-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white px-2.5 py-2 rounded-xl transition shadow-md shadow-indigo-600/20">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Permiso</span>
+        </button>
 
-        // --- COMPONENTES VISUALES ---
-        const TBMView = () => (
-            <div className="viewport-3d">
-                <div className="tbm-tunnel">
-                    <div className="tunnel-wall w1"></div><div className="tunnel-wall w2"></div><div className="tunnel-wall w3"></div>
-                    <div className="cutter-head">
-                        <div className="disc" style={{top:'20px', left:'60px'}}></div>
-                        <div className="disc" style={{bottom:'20px', left:'60px'}}></div>
-                        <div className="disc" style={{top:'60px', left:'20px'}}></div>
-                        <div className="disc" style={{top:'60px', right:'20px'}}></div>
-                        <div className="disc" style={{top:'45px', left:'45px', width:'10px', height:'10px', background:'#000'}}></div>
-                    </div>
-                </div>
-                <div className="absolute top-3 left-3 bg-cat text-black font-bold text-xs px-2 py-1 rounded font-mono">VISTA TBM</div>
+        <button id="btnLogout" title="Cerrar Sesión" class="flex items-center justify-center text-xs font-semibold bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/30 w-8 h-8 rounded-xl transition shadow-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-md w-full mx-auto p-3.5 pb-28 space-y-4">
+
+    <!-- VIEW 1: INDIVIDUAL CALENDAR VIEW -->
+    <section id="viewCalendar" class="space-y-4">
+      
+      <!-- Worker Picker bar -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Trabajador Activo</span>
+          <button id="btnManageWorkers" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i> Gestionar
+          </button>
+        </div>
+        <div class="relative">
+          <select id="selectWorker" class="w-full bg-slate-950 border border-slate-700 text-white text-sm font-medium rounded-xl px-3.5 py-2.5 appearance-none focus:outline-none focus:border-indigo-500">
+            <!-- Dynamic options -->
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3.5 top-3 pointer-events-none"></i>
+        </div>
+
+        <!-- Worker Summary Badge -->
+        <div id="activeWorkerInfo" class="mt-2.5 pt-2.5 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Month Navigation -->
+      <div class="flex items-center justify-between bg-slate-900/70 border border-slate-800 rounded-2xl px-4 py-2.5">
+        <button id="btnPrevMonth" class="p-2 rounded-xl text-slate-300 hover:bg-slate-800 active:bg-slate-700 transition">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <div class="text-center">
+          <h2 id="calendarMonthLabel" class="text-base font-bold capitalize text-white">Mes Año</h2>
+          <button id="btnCurrentMonth" class="text-[11px] text-indigo-400 hover:underline font-medium">Ir a Hoy</button>
+        </div>
+        <button id="btnNextMonth" class="p-2 rounded-xl text-slate-300 hover:bg-slate-800 active:bg-slate-700 transition">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-1.5 px-2 text-[11px] text-slate-400 font-medium">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm"></span> Trabajo (Subida)</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span> Bajada (Descanso)</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span> Permiso</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm"></span> Médico/Otros</span>
+      </div>
+
+      <!-- Days Grid Header -->
+      <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-2 shadow-inner">
+        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-1 mb-1">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mié</span>
+          <span>Jue</span>
+          <span>Vie</span>
+          <span class="text-indigo-400">Sáb</span>
+          <span class="text-indigo-400">Dom</span>
+        </div>
+
+        <!-- Dynamic Days Grid -->
+        <div id="calendarGrid" class="grid grid-cols-7 gap-1">
+          <!-- Days populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Quick Individual Shift Summary Card -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900/80 to-slate-800/50 border border-slate-800 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="activity" class="w-4 h-4 text-indigo-400"></i>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Conteo Mensual del Trabajador</h3>
+          </div>
+          <span id="cycleFormatLabel" class="text-xs font-mono font-bold bg-slate-800 px-2 py-0.5 rounded text-indigo-300">16x5</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2.5 text-center">
+          <div class="bg-slate-950/80 border border-slate-800/80 p-2.5 rounded-xl">
+            <span class="text-[10px] uppercase font-semibold text-slate-400 block">Días Mina</span>
+            <span id="statWorkDays" class="text-lg font-extrabold text-blue-400">0</span>
+          </div>
+          <div class="bg-slate-950/80 border border-slate-800/80 p-2.5 rounded-xl">
+            <span class="text-[10px] uppercase font-semibold text-slate-400 block">Bajadas</span>
+            <span id="statRestDays" class="text-lg font-extrabold text-emerald-400">0</span>
+          </div>
+          <div class="bg-slate-950/80 border border-slate-800/80 p-2.5 rounded-xl">
+            <span class="text-[10px] uppercase font-semibold text-slate-400 block">Permisos</span>
+            <span id="statSpecialDays" class="text-lg font-extrabold text-amber-400">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: GENERAL FIELD CALENDAR (CIRCULITOS DEL PERSONAL EN CAMPO) -->
+    <section id="viewGeneralCalendar" class="hidden space-y-4">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
+              Personal en Campo (General)
+            </h2>
+            <p class="text-[11px] text-slate-400">Círculos de trabajadores activos en mina por día</p>
+          </div>
+        </div>
+
+        <!-- Filter by Brigade -->
+        <div class="flex items-center gap-2 pt-1 border-t border-slate-800/70">
+          <span class="text-xs text-slate-400 font-semibold flex items-center gap-1">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-indigo-400"></i> Brigada:
+          </span>
+          <select id="selectGeneralBrigadeFilter" class="flex-1 bg-slate-950 border border-slate-700 text-xs font-medium text-white rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+            <option value="ALL">Todas las Brigadas / Grupos</option>
+            <!-- Injected via JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Month Navigation for General View -->
+      <div class="flex items-center justify-between bg-slate-900/70 border border-slate-800 rounded-2xl px-4 py-2.5">
+        <button id="btnPrevGeneralMonth" class="p-2 rounded-xl text-slate-300 hover:bg-slate-800 active:bg-slate-700 transition">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <div class="text-center">
+          <h2 id="generalCalendarMonthLabel" class="text-base font-bold capitalize text-white">Mes Año</h2>
+          <span class="text-[10px] text-emerald-400 font-medium">Pulsa un día para ver la lista completa</span>
+        </div>
+        <button id="btnNextGeneralMonth" class="p-2 rounded-xl text-slate-300 hover:bg-slate-800 active:bg-slate-700 transition">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Days Grid Header -->
+      <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-2 shadow-inner">
+        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400 py-1 mb-1">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mié</span>
+          <span>Jue</span>
+          <span>Vie</span>
+          <span class="text-indigo-400">Sáb</span>
+          <span class="text-indigo-400">Dom</span>
+        </div>
+
+        <!-- Dynamic Dots Grid -->
+        <div id="generalCalendarGrid" class="grid grid-cols-7 gap-1">
+          <!-- General Days populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: DAILY HEADCOUNT -->
+    <section id="viewDailyHeadcount" class="hidden space-y-4">
+      <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white">Control Diario de Guardia</h2>
+            <p class="text-xs text-slate-400" id="headcountDateLabel">Hoy: --</p>
+          </div>
+          <input type="date" id="headcountDatePicker" class="bg-slate-950 border border-slate-700 text-xs font-medium text-white px-2.5 py-2 rounded-xl focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
+          <span class="text-xs text-slate-400 font-medium">Filtrar:</span>
+          <select id="selectHeadcountBrigade" class="flex-1 bg-slate-950 border border-slate-700 text-xs font-medium text-white rounded-xl px-2 py-1.5 focus:outline-none focus:border-indigo-500">
+            <option value="ALL">Todas las brigadas</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Categories: En Turno / Bajada / Permisos -->
+      <div class="space-y-3">
+        <!-- Working Today -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-blue-500/20"></span>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">En Turno / Subida (Campo)</h3>
             </div>
-        );
+            <span id="countWorking" class="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">0</span>
+          </div>
+          <div id="listWorkingWorkers" class="space-y-2"></div>
+        </div>
 
-        const PyVView = () => (
-            <div className="viewport-3d">
-                <div className="pyv-scene">
-                    <div className="rock-face-irregular">
-                        <div className="drill-hole" style={{top:'30%', left:'30%'}}></div>
-                        <div className="drill-hole" style={{top:'30%', right:'30%'}}></div>
-                        <div className="drill-hole" style={{top:'50%', left:'50%'}}></div>
-                        <div className="drill-hole" style={{bottom:'30%', left:'30%'}}></div>
-                        <div className="drill-hole" style={{bottom:'30%', right:'30%'}}></div>
-                    </div>
-                    <div className="jumbo-arm"></div>
-                </div>
-                <div className="absolute top-3 left-3 bg-orange-600 text-white font-bold text-xs px-2 py-1 rounded font-mono">VISTA JUMBO</div>
+        <!-- Resting Today -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">En Bajada / Descanso</h3>
             </div>
-        );
+            <span id="countResting" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">0</span>
+          </div>
+          <div id="listRestingWorkers" class="space-y-2"></div>
+        </div>
 
-        // --- 1. SIMULADOR DE COSTOS AVANZADO ---
-        const Simulator = () => {
-            const [len, setLen] = useState(6);
-            
-            // Variables PyV
-            const [pyvInv, setPyvInv] = useState(2);
-            const [pyvMat, setPyvMat] = useState(4);
-            const [pyvSpeed, setPyvSpeed] = useState(5);
-            const [pyvHourly, setPyvHourly] = useState(500);
+        <!-- In Permission / Leaves -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 ring-4 ring-amber-500/20"></span>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Permisos / Desc. Médico</h3>
+            </div>
+            <span id="countExceptions" class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">0</span>
+          </div>
+          <div id="listExceptionWorkers" class="space-y-2"></div>
+        </div>
+      </div>
+    </section>
 
-            // Variables TBM
-            const [tbmInv, setTbmInv] = useState(15);
-            const [tbmMat, setTbmMat] = useState(2);
-            const [tbmSpeed, setTbmSpeed] = useState(20);
-            const [tbmHourly, setTbmHourly] = useState(2000);
+    <!-- VIEW 4: WORKERS & BRIGADES MANAGEMENT -->
+    <section id="viewWorkers" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-white">Personal y Brigadas</h2>
+          <p class="text-xs text-slate-400">Configura regímenes (16x5, 32x10, 6x1...) y grupos</p>
+        </div>
+        <button id="btnOpenNewWorkerModal" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-md shadow-indigo-600/25">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>Agregar</span>
+        </button>
+      </div>
 
-            // Cálculos
-            const daysPyV = (len * 1000) / pyvSpeed;
-            const opCostPyV = (daysPyV * 24 * pyvHourly) / 1000000;
-            const matCostPyV = (len * 1000 * (pyvMat * 1000)) / 1000000;
-            const totalPyV = pyvInv + matCostPyV + opCostPyV;
+      <!-- Brigade Filter Chips -->
+      <div id="brigadeFilterChips" class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar py-1 text-xs">
+        <!-- Injected via JS -->
+      </div>
 
-            const daysTBM = (len * 1000) / tbmSpeed;
-            const opCostTBM = (daysTBM * 24 * tbmHourly) / 1000000;
-            const matCostTBM = (len * 1000 * (tbmMat * 1000)) / 1000000;
-            const totalTBM = tbmInv + matCostTBM + opCostTBM;
+      <!-- Workers List -->
+      <div id="workersListContainer" class="space-y-2.5">
+        <!-- Dynamically rendered -->
+      </div>
+    </section>
 
-            const winner = totalTBM < totalPyV ? 'TBM' : 'PyV';
-            const savings = Math.abs(totalTBM - totalPyV).toFixed(1);
+  </main>
 
-            return (
-                <div className="animate-fade-in space-y-4">
-                    <div className="grid lg:grid-cols-12 gap-4">
-                        
-                        {/* IZQUIERDA: Panel de Resultados Visual */}
-                        <div className="lg:col-span-7 space-y-4">
-                            <div className="bg-cat-panel rounded-lg overflow-hidden shadow-lg border border-gray-800">
-                                {winner === 'TBM' ? <TBMView /> : <PyVView />}
-                                <div className="p-4 bg-black/80 border-t border-cat flex justify-between items-center">
-                                    <div>
-                                        <div className="text-[10px] text-gray-400 uppercase">Opción Más Rentable</div>
-                                        <div className={`text-2xl font-black ${winner==='TBM'?'text-cat':'text-orange-500'}`}>
-                                            {winner === 'TBM' ? 'TUNELADORA' : 'VOLADURA'}
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-[10px] text-gray-400 uppercase">Ahorro Estimado</div>
-                                        <div className="text-2xl font-mono text-white">${savings}M</div>
-                                    </div>
-                                </div>
-                            </div>
+  <nav class="fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 max-w-md mx-auto px-4 py-2">
+    <div class="flex items-center justify-between text-center">
+      <button data-tab="calendar" class="tab-btn flex flex-col items-center gap-1 text-indigo-400 transition w-1/4">
+        <i data-lucide="calendar" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold">Mi Turno</span>
+      </button>
+      <button data-tab="general" class="tab-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition w-1/4">
+        <i data-lucide="layout-grid" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold">En Campo</span>
+      </button>
+      <button data-tab="headcount" class="tab-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition w-1/4">
+        <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold">¿Quién está?</span>
+      </button>
+      <button data-tab="workers" class="tab-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition w-1/4">
+        <i data-lucide="users" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold">Personal</span>
+      </button>
+    </div>
+  </nav>
 
-                            {/* Resumen de Tiempos */}
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-gray-900 p-3 rounded border border-gray-800">
-                                    <div className="text-[10px] text-orange-500 font-bold uppercase mb-1">Tiempo PyV</div>
-                                    <div className="text-xl font-mono text-white">{Math.round(daysPyV)} <span className="text-xs text-gray-500">días</span></div>
-                                </div>
-                                <div className="bg-gray-900 p-3 rounded border border-gray-800">
-                                    <div className="text-[10px] text-cat font-bold uppercase mb-1">Tiempo TBM</div>
-                                    <div className="text-xl font-mono text-white">{Math.round(daysTBM)} <span className="text-xs text-gray-500">días</span></div>
-                                </div>
-                            </div>
-                        </div>
+  <!-- MODAL: ADD / EDIT WORKER -->
+  <div id="modalWorker" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scrollbar shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between sticky top-0 bg-slate-900/95 z-10">
+        <h3 id="modalWorkerTitle" class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="user-cog" class="w-4 h-4 text-indigo-400"></i>
+          Nuevo Trabajador
+        </h3>
+        <button id="btnCloseWorkerModal" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
-                        {/* DERECHA: Controles Avanzados */}
-                        <div className="lg:col-span-5 space-y-4 overflow-y-auto max-h-[600px] pr-1">
-                            <div className="bg-cat-panel p-4 rounded border border-gray-700">
-                                <div className="flex justify-between text-sm font-bold text-white mb-2 uppercase">
-                                    <span>Distancia</span> <span className="text-cat font-mono">{len} km</span>
-                                </div>
-                                <input type="range" min="1" max="20" step="0.5" value={len} onChange={e=>setLen(+e.target.value)} />
-                            </div>
+      <form id="formWorker" class="p-4 space-y-3.5 text-xs">
+        <input type="hidden" id="workerFormId">
 
-                            <div className="bg-[#1a1a1a] p-4 rounded border-l-4 border-orange-500">
-                                <div className="flex justify-between border-b border-gray-700 pb-2 mb-3">
-                                    <h3 className="font-bold text-orange-500 text-sm">CONVENCIONAL (PyV)</h3>
-                                    <span className="font-mono text-sm text-white">${totalPyV.toFixed(1)}M</span>
-                                </div>
-                                <div className="space-y-3">
-                                    <ControlRow label="Inversión ($M)" val={pyvInv} set={setPyvInv} min={0.5} max={5} step={0.5} color="text-orange-400" />
-                                    <ControlRow label="Materiales ($k/m)" val={pyvMat} set={setPyvMat} min={1} max={8} step={0.5} color="text-orange-400" />
-                                    <ControlRow label="Avance (m/día)" val={pyvSpeed} set={setPyvSpeed} min={2} max={10} step={1} color="text-orange-400" />
-                                    <ControlRow label="Costo Hora ($/h)" val={pyvHourly} set={setPyvHourly} min={200} max={1000} step={50} color="text-orange-400" />
-                                </div>
-                            </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Nombre Completo</label>
+          <input type="text" id="workerNameInput" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+        </div>
 
-                            <div className="bg-[#1a1a1a] p-4 rounded border-l-4 border-cat">
-                                <div className="flex justify-between border-b border-gray-700 pb-2 mb-3">
-                                    <h3 className="font-bold text-cat text-sm">MECANIZADO (TBM)</h3>
-                                    <span className="font-mono text-sm text-white">${totalTBM.toFixed(1)}M</span>
-                                </div>
-                                <div className="space-y-3">
-                                    <ControlRow label="Inversión ($M)" val={tbmInv} set={setTbmInv} min={10} max={40} step={1} color="text-cat" />
-                                    <ControlRow label="Materiales ($k/m)" val={tbmMat} set={setTbmMat} min={1} max={5} step={0.5} color="text-cat" />
-                                    <ControlRow label="Avance (m/día)" val={tbmSpeed} set={setTbmSpeed} min={10} max={40} step={1} color="text-cat" />
-                                    <ControlRow label="Costo Hora ($/h)" val={tbmHourly} set={setTbmHourly} min={1000} max={5000} step={100} color="text-cat" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Cargo / Rol</label>
+            <select id="workerRoleSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+              <option value="Supervisor">Supervisor</option>
+              <option value="Coordinador">Coordinador</option>
+              <option value="Asistente">Asistente</option>
+              <option value="Jefe de Guardia">Jefe de Guardia</option>
+              <option value="Operador">Operador</option>
+              <option value="Técnico">Técnico</option>
+              <option value="Prevencionista">Prevencionista</option>
+              <option value="Otro">Otro Cargo</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Color de Rol</label>
+            <select id="workerColorSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+              <option value="purple">Púrpura (Supervisor)</option>
+              <option value="amber">Ámbar (Coordinador)</option>
+              <option value="emerald">Esmeralda (Asistente)</option>
+              <option value="cyan">Celeste (Operador)</option>
+              <option value="rose">Rosa / Fucsia</option>
+              <option value="blue">Azul Eléctrico</option>
+              <option value="slate">Gris Neutro</option>
+            </select>
+          </div>
+        </div>
 
-        const ControlRow = ({ label, val, set, min, max, step, color }) => (
+        <!-- Grupo / Brigada -->
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Grupo o Brigada</label>
+          <div class="flex gap-2">
+            <input type="text" id="workerBrigadeInput" list="brigadeSuggestions" required placeholder="Ej: Guardia A, Brigada 1..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <datalist id="brigadeSuggestions">
+              <option value="Guardia A"></option>
+              <option value="Guardia B"></option>
+              <option value="Guardia C"></option>
+              <option value="Brigada Alfa"></option>
+              <option value="Brigada Beta"></option>
+              <option value="Mantenimiento"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <!-- Configuración de Régimen -->
+        <div class="p-3 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-300 uppercase tracking-wider text-[10px]">Régimen de Turno</span>
+            <span class="text-[10px] text-slate-400">Selecciona o personaliza</span>
+          </div>
+
+          <!-- Preset selector -->
+          <div>
+            <label class="block text-slate-400 text-[11px] mb-1">Plantilla de Régimen</label>
+            <select id="workerRegimePreset" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500 font-semibold">
+              <option value="16x5">16 x 5 (16 trabajo / 5 bajada)</option>
+              <option value="32x10">32 x 10 (32 trabajo / 10 bajada)</option>
+              <option value="6x1">6 x 1 (6 trabajo / 1 descanso)</option>
+              <option value="14x7">14 x 7 (14 trabajo / 7 bajada)</option>
+              <option value="20x10">20 x 10 (20 trabajo / 10 bajada)</option>
+              <option value="4x3">4 x 3 (4 trabajo / 3 bajada)</option>
+              <option value="5x2">5 x 2 (5 trabajo / 2 bajada)</option>
+              <option value="custom">Personalizado (a tu medida)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
             <div>
-                <div className="flex justify-between text-[10px] text-gray-400 uppercase font-bold mb-1">
-                    {label} <span className={color}>{val}</span>
-                </div>
-                <input type="range" min={min} max={max} step={step} value={val} onChange={e=>set(+e.target.value)} />
+              <label class="block text-slate-400 text-[11px] mb-1">Días Trabajo (Subida)</label>
+              <input type="number" id="workerWorkDays" min="1" max="90" value="16" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-center font-bold focus:outline-none focus:border-indigo-500">
             </div>
-        );
+            <div>
+              <label class="block text-slate-400 text-[11px] mb-1">Días Bajada (Descanso)</label>
+              <input type="number" id="workerRestDays" min="1" max="90" value="5" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-center font-bold focus:outline-none focus:border-indigo-500">
+            </div>
+          </div>
 
-        // --- 2. ASISTENTE CON REPORTE DE CAUSALIDAD ---
-        const Wizard = () => {
-            const [step, setStep] = useState(0);
-            const [score, setScore] = useState(0);
-            const [log, setLog] = useState([]);
+          <div>
+            <label class="block text-slate-400 text-[11px] mb-1">Fecha Inicio del Ciclo (Día 1 de Subida)</label>
+            <input type="date" id="workerAnchorDate" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500">
+            <p class="text-[10px] text-slate-500 mt-1">El conteo continuo se proyecta automáticamente desde esta fecha.</p>
+          </div>
+        </div>
 
-            const qs = [
-                { t: "Longitud", q: "1. LONGITUD TOTAL", opts: [{l:"< 3 KM", s:-5, why:"La longitud corta no amortiza el CAPEX de TBM."}, {l:"3 - 7 KM", s:0, why:"Longitud media; decisión depende de la geología."}, {l:"> 7 KM", s:5, why:"Gran longitud diluye la inversión y aprovecha velocidad TBM."}] },
-                { t: "Geología", q: "2. TIPO DE ROCA", opts: [{l:"ROCA DURA", s:3, why:"Roca competente favorece avance rápido de TBM."}, {l:"SUELO BLANDO", s:5, why:"Riesgo de colapso alto en PyV; TBM Escudo es necesaria."}, {l:"FALLAS / MIXTO", s:-3, why:"Riesgo de atrapamiento TBM; PyV es más flexible."}] },
-                { t: "Plazo", q: "3. TIEMPO DE INICIO", opts: [{l:"URGENTE (<2m)", s:-5, why:"No hay tiempo para fabricar/importar TBM."}, {l:"PLANIFICADO", s:2, why:"El cronograma permite la logística de TBM."}] },
-                { t: "Vida Útil", q: "4. VIDA DEL TÚNEL", opts: [{l:"TEMPORAL", s:-2, why:"Inversión TBM injustificada para obra temporal."}, {l:"PERMANENTE", s:3, why:"Acabado de dovelas TBM ofrece mejor calidad final."}] },
-                { t: "Agua", q: "5. NIVEL FREÁTICO", opts: [{l:"BAJO / SECO", s:0, why:"Sin impacto crítico en la elección."}, {l:"ALTA PRESIÓN", s:5, why:"TBM EPB es la única que garantiza estanqueidad durante excavación."}] }
-            ];
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" id="btnCancelWorker" class="px-3.5 py-2 rounded-xl text-slate-300 hover:bg-slate-800 font-medium">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-md shadow-indigo-600/30">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-            const vote = (opt) => {
-                setScore(score + opt.s);
-                setLog([...log, { factor: qs[step].t, choice: opt.l, impact: opt.s, reason: opt.why }]);
-                setStep(step + 1);
-            };
+  <!-- MODAL: DAY ACTION / ADD PERMISSION -->
+  <div id="modalDayAction" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 id="modalDayDateTitle" class="text-sm font-bold text-white">Editar Día</h3>
+          <p id="modalDayWorkerName" class="text-xs text-indigo-400 font-medium"></p>
+        </div>
+        <button id="btnCloseDayModal" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
-            if(step === qs.length) {
-                const isTBM = score > 0;
-                return (
-                    <div className="animate-fade-in flex flex-col h-full">
-                        <div className="bg-cat-panel rounded border border-gray-800 p-6 text-center mb-6 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-cat"></div>
-                            <h2 className="text-3xl font-stencil text-white mb-2">RECOMENDACIÓN</h2>
-                            <div className={`text-5xl font-black mb-2 ${isTBM ? 'text-cat' : 'text-orange-500'}`}>
-                                {isTBM ? 'MÉTODO TBM' : 'MÉTODO PyV'}
-                            </div>
-                            <p className="text-gray-400 text-xs font-mono mb-0">PUNTAJE DE DECISIÓN: {score}</p>
-                        </div>
+      <div class="p-4 space-y-3.5 text-xs">
+        <div id="modalDayDefaultInfo" class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-slate-300 flex items-center justify-between">
+          <!-- Filled by JS -->
+        </div>
 
-                        <div className="flex-1 overflow-y-auto pr-2 bg-[#151515] rounded border border-gray-800 p-4">
-                            <h3 className="text-cat font-bold text-sm uppercase border-b border-gray-700 pb-2 mb-4 font-mono flex items-center gap-2">
-                                <Icon d={icons.check} c="w-4 h-4"/> REPORTE DE CAUSALIDAD
-                            </h3>
-                            <div className="space-y-3">
-                                {log.map((entry, i) => (
-                                    <div key={i} className="flex gap-3 text-xs border-b border-gray-800 pb-2 last:border-0">
-                                        <div className="font-mono text-gray-500 w-16 pt-1">{entry.factor}</div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between mb-1">
-                                                <span className="text-white font-bold uppercase">{entry.choice}</span>
-                                                <span className={`font-mono ${entry.impact > 0 ? 'text-cat' : entry.impact < 0 ? 'text-orange-500' : 'text-gray-500'}`}>
-                                                    {entry.impact > 0 ? 'FAVORECE TBM' : entry.impact < 0 ? 'FAVORECE PyV' : 'NEUTRO'}
-                                                </span>
-                                            </div>
-                                            <p className="text-gray-400 leading-relaxed">{entry.reason}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        <button onClick={()=>{setStep(0);setScore(0);setLog([])}} className="mt-6 bg-cat text-black font-bold py-3 w-full rounded uppercase tracking-widest hover:bg-white transition-colors">
-                            NUEVO ANÁLISIS
-                        </button>
-                    </div>
-                )
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Estado Especial / Excepción</label>
+          <select id="modalDayOverrideSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <option value="default">Según ciclo regular (Automático)</option>
+            <option value="permiso">Permiso con/sin goce</option>
+            <option value="medico">Descanso Médico</option>
+            <option value="vacaciones">Vacaciones</option>
+            <option value="cambio_trabajo">Forzar Trabajo / Guardia Extra</option>
+            <option value="cambio_descanso">Forzar Bajada / Compensatorio</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Motivo / Nota (opcional)</label>
+          <input type="text" id="modalDayNoteInput" placeholder="Ej. Permiso legal, trámite familiar..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="pt-2 flex items-center justify-between">
+          <button type="button" id="btnRemoveOverride" class="text-rose-400 hover:text-rose-300 font-medium">Borrar Nota</button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnCancelDayModal" class="px-3.5 py-2 rounded-xl text-slate-300 hover:bg-slate-800 font-medium">Cerrar</button>
+            <button type="button" id="btnSaveDayOverride" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-md shadow-indigo-600/30">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GENERAL DAY FIELD DETAIL (LIST OF WHO IS IN FIELD) -->
+  <div id="modalGeneralDayDetail" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 id="modalGenDayTitle" class="text-sm font-bold text-white">Detalle de Campo</h3>
+          <p id="modalGenDaySubtitle" class="text-xs text-emerald-400 font-semibold"></p>
+        </div>
+        <button id="btnCloseGenDayModal" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-3.5 hide-scrollbar flex-1 text-xs">
+        <div>
+          <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Personal en Mina / Campo (<span id="modalGenWorkingCount">0</span>)
+          </h4>
+          <div id="modalGenWorkingList" class="space-y-2"></div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Personal en Bajada (<span id="modalGenRestingCount">0</span>)
+          </h4>
+          <div id="modalGenRestingList" class="space-y-2"></div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Permisos y Excepciones (<span id="modalGenExceptionCount">0</span>)
+          </h4>
+          <div id="modalGenExceptionList" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-end">
+        <button id="btnCloseGenDayModalBottom" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DATABASE & EXCEL (EXPORT / IMPORT / BACKUP) -->
+  <div id="modalDatabase" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <i data-lucide="database" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Base de Datos & Excel</h3>
+            <p class="text-[11px] text-slate-400">Exporta tu programación y restáurala</p>
+          </div>
+        </div>
+        <button id="btnCloseDbModal" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 space-y-4 text-xs">
+        <!-- Export Excel Section -->
+        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Exportar Roster a Excel (.xlsx)</span>
+          </div>
+          <p class="text-slate-400 text-[11px]">
+            Genera un archivo Excel real con la nómina, brigadas, regímenes de turno y el calendario del mes activo para reporte o impresión.
+          </p>
+          <button id="btnExportExcel" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Descargar Hoja de Cálculo Excel</span>
+          </button>
+        </div>
+
+        <!-- JSON Backup Section -->
+        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold">
+            <i data-lucide="hard-drive-download" class="w-4 h-4"></i>
+            <span>Copia de Seguridad Completa (Backup)</span>
+          </div>
+          <p class="text-slate-400 text-[11px]">
+            Descarga toda tu base de datos (trabajadores, ciclos, brigadas y permisos) en un archivo JSON portátil.
+          </p>
+          <button id="btnExportBackupJson" class="w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-indigo-300 border border-indigo-500/30 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Guardar Archivo de Respaldo (.json)</span>
+          </button>
+        </div>
+
+        <!-- Import / Restore Section -->
+        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-2 text-amber-400 font-bold">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>Cargar / Restaurar Base de Datos</span>
+          </div>
+          <p class="text-slate-400 text-[11px]">
+            Sube un archivo de respaldo (.json) o un archivo Excel (.xlsx / .csv) previamente descargado para restaurar tu información.
+          </p>
+          <label class="w-full py-2.5 px-3 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer transition">
+            <i data-lucide="folder-up" class="w-4 h-4"></i>
+            <span>Seleccionar Archivo para Cargar</span>
+            <input type="file" id="inputFileImport" accept=".json,.xlsx,.xls,.csv" class="hidden">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM ACTION DIALOG (No browser confirm/alert) -->
+  <div id="modalConfirm" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-4 space-y-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center gap-2.5 text-amber-400">
+        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        <h4 id="confirmModalTitle" class="font-bold text-white text-sm">¿Confirmar Acción?</h4>
+      </div>
+      <p id="confirmModalMessage" class="text-xs text-slate-300 leading-relaxed"></p>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="btnConfirmCancel" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold">Cancelar</button>
+        <button id="btnConfirmOk" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/20">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN OVERLAY -->
+  <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+      <!-- Glow effect decorative -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-600/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-5">
+        <!-- Logo & Header -->
+        <div class="text-center space-y-2">
+          <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
+            <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold text-white tracking-tight">Roster <span class="text-indigo-400">RODASER</span></h2>
+            <p class="text-xs text-slate-400">Acceso restringido para administración</p>
+          </div>
+        </div>
+
+        <!-- Error Alert box -->
+        <div id="loginErrorAlert" class="hidden p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-300 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+          <span id="loginErrorMessage">Usuario o contraseña incorrectos</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="formLogin" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Usuario</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </span>
+              <input type="text" id="loginUsername" required autocomplete="username" placeholder="admin" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Contraseña</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+              </span>
+              <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
+              <button type="button" id="btnTogglePassword" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300">
+                <i data-lucide="eye" id="iconEye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1">
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-200">
+              <input type="checkbox" id="rememberSessionCheck" checked class="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0 focus:ring-offset-0">
+              <span>Mantener sesión</span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition active:scale-[0.98]">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Ingresar al Sistema</span>
+          </button>
+        </form>
+
+        <div class="pt-2 text-center text-[11px] text-slate-500 border-t border-slate-800">
+          <span>RODASER © Control de Turnos & Operaciones</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastNotification" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-indigo-500/50 shadow-2xl px-4 py-2.5 rounded-2xl text-xs font-semibold text-white flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 -translate-y-4">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">Operación realizada con éxito</span>
+  </div>
+
+  <script>
+    const STORAGE_KEY_WORKERS = 'turnotrack_workers_v2';
+    const STORAGE_KEY_EXCEPTIONS = 'turnotrack_exceptions_v2';
+    const STORAGE_KEY_AUTH = 'rodaser_auth_session';
+    const AUTH_VALID_USER = 'admin';
+    const AUTH_VALID_PASS = 'rod1234';
+
+    // Preset Role Color Map
+    const ROLE_COLORS = {
+      purple: {
+        badgeBg: 'bg-purple-500/15',
+        badgeText: 'text-purple-300',
+        badgeBorder: 'border-purple-500/30',
+        dot: 'bg-purple-500',
+        avatarBg: 'from-purple-600 to-indigo-600'
+      },
+      amber: {
+        badgeBg: 'bg-amber-500/15',
+        badgeText: 'text-amber-300',
+        badgeBorder: 'border-amber-500/30',
+        dot: 'bg-amber-500',
+        avatarBg: 'from-amber-600 to-orange-600'
+      },
+      emerald: {
+        badgeBg: 'bg-emerald-500/15',
+        badgeText: 'text-emerald-300',
+        badgeBorder: 'border-emerald-500/30',
+        dot: 'bg-emerald-500',
+        avatarBg: 'from-emerald-600 to-teal-600'
+      },
+      cyan: {
+        badgeBg: 'bg-sky-500/15',
+        badgeText: 'text-sky-300',
+        badgeBorder: 'border-sky-500/30',
+        dot: 'bg-sky-500',
+        avatarBg: 'from-sky-600 to-blue-600'
+      },
+      blue: {
+        badgeBg: 'bg-blue-500/15',
+        badgeText: 'text-blue-300',
+        badgeBorder: 'border-blue-500/30',
+        dot: 'bg-blue-500',
+        avatarBg: 'from-blue-600 to-indigo-700'
+      },
+      rose: {
+        badgeBg: 'bg-rose-500/15',
+        badgeText: 'text-rose-300',
+        badgeBorder: 'border-rose-500/30',
+        dot: 'bg-rose-500',
+        avatarBg: 'from-rose-600 to-red-600'
+      },
+      slate: {
+        badgeBg: 'bg-slate-500/15',
+        badgeText: 'text-slate-300',
+        badgeBorder: 'border-slate-500/30',
+        dot: 'bg-slate-400',
+        avatarBg: 'from-slate-600 to-slate-700'
+      }
+    };
+
+    // Default Workers with various cycles (16x5, 32x10, 6x1, etc.) and Brigades
+    const DEFAULT_WORKERS = [
+      {
+        id: 'w1',
+        name: 'Ing. Mateo Huamán',
+        role: 'Supervisor',
+        brigade: 'Guardia A',
+        color: 'purple',
+        workDays: 16,
+        restDays: 5,
+        anchorDate: '2026-09-01'
+      },
+      {
+        id: 'w2',
+        name: 'Carlos Benítez',
+        role: 'Coordinador',
+        brigade: 'Guardia A',
+        color: 'amber',
+        workDays: 16,
+        restDays: 5,
+        anchorDate: '2026-09-01'
+      },
+      {
+        id: 'w3',
+        name: 'Valeria Quispe',
+        role: 'Asistente',
+        brigade: 'Guardia B',
+        color: 'emerald',
+        workDays: 32,
+        restDays: 10,
+        anchorDate: '2026-08-15'
+      },
+      {
+        id: 'w4',
+        name: 'Ramiro Paredes',
+        role: 'Operador',
+        brigade: 'Guardia B',
+        color: 'cyan',
+        workDays: 32,
+        restDays: 10,
+        anchorDate: '2026-08-15'
+      },
+      {
+        id: 'w5',
+        name: 'Luis Fernando Vega',
+        role: 'Técnico',
+        brigade: 'Mantenimiento',
+        color: 'blue',
+        workDays: 6,
+        restDays: 1,
+        anchorDate: '2026-09-01'
+      }
+    ];
+
+    const DEFAULT_EXCEPTIONS = {
+      'w1_2026-09-18': { type: 'permiso', note: 'Permiso programado' },
+      'w3_2026-09-22': { type: 'medico', note: 'Consulta médica' }
+    };
+
+    // App State
+    let workers = [];
+    let exceptions = {}; // key: `${workerId}_YYYY-MM-DD`
+    let activeWorkerId = '';
+    let currentViewingDate = new Date();
+    let currentGeneralViewingDate = new Date();
+    let selectedDateForAction = null;
+    let activeBrigadeAdminFilter = 'ALL';
+    let activeGeneralBrigadeFilter = 'ALL';
+
+    // Pending confirmation handler
+    let pendingConfirmAction = null;
+
+    function loadState() {
+      try {
+        const storedWorkers = localStorage.getItem(STORAGE_KEY_WORKERS);
+        const storedExceptions = localStorage.getItem(STORAGE_KEY_EXCEPTIONS);
+        
+        workers = storedWorkers ? JSON.parse(storedWorkers) : DEFAULT_WORKERS;
+        exceptions = storedExceptions ? JSON.parse(storedExceptions) : DEFAULT_EXCEPTIONS;
+
+        // Ensure brigade property exists
+        workers.forEach(w => {
+          if (!w.brigade) w.brigade = 'Guardia A';
+        });
+
+        if (workers.length > 0) {
+          activeWorkerId = workers[0].id;
+        }
+      } catch (err) {
+        console.error('Error loading state:', err);
+        workers = DEFAULT_WORKERS;
+        exceptions = DEFAULT_EXCEPTIONS;
+        activeWorkerId = workers[0].id;
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY_WORKERS, JSON.stringify(workers));
+        localStorage.setItem(STORAGE_KEY_EXCEPTIONS, JSON.stringify(exceptions));
+      } catch (err) {
+        console.error('Error saving state:', err);
+      }
+    }
+
+    function parseDateString(dateStr) {
+      const parts = dateStr.split('-');
+      return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    }
+
+    function formatDateString(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getUniqueBrigades() {
+      const set = new Set();
+      workers.forEach(w => {
+        if (w.brigade && w.brigade.trim()) set.add(w.brigade.trim());
+      });
+      return Array.from(set).sort();
+    }
+
+    // Determine status of a worker on a specific date (support any cycle: 16x5, 32x10, 6x1, etc.)
+    function getWorkerDayStatus(worker, dateObj) {
+      if (!worker) return null;
+
+      const dateStr = formatDateString(dateObj);
+      const exceptionKey = `${worker.id}_${dateStr}`;
+      
+      // Override / Exception check
+      if (exceptions[exceptionKey]) {
+        const exc = exceptions[exceptionKey];
+        if (exc.type === 'permiso') {
+          return { status: 'permiso', label: 'Permiso', isWork: false, note: exc.note, isOverride: true };
+        }
+        if (exc.type === 'medico') {
+          return { status: 'medico', label: 'Desc. Médico', isWork: false, note: exc.note, isOverride: true };
+        }
+        if (exc.type === 'vacaciones') {
+          return { status: 'vacaciones', label: 'Vacaciones', isWork: false, note: exc.note, isOverride: true };
+        }
+        if (exc.type === 'cambio_trabajo') {
+          return { status: 'trabajo', label: 'Trabajo (Guardia)', isWork: true, note: exc.note, isOverride: true };
+        }
+        if (exc.type === 'cambio_descanso') {
+          return { status: 'bajada', label: 'Bajada (Comp)', isWork: false, note: exc.note, isOverride: true };
+        }
+      }
+
+      // Normal cycle calculation
+      const anchor = parseDateString(worker.anchorDate);
+      const target = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+      
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const diffDays = Math.round((target - anchor) / msPerDay);
+
+      const wDays = Math.max(1, parseInt(worker.workDays, 10) || 16);
+      const rDays = Math.max(1, parseInt(worker.restDays, 10) || 5);
+      const cycleLength = wDays + rDays;
+      
+      const cycleIndex = ((diffDays % cycleLength) + cycleLength) % cycleLength;
+
+      if (cycleIndex < wDays) {
+        const dayInWork = cycleIndex + 1;
+        return {
+          status: 'trabajo',
+          label: `Trabajo`,
+          subLabel: `T-${dayInWork}`,
+          dayIndex: dayInWork,
+          totalWork: wDays,
+          isWork: true,
+          isOverride: false
+        };
+      } else {
+        const dayInRest = cycleIndex - wDays + 1;
+        return {
+          status: 'bajada',
+          label: `Bajada`,
+          subLabel: `B-${dayInRest}`,
+          dayIndex: dayInRest,
+          totalRest: rDays,
+          isWork: false,
+          isOverride: false
+        };
+      }
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const monthLabel = document.getElementById('calendarMonthLabel');
+      const currentWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
+
+      if (!currentWorker) return;
+
+      const year = currentViewingDate.getFullYear();
+      const month = currentViewingDate.getMonth();
+
+      const monthFormatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+      monthLabel.textContent = monthFormatter.format(currentViewingDate);
+
+      document.getElementById('cycleFormatLabel').textContent = `${currentWorker.workDays}x${currentWorker.restDays}`;
+
+      grid.innerHTML = '';
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const numDays = lastDay.getDate();
+
+      let startDayOfWeek = firstDay.getDay() - 1;
+      if (startDayOfWeek === -1) startDayOfWeek = 6;
+
+      for (let i = 0; i < startDayOfWeek; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-cell bg-slate-950/40 rounded-xl border border-transparent opacity-25';
+        grid.appendChild(emptyCell);
+      }
+
+      let countWork = 0;
+      let countRest = 0;
+      let countSpecial = 0;
+
+      const todayStr = formatDateString(new Date());
+
+      for (let d = 1; d <= numDays; d++) {
+        const thisDate = new Date(year, month, d);
+        const dateStr = formatDateString(thisDate);
+        const dayStatus = getWorkerDayStatus(currentWorker, thisDate);
+
+        const isToday = dateStr === todayStr;
+
+        if (dayStatus.status === 'trabajo') countWork++;
+        else if (dayStatus.status === 'bajada') countRest++;
+        else countSpecial++;
+
+        const cell = document.createElement('div');
+        cell.className = `calendar-cell relative flex flex-col justify-between p-1.5 rounded-xl border cursor-pointer select-none ${
+          isToday ? 'ring-2 ring-indigo-500 bg-slate-900 border-indigo-500/50' : 'bg-slate-900/90 hover:bg-slate-800/90 border-slate-800'
+        }`;
+
+        let badgeBg = '';
+        let tagText = '';
+
+        if (dayStatus.status === 'trabajo') {
+          badgeBg = 'bg-blue-600/20 text-blue-300 border-blue-500/30';
+          tagText = dayStatus.subLabel || 'Trabajo';
+        } else if (dayStatus.status === 'bajada') {
+          badgeBg = 'bg-emerald-600/20 text-emerald-300 border-emerald-500/30';
+          tagText = dayStatus.subLabel || 'Bajada';
+        } else if (dayStatus.status === 'permiso') {
+          badgeBg = 'bg-amber-600/25 text-amber-300 border-amber-500/40';
+          tagText = 'Permiso';
+        } else if (dayStatus.status === 'medico') {
+          badgeBg = 'bg-rose-600/25 text-rose-300 border-rose-500/40';
+          tagText = 'Médico';
+        } else {
+          badgeBg = 'bg-purple-600/25 text-purple-300 border-purple-500/40';
+          tagText = dayStatus.label;
+        }
+
+        cell.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold ${isToday ? 'text-indigo-400 font-extrabold' : 'text-slate-300'}">${d}</span>
+            ${dayStatus.isOverride ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400" title="Excepción / Permiso"></span>' : ''}
+          </div>
+          <div class="mt-1">
+            <span class="block text-[9px] font-bold text-center py-0.5 px-1 rounded-md border ${badgeBg} truncate">
+              ${tagText}
+            </span>
+          </div>
+        `;
+
+        cell.addEventListener('click', () => {
+          openDayActionModal(currentWorker, thisDate, dayStatus);
+        });
+
+        grid.appendChild(cell);
+      }
+
+      document.getElementById('statWorkDays').textContent = countWork;
+      document.getElementById('statRestDays').textContent = countRest;
+      document.getElementById('statSpecialDays').textContent = countSpecial;
+    }
+
+    function renderWorkerSelector() {
+      const select = document.getElementById('selectWorker');
+      const infoContainer = document.getElementById('activeWorkerInfo');
+      select.innerHTML = '';
+
+      workers.forEach(w => {
+        const option = document.createElement('option');
+        option.value = w.id;
+        option.textContent = `${w.name} [${w.brigade || 'Sin Brigada'}] (${w.workDays}x${w.restDays})`;
+        if (w.id === activeWorkerId) option.selected = true;
+        select.appendChild(option);
+      });
+
+      const currentWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
+      if (!currentWorker) return;
+
+      const colorMeta = ROLE_COLORS[currentWorker.color] || ROLE_COLORS.slate;
+      const todayStatus = getWorkerDayStatus(currentWorker, new Date());
+
+      let statusPill = '';
+      if (todayStatus.status === 'trabajo') {
+        statusPill = `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">En Mina (${todayStatus.subLabel})</span>`;
+      } else if (todayStatus.status === 'bajada') {
+        statusPill = `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">En Bajada (${todayStatus.subLabel})</span>`;
+      } else {
+        statusPill = `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">${todayStatus.label}</span>`;
+      }
+
+      infoContainer.innerHTML = `
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="w-2.5 h-2.5 rounded-full ${colorMeta.dot}"></span>
+          <span class="font-bold text-white">${currentWorker.name}</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder} font-semibold">${currentWorker.role}</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 border border-slate-700 font-bold">${currentWorker.brigade || 'General'}</span>
+        </div>
+        <div>
+          ${statusPill}
+        </div>
+      `;
+    }
+
+    function renderGeneralCalendar() {
+      const grid = document.getElementById('generalCalendarGrid');
+      const monthLabel = document.getElementById('generalCalendarMonthLabel');
+      const brigadeSelect = document.getElementById('selectGeneralBrigadeFilter');
+
+      // Populate brigade select options
+      const currentSelectedBrigade = brigadeSelect.value || 'ALL';
+      brigadeSelect.innerHTML = '<option value="ALL">Todas las Brigadas / Grupos</option>';
+      getUniqueBrigades().forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = `Brigada: ${b}`;
+        if (b === currentSelectedBrigade) opt.selected = true;
+        brigadeSelect.appendChild(opt);
+      });
+
+      const filterBrigade = brigadeSelect.value;
+      const filteredWorkers = filterBrigade === 'ALL' ? workers : workers.filter(w => w.brigade === filterBrigade);
+
+      const year = currentGeneralViewingDate.getFullYear();
+      const month = currentGeneralViewingDate.getMonth();
+
+      const monthFormatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+      monthLabel.textContent = monthFormatter.format(currentGeneralViewingDate);
+
+      grid.innerHTML = '';
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const numDays = lastDay.getDate();
+
+      let startDayOfWeek = firstDay.getDay() - 1;
+      if (startDayOfWeek === -1) startDayOfWeek = 6;
+
+      for (let i = 0; i < startDayOfWeek; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'general-cell bg-slate-950/40 rounded-xl border border-transparent opacity-25';
+        grid.appendChild(emptyCell);
+      }
+
+      const todayStr = formatDateString(new Date());
+
+      for (let d = 1; d <= numDays; d++) {
+        const thisDate = new Date(year, month, d);
+        const dateStr = formatDateString(thisDate);
+        const isToday = dateStr === todayStr;
+
+        // Workers working (in field) on this day
+        const workingWorkers = [];
+        const restingWorkers = [];
+        const exceptionWorkers = [];
+
+        filteredWorkers.forEach(w => {
+          const st = getWorkerDayStatus(w, thisDate);
+          if (st.status === 'trabajo') {
+            workingWorkers.push({ worker: w, status: st });
+          } else if (st.status === 'bajada') {
+            restingWorkers.push({ worker: w, status: st });
+          } else {
+            exceptionWorkers.push({ worker: w, status: st });
+          }
+        });
+
+        const cell = document.createElement('div');
+        cell.className = `general-cell relative flex flex-col justify-between p-1.5 rounded-xl border cursor-pointer select-none ${
+          isToday ? 'ring-2 ring-indigo-500 bg-slate-900 border-indigo-500/50' : 'bg-slate-900/80 hover:bg-slate-800/80 border-slate-800'
+        }`;
+
+        // Build dots for personnel in field (up to 4 avatars/dots, then "+N")
+        let dotsHtml = '<div class="flex flex-wrap gap-1 mt-1">';
+        const maxVisibleDots = 4;
+        const visibleWorking = workingWorkers.slice(0, maxVisibleDots);
+
+        visibleWorking.forEach(item => {
+          const colorMeta = ROLE_COLORS[item.worker.color] || ROLE_COLORS.slate;
+          const initials = item.worker.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+          dotsHtml += `
+            <div title="${item.worker.name} (${item.worker.role} - ${item.worker.brigade})" class="w-4 h-4 rounded-full bg-gradient-to-tr ${colorMeta.avatarBg} text-[8px] font-bold text-white flex items-center justify-center shadow-sm ring-1 ring-white/20">
+              ${initials}
+            </div>
+          `;
+        });
+
+        if (workingWorkers.length > maxVisibleDots) {
+          const remaining = workingWorkers.length - maxVisibleDots;
+          dotsHtml += `
+            <div class="w-4 h-4 rounded-full bg-slate-800 text-indigo-300 text-[8px] font-bold flex items-center justify-center border border-indigo-500/40">
+              +${remaining}
+            </div>
+          `;
+        }
+
+        dotsHtml += '</div>';
+
+        cell.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold ${isToday ? 'text-indigo-400 font-extrabold' : 'text-slate-300'}">${d}</span>
+            <span class="text-[9px] font-bold px-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              ${workingWorkers.length}
+            </span>
+          </div>
+          ${dotsHtml}
+          <div class="mt-1 pt-1 border-t border-slate-800/60 flex items-center justify-between text-[8px] text-slate-400">
+            <span>En campo</span>
+            <i data-lucide="chevron-right" class="w-2.5 h-2.5 opacity-60"></i>
+          </div>
+        `;
+
+        cell.addEventListener('click', () => {
+          openGeneralDayDetailModal(thisDate, workingWorkers, restingWorkers, exceptionWorkers);
+        });
+
+        grid.appendChild(cell);
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openGeneralDayDetailModal(dateObj, workingList, restingList, exceptionList) {
+      const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('modalGenDayTitle').textContent = dFormatter.format(dateObj);
+      document.getElementById('modalGenDaySubtitle').textContent = `${workingList.length} trabajadores en campo hoy`;
+
+      const wCount = document.getElementById('modalGenWorkingCount');
+      const rCount = document.getElementById('modalGenRestingCount');
+      const eCount = document.getElementById('modalGenExceptionCount');
+
+      wCount.textContent = workingList.length;
+      rCount.textContent = restingList.length;
+      eCount.textContent = exceptionList.length;
+
+      const wContainer = document.getElementById('modalGenWorkingList');
+      const rContainer = document.getElementById('modalGenRestingList');
+      const eContainer = document.getElementById('modalGenExceptionList');
+
+      wContainer.innerHTML = '';
+      rContainer.innerHTML = '';
+      eContainer.innerHTML = '';
+
+      if (workingList.length === 0) {
+        wContainer.innerHTML = '<p class="text-[11px] text-slate-500 italic">No hay personal trabajando en campo este día.</p>';
+      } else {
+        workingList.forEach(item => {
+          wContainer.appendChild(createWorkerDetailRow(item.worker, item.status, 'blue'));
+        });
+      }
+
+      if (restingList.length === 0) {
+        rContainer.innerHTML = '<p class="text-[11px] text-slate-500 italic">Nadie en descanso este día.</p>';
+      } else {
+        restingList.forEach(item => {
+          rContainer.appendChild(createWorkerDetailRow(item.worker, item.status, 'emerald'));
+        });
+      }
+
+      if (exceptionList.length === 0) {
+        eContainer.innerHTML = '<p class="text-[11px] text-slate-500 italic">Sin permisos registrados en esta fecha.</p>';
+      } else {
+        exceptionList.forEach(item => {
+          eContainer.appendChild(createWorkerDetailRow(item.worker, item.status, 'amber'));
+        });
+      }
+
+      document.getElementById('modalGeneralDayDetail').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function createWorkerDetailRow(worker, status, tagColor) {
+      const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800';
+
+      row.innerHTML = `
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-[10px]">
+            ${worker.name.charAt(0)}
+          </div>
+          <div>
+            <p class="font-bold text-white text-xs">${worker.name}</p>
+            <div class="flex items-center gap-1 text-[9px] text-slate-400">
+              <span class="${colorMeta.badgeText} font-semibold">${worker.role}</span>
+              <span>•</span>
+              <span class="text-indigo-300 font-semibold">${worker.brigade}</span>
+              <span>•</span>
+              <span>${worker.workDays}x${worker.restDays}</span>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
+            tagColor === 'blue' ? 'bg-blue-500/20 text-blue-300' :
+            tagColor === 'emerald' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+          }">
+            ${status.subLabel || status.label}
+          </span>
+          ${status.note ? `<p class="text-[9px] text-slate-400 mt-0.5 truncate max-w-[100px]">${status.note}</p>` : ''}
+        </div>
+      `;
+      return row;
+    }
+
+    function renderHeadcount() {
+      const datePicker = document.getElementById('headcountDatePicker');
+      const dateLabel = document.getElementById('headcountDateLabel');
+      const brigadeSelect = document.getElementById('selectHeadcountBrigade');
+      
+      let dateVal = datePicker.value;
+      let targetDate = dateVal ? parseDateString(dateVal) : new Date();
+      if (!dateVal) datePicker.value = formatDateString(targetDate);
+
+      const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      dateLabel.textContent = dFormatter.format(targetDate);
+
+      // Populate brigade select
+      const currentSelectedBrigade = brigadeSelect.value || 'ALL';
+      brigadeSelect.innerHTML = '<option value="ALL">Todas las brigadas / grupos</option>';
+      getUniqueBrigades().forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = `Brigada: ${b}`;
+        if (b === currentSelectedBrigade) opt.selected = true;
+        brigadeSelect.appendChild(opt);
+      });
+
+      const filterBrigade = brigadeSelect.value;
+      const filteredWorkers = filterBrigade === 'ALL' ? workers : workers.filter(w => w.brigade === filterBrigade);
+
+      const workingList = document.getElementById('listWorkingWorkers');
+      const restingList = document.getElementById('listRestingWorkers');
+      const exceptionList = document.getElementById('listExceptionWorkers');
+
+      workingList.innerHTML = '';
+      restingList.innerHTML = '';
+      exceptionList.innerHTML = '';
+
+      let cWorking = 0;
+      let cResting = 0;
+      let cExceptions = 0;
+
+      filteredWorkers.forEach(worker => {
+        const status = getWorkerDayStatus(worker, targetDate);
+        const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+
+        const card = document.createElement('div');
+        card.className = 'flex items-center justify-between p-2.5 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 transition cursor-pointer';
+        
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-xs shadow">
+              ${worker.name.charAt(0)}
+            </div>
+            <div>
+              <p class="text-xs font-bold text-white">${worker.name}</p>
+              <div class="flex items-center gap-1.5 text-[10px] flex-wrap">
+                <span class="px-1.5 py-0.2 rounded font-medium border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
+                <span class="bg-slate-900 text-indigo-300 px-1.5 py-0.2 rounded font-bold border border-slate-800">${worker.brigade}</span>
+                <span class="text-slate-400 font-mono">${worker.workDays}x${worker.restDays}</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] font-bold ${
+              status.status === 'trabajo' ? 'text-blue-400' :
+              status.status === 'bajada' ? 'text-emerald-400' : 'text-amber-400'
+            }">
+              ${status.label} ${status.subLabel ? `(${status.subLabel})` : ''}
+            </span>
+            ${status.note ? `<p class="text-[10px] text-slate-400 truncate max-w-[120px]">${status.note}</p>` : ''}
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          activeWorkerId = worker.id;
+          selectedDateForAction = targetDate;
+          openDayActionModal(worker, targetDate, status);
+        });
+
+        if (status.status === 'trabajo') {
+          cWorking++;
+          workingList.appendChild(card);
+        } else if (status.status === 'bajada') {
+          cResting++;
+          restingList.appendChild(card);
+        } else {
+          cExceptions++;
+          exceptionList.appendChild(card);
+        }
+      });
+
+      document.getElementById('countWorking').textContent = cWorking;
+      document.getElementById('countResting').textContent = cResting;
+      document.getElementById('countExceptions').textContent = cExceptions;
+
+      if (cWorking === 0) workingList.innerHTML = '<p class="text-xs text-slate-500 py-1 italic">Ningún trabajador asignado a subida hoy.</p>';
+      if (cResting === 0) restingList.innerHTML = '<p class="text-xs text-slate-500 py-1 italic">Nadie en bajada hoy.</p>';
+      if (cExceptions === 0) exceptionList.innerHTML = '<p class="text-xs text-slate-500 py-1 italic">Sin permisos ni excepciones registradas hoy.</p>';
+    }
+
+    function renderWorkersAdminList() {
+      const container = document.getElementById('workersListContainer');
+      const chipsContainer = document.getElementById('brigadeFilterChips');
+      container.innerHTML = '';
+      chipsContainer.innerHTML = '';
+
+      // Render brigade chips
+      const brigades = ['ALL', ...getUniqueBrigades()];
+      brigades.forEach(b => {
+        const chip = document.createElement('button');
+        const isActive = activeBrigadeAdminFilter === b;
+        chip.className = `px-3 py-1 rounded-xl font-bold whitespace-nowrap transition border ${
+          isActive ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+        }`;
+        chip.textContent = b === 'ALL' ? 'Todos' : b;
+        chip.addEventListener('click', () => {
+          activeBrigadeAdminFilter = b;
+          renderWorkersAdminList();
+        });
+        chipsContainer.appendChild(chip);
+      });
+
+      const filtered = activeBrigadeAdminFilter === 'ALL' 
+        ? workers 
+        : workers.filter(w => w.brigade === activeBrigadeAdminFilter);
+
+      filtered.forEach(w => {
+        const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
+        const item = document.createElement('div');
+        item.className = 'p-3.5 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between';
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-md">
+              ${w.name.charAt(0)}
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="text-xs font-bold text-white">${w.name}</h4>
+                <span class="text-[10px] px-1.5 py-0.5 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder} font-bold">${w.role}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-950 text-indigo-300 font-bold border border-slate-800">${w.brigade}</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">
+                Régimen: <span class="font-bold text-slate-200">${w.workDays}x${w.restDays}</span> · Día 1: ${w.anchorDate}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <button data-id="${w.id}" class="btn-edit-worker p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            ${workers.length > 1 ? `
+            <button data-id="${w.id}" class="btn-delete-worker p-2 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+            ` : ''}
+          </div>
+        `;
+
+        container.appendChild(item);
+      });
+
+      container.querySelectorAll('.btn-edit-worker').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openEditWorkerModal(btn.getAttribute('data-id'));
+        });
+      });
+
+      container.querySelectorAll('.btn-delete-worker').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.getAttribute('data-id');
+          const target = workers.find(x => x.id === id);
+          showConfirmModal(
+            'Eliminar Trabajador',
+            `¿Estás seguro de eliminar a "${target?.name}"? Se borrarán también sus permisos registrados.`,
+            () => deleteWorker(id)
+          );
+        });
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openNewWorkerModal() {
+      document.getElementById('workerFormId').value = '';
+      document.getElementById('modalWorkerTitle').innerHTML = '<i data-lucide="user-plus" class="w-4 h-4 text-indigo-400"></i> Nuevo Trabajador';
+      document.getElementById('workerNameInput').value = '';
+      document.getElementById('workerRoleSelect').value = 'Operador';
+      document.getElementById('workerColorSelect').value = 'cyan';
+      document.getElementById('workerBrigadeInput').value = 'Guardia A';
+      
+      // Preset default: 16x5
+      document.getElementById('workerRegimePreset').value = '16x5';
+      document.getElementById('workerWorkDays').value = '16';
+      document.getElementById('workerRestDays').value = '5';
+      document.getElementById('workerAnchorDate').value = formatDateString(new Date());
+
+      document.getElementById('modalWorker').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openEditWorkerModal(workerId) {
+      const w = workers.find(item => item.id === workerId);
+      if (!w) return;
+
+      document.getElementById('workerFormId').value = w.id;
+      document.getElementById('modalWorkerTitle').innerHTML = '<i data-lucide="user-cog" class="w-4 h-4 text-indigo-400"></i> Modificar Trabajador';
+      document.getElementById('workerNameInput').value = w.name;
+      document.getElementById('workerRoleSelect').value = w.role;
+      document.getElementById('workerColorSelect').value = w.color || 'purple';
+      document.getElementById('workerBrigadeInput').value = w.brigade || 'Guardia A';
+
+      // Detect preset or custom
+      const pair = `${w.workDays}x${w.restDays}`;
+      const presetSelect = document.getElementById('workerRegimePreset');
+      if (['16x5', '32x10', '6x1', '14x7', '20x10', '4x3', '5x2'].includes(pair)) {
+        presetSelect.value = pair;
+      } else {
+        presetSelect.value = 'custom';
+      }
+
+      document.getElementById('workerWorkDays').value = w.workDays;
+      document.getElementById('workerRestDays').value = w.restDays;
+      document.getElementById('workerAnchorDate').value = w.anchorDate;
+
+      document.getElementById('modalWorker').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Regime preset change event handler
+    function handleRegimePresetChange() {
+      const preset = document.getElementById('workerRegimePreset').value;
+      const workInput = document.getElementById('workerWorkDays');
+      const restInput = document.getElementById('workerRestDays');
+
+      if (preset === '16x5') {
+        workInput.value = 16;
+        restInput.value = 5;
+      } else if (preset === '32x10') {
+        workInput.value = 32;
+        restInput.value = 10;
+      } else if (preset === '6x1') {
+        workInput.value = 6;
+        restInput.value = 1;
+      } else if (preset === '14x7') {
+        workInput.value = 14;
+        restInput.value = 7;
+      } else if (preset === '20x10') {
+        workInput.value = 20;
+        restInput.value = 10;
+      } else if (preset === '4x3') {
+        workInput.value = 4;
+        restInput.value = 3;
+      } else if (preset === '5x2') {
+        workInput.value = 5;
+        restInput.value = 2;
+      }
+    }
+
+    function saveWorkerForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('workerFormId').value;
+      const name = document.getElementById('workerNameInput').value.trim();
+      const role = document.getElementById('workerRoleSelect').value;
+      const color = document.getElementById('workerColorSelect').value;
+      const brigade = document.getElementById('workerBrigadeInput').value.trim() || 'General';
+      const workDays = parseInt(document.getElementById('workerWorkDays').value, 10) || 16;
+      const restDays = parseInt(document.getElementById('workerRestDays').value, 10) || 5;
+      const anchorDate = document.getElementById('workerAnchorDate').value;
+
+      if (!name) return;
+
+      if (id) {
+        const index = workers.findIndex(w => w.id === id);
+        if (index !== -1) {
+          workers[index] = { ...workers[index], name, role, color, brigade, workDays, restDays, anchorDate };
+          showToast(`Trabajador "${name}" actualizado`);
+        }
+      } else {
+        const newWorker = {
+          id: 'w_' + Date.now(),
+          name,
+          role,
+          color,
+          brigade,
+          workDays,
+          restDays,
+          anchorDate: anchorDate || formatDateString(new Date())
+        };
+        workers.push(newWorker);
+        activeWorkerId = newWorker.id;
+        showToast(`Trabajador "${name}" añadido`);
+      }
+
+      saveState();
+      document.getElementById('modalWorker').classList.add('hidden');
+      renderAllViews();
+    }
+
+    function deleteWorker(workerId) {
+      Object.keys(exceptions).forEach(k => {
+        if (k.startsWith(`${workerId}_`)) {
+          delete exceptions[k];
+        }
+      });
+
+      workers = workers.filter(item => item.id !== workerId);
+      if (activeWorkerId === workerId && workers.length > 0) {
+        activeWorkerId = workers[0].id;
+      }
+
+      saveState();
+      showToast(`Trabajador eliminado`);
+      renderAllViews();
+    }
+
+    function openDayActionModal(worker, dateObj, statusInfo) {
+      selectedDateForAction = {
+        workerId: worker.id,
+        date: dateObj
+      };
+
+      const dateStr = formatDateString(dateObj);
+      const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      
+      document.getElementById('modalDayDateTitle').textContent = dFormatter.format(dateObj);
+      document.getElementById('modalDayWorkerName').textContent = `${worker.name} (${worker.role} - ${worker.brigade})`;
+
+      const defaultInfoBox = document.getElementById('modalDayDefaultInfo');
+      defaultInfoBox.innerHTML = `
+        <div>
+          <span class="text-[10px] text-slate-400 block font-semibold">Ciclo normal (${worker.workDays}x${worker.restDays}):</span>
+          <span class="text-xs font-bold text-white">${statusInfo.isWork ? 'Trabajo en Campo (Subida)' : 'Bajada (Descanso)'}</span>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] font-mono bg-slate-900 text-indigo-300 px-2 py-0.5 rounded border border-slate-800">
+            ${statusInfo.subLabel || statusInfo.label}
+          </span>
+        </div>
+      `;
+
+      const exceptionKey = `${worker.id}_${dateStr}`;
+      const currentOverride = exceptions[exceptionKey];
+
+      const selectOverride = document.getElementById('modalDayOverrideSelect');
+      const noteInput = document.getElementById('modalDayNoteInput');
+
+      if (currentOverride) {
+        selectOverride.value = currentOverride.type;
+        noteInput.value = currentOverride.note || '';
+        document.getElementById('btnRemoveOverride').classList.remove('hidden');
+      } else {
+        selectOverride.value = 'default';
+        noteInput.value = '';
+        document.getElementById('btnRemoveOverride').classList.add('hidden');
+      }
+
+      document.getElementById('modalDayAction').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function saveDayOverride() {
+      if (!selectedDateForAction) return;
+
+      const dateStr = formatDateString(selectedDateForAction.date);
+      const exceptionKey = `${selectedDateForAction.workerId}_${dateStr}`;
+      const type = document.getElementById('modalDayOverrideSelect').value;
+      const note = document.getElementById('modalDayNoteInput').value.trim();
+
+      if (type === 'default') {
+        delete exceptions[exceptionKey];
+        showToast('Día restaurado al ciclo regular');
+      } else {
+        exceptions[exceptionKey] = {
+          type,
+          note: note || (type === 'permiso' ? 'Permiso' : type === 'medico' ? 'Descanso Médico' : 'Ajuste de turno')
+        };
+        showToast('Permiso / Excepción guardada');
+      }
+
+      saveState();
+      document.getElementById('modalDayAction').classList.add('hidden');
+      renderAllViews();
+    }
+
+    function removeDayOverride() {
+      if (!selectedDateForAction) return;
+      const dateStr = formatDateString(selectedDateForAction.date);
+      const exceptionKey = `${selectedDateForAction.workerId}_${dateStr}`;
+      delete exceptions[exceptionKey];
+
+      saveState();
+      showToast('Excepción eliminada');
+      document.getElementById('modalDayAction').classList.add('hidden');
+      renderAllViews();
+    }
+
+    function exportRosterToExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('Cargando librería Excel, intente en 2 segundos...');
+        return;
+      }
+
+      const year = currentViewingDate.getFullYear();
+      const month = currentViewingDate.getMonth();
+      const lastDay = new Date(year, month + 1, 0).getDate();
+
+      // Sheet 1: Detailed Monthly Roster Matrix
+      const matrixHeaders = ['ID', 'Trabajador', 'Cargo', 'Brigada / Grupo', 'Régimen'];
+      for (let d = 1; d <= lastDay; d++) {
+        matrixHeaders.push(`Día ${d}`);
+      }
+
+      const matrixRows = [matrixHeaders];
+
+      workers.forEach(w => {
+        const row = [w.id, w.name, w.role, w.brigade, `${w.workDays}x${w.restDays}`];
+        for (let d = 1; d <= lastDay; d++) {
+          const date = new Date(year, month, d);
+          const st = getWorkerDayStatus(w, date);
+          
+          let cellCode = '';
+          if (st.status === 'trabajo') cellCode = st.subLabel || 'T';
+          else if (st.status === 'bajada') cellCode = st.subLabel || 'B';
+          else if (st.status === 'permiso') cellCode = 'PERMISO';
+          else if (st.status === 'medico') cellCode = 'MEDICO';
+          else cellCode = st.label;
+
+          row.push(cellCode);
+        }
+        matrixRows.push(row);
+      });
+
+      // Sheet 2: Staff List with Regime Settings
+      const staffHeaders = ['ID', 'Nombre', 'Cargo', 'Color', 'Brigada', 'Días Trabajo', 'Días Bajada', 'Fecha Inicio Ciclo'];
+      const staffRows = [staffHeaders];
+      workers.forEach(w => {
+        staffRows.push([w.id, w.name, w.role, w.color, w.brigade, w.workDays, w.restDays, w.anchorDate]);
+      });
+
+      // Sheet 3: Registered Exceptions & Notes
+      const excHeaders = ['Trabajador', 'Fecha', 'Tipo de Excepción', 'Detalle / Nota'];
+      const excRows = [excHeaders];
+      Object.entries(exceptions).forEach(([key, val]) => {
+        const [wId, dStr] = key.split('_');
+        const worker = workers.find(x => x.id === wId);
+        excRows.push([worker ? worker.name : wId, dStr, val.type, val.note || '']);
+      });
+
+      // Create Workbook
+      const wb = XLSX.utils.book_new();
+      
+      const wsMatrix = XLSX.utils.aoa_to_sheet(matrixRows);
+      const wsStaff = XLSX.utils.aoa_to_sheet(staffRows);
+      const wsExceptions = XLSX.utils.aoa_to_sheet(excRows);
+
+      XLSX.utils.book_append_sheet(wb, wsMatrix, `Rol_${year}_${month + 1}`);
+      XLSX.utils.book_append_sheet(wb, wsStaff, "Personal_y_Regímenes");
+      XLSX.utils.book_append_sheet(wb, wsExceptions, "Permisos_Registrados");
+
+      const fileName = `Roster_RODASER_${year}_${String(month + 1).padStart(2, '0')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      showToast(`Archivo Excel exportado: ${fileName}`);
+      document.getElementById('modalDatabase').classList.add('hidden');
+    }
+
+    function exportBackupJson() {
+      const data = {
+        app: 'Roster_RODASER',
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        workers,
+        exceptions
+      };
+
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Roster_RODASER_Backup_${formatDateString(new Date())}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('Copia de seguridad (.json) descargada');
+      document.getElementById('modalDatabase').classList.add('hidden');
+    }
+
+    function handleFileImport(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const fileName = file.name.toLowerCase();
+
+      if (fileName.endsWith('.json')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const parsed = JSON.parse(event.target.result);
+            if (Array.isArray(parsed.workers)) {
+              showConfirmModal(
+                'Restaurar Base de Datos',
+                `Se encontraron ${parsed.workers.length} trabajadores en el respaldo. ¿Deseas reemplazar los datos actuales?`,
+                () => {
+                  workers = parsed.workers;
+                  exceptions = parsed.exceptions || {};
+                  saveState();
+                  renderAllViews();
+                  showToast('Base de datos restaurada con éxito');
+                  document.getElementById('modalDatabase').classList.add('hidden');
+                }
+              );
+            } else {
+              showToast('El archivo JSON no tiene un formato compatible.');
             }
-
-            return (
-                <div className="animate-fade-in p-6 h-[550px] flex flex-col justify-center bg-cat-panel rounded border border-gray-800">
-                    <div className="text-cat text-xs font-mono mb-2">DECISIÓN {step+1} / {qs.length}</div>
-                    <h2 className="text-3xl font-stencil text-white mb-8">{qs[step].q}</h2>
-                    <div className="space-y-4">
-                        {qs[step].opts.map((o,i) => (
-                            <button key={i} onClick={()=>vote(o)} className="w-full py-4 px-6 bg-black border border-gray-700 text-white font-bold text-lg hover:border-cat hover:text-cat transition-all rounded-sm uppercase text-left flex justify-between items-center group">
-                                <span>{o.l}</span>
-                                <span className="text-xs text-gray-500 group-hover:text-black font-mono opacity-0 group-hover:opacity-100 transition-opacity">SELECCIONAR</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            );
+          } catch (err) {
+            showToast('Error al procesar archivo JSON.');
+          }
         };
+        reader.readAsText(file);
+      } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
+        // Read Excel / CSV with SheetJS
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Look for 'Personal_y_Regímenes' or first sheet
+            let sheetName = workbook.SheetNames.find(n => n.includes('Personal')) || workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet);
 
-        // --- 3. COMPARATIVA CON EXPLICACIONES DESPLEGABLES ---
-        const Comparison = () => {
-            const [open, setOpen] = useState(null);
+            if (rows && rows.length > 0) {
+              const importedWorkers = [];
+              rows.forEach((row, idx) => {
+                const name = row['Nombre'] || row['Trabajador'] || row['name'];
+                if (name) {
+                  importedWorkers.push({
+                    id: row['ID'] || row['id'] || 'w_' + (Date.now() + idx),
+                    name: String(name),
+                    role: row['Cargo'] || row['role'] || 'Operador',
+                    color: row['Color'] || 'cyan',
+                    brigade: row['Brigada'] || row['Brigada / Grupo'] || 'Guardia A',
+                    workDays: parseInt(row['Días Trabajo'] || row['workDays'] || 16, 10),
+                    restDays: parseInt(row['Días Bajada'] || row['restDays'] || 5, 10),
+                    anchorDate: row['Fecha Inicio Ciclo'] || row['anchorDate'] || formatDateString(new Date())
+                  });
+                }
+              });
 
-            const items = [
-                { t: "INVERSIÓN INICIAL (CAPEX)", v1: "MUY ALTA", v2: "BAJA", w: 2, exp: "La TBM requiere la fabricación de una máquina a medida, transporte y montaje (meses). PyV utiliza equipos estándar (Jumbos) fácilmente alquilables." },
-                { t: "VELOCIDAD DE AVANCE", v1: "RÁPIDA (15-30m/d)", v2: "LENTA (4-8m/d)", w: 1, exp: "La TBM excava y sostiene simultáneamente en un proceso continuo. PyV es cíclico (perforar, cargar, volar, ventilar, desescombrar)." },
-                { t: "FLEXIBILIDAD SECCIÓN", v1: "NULA (Circular)", v2: "ALTA (Herradura)", w: 2, exp: "Una TBM está diseñada para un solo diámetro. PyV permite cambiar la forma del túnel y hacer ensanches o galerías fácilmente." },
-                { t: "SEGURIDAD PERSONAL", v1: "MÁXIMA (Escudo)", v2: "MEDIA", w: 1, exp: "En TBM, el personal trabaja protegido por el escudo de acero y el revestimiento ya instalado. En PyV, hay exposición al frente abierto antes del sostenimiento." },
-                { t: "MOVILIZACIÓN", v1: "LENTA (Meses)", v2: "RÁPIDA (Semanas)", w: 2, exp: "Iniciar con TBM toma de 3 a 6 meses por fabricación y logística. PyV puede iniciar casi de inmediato si hay equipos disponibles." },
-                { t: "VENTILACIÓN", v1: "EFICIENTE", v2: "COMPLEJA", w: 1, exp: "La TBM usa ductos eficientes y no genera gases de explosivos. PyV requiere tiempos muertos para ventilar los gases tóxicos post-voladura." },
-                { t: "ENERGÍA", v1: "ELÉCTRICA", v2: "DIESEL / ELEC", w: 1, exp: "La TBM opera principalmente con electricidad de alta tensión (menor huella carbono operativa). PyV usa mucho diesel (equipos de carga y transporte)." }
-            ];
-
-            return (
-                <div className="animate-fade-in space-y-4 pb-24">
-                    {items.map((item, i) => (
-                        <div key={i} className="bg-cat-panel border border-gray-800 rounded overflow-hidden cursor-pointer hover:border-cat transition-colors" onClick={() => setOpen(open === i ? null : i)}>
-                            <div className="bg-black p-3 flex justify-between items-center border-b border-gray-800">
-                                <span className="text-xs font-bold text-cat uppercase tracking-widest">{item.t}</span>
-                                <Icon d={icons.down} c={`w-4 h-4 text-gray-500 transform transition-transform ${open === i ? 'rotate-180' : ''}`} />
-                            </div>
-                            
-                            <div className="grid grid-cols-2 divide-x divide-gray-800">
-                                <div className={`p-4 text-center ${item.w === 1 ? 'bg-cat/5' : ''}`}>
-                                    <div className="text-[10px] text-gray-500 mb-1">TBM</div>
-                                    <div className={`text-sm font-bold ${item.w === 1 ? 'text-cat' : 'text-gray-400'}`}>{item.v1}</div>
-                                </div>
-                                <div className={`p-4 text-center ${item.w === 2 ? 'bg-orange-900/10' : ''}`}>
-                                    <div className="text-[10px] text-gray-500 mb-1">PyV</div>
-                                    <div className={`text-sm font-bold ${item.w === 2 ? 'text-orange-500' : 'text-gray-400'}`}>{item.v2}</div>
-                                </div>
-                            </div>
-
-                            {open === i && (
-                                <div className="p-4 bg-[#151515] text-gray-400 text-xs leading-relaxed border-t border-gray-800 animation-fade-in">
-                                    <strong className="text-white block mb-1 uppercase text-[10px]">Explicación Técnica:</strong>
-                                    {item.exp}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            );
+              if (importedWorkers.length > 0) {
+                showConfirmModal(
+                  'Cargar desde Excel',
+                  `Se leyeron ${importedWorkers.length} trabajadores de la hoja "${sheetName}". ¿Deseas importarlos?`,
+                  () => {
+                    workers = importedWorkers;
+                    activeWorkerId = workers[0].id;
+                    saveState();
+                    renderAllViews();
+                    showToast(`${importedWorkers.length} trabajadores importados desde Excel`);
+                    document.getElementById('modalDatabase').classList.add('hidden');
+                  }
+                );
+              } else {
+                showToast('No se pudieron leer columnas de trabajadores válidas en el Excel.');
+              }
+            } else {
+              showToast('La hoja de cálculo está vacía.');
+            }
+          } catch (err) {
+            console.error(err);
+            showToast('Error al importar archivo de Excel.');
+          }
         };
+        reader.readAsArrayBuffer(file);
+      } else {
+        showToast('Formato no admitido. Usa .xlsx, .csv o .json');
+      }
 
-        // --- APP PRINCIPAL ---
-        const App = () => {
-            const [tab, setTab] = useState('sim');
+      e.target.value = ''; // Reset input
+    }
 
-            return (
-                <div className="min-h-screen font-sans text-gray-200 bg-black pb-20">
-                    {/* HEADER */}
-                    <header className="bg-cat-panel border-b-4 border-cat p-4 sticky top-0 z-50 shadow-lg mb-6">
-                        <div className="flex justify-between items-end">
-                            <div>
-                                <h1 className="text-2xl font-stencil text-white leading-none tracking-tighter">
-                                    <span className="text-cat">UCSM</span> MINING
-                                </h1>
-                                <div className="text-[10px] text-gray-500 font-mono tracking-widest mt-1">INGENIERÍA DE MINAS</div>
-                            </div>
-                        </div>
-                    </header>
+    function showConfirmModal(title, message, onOk) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      pendingConfirmAction = onOk;
+      document.getElementById('modalConfirm').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
 
-                    {/* CONTENIDO */}
-                    <main className="max-w-5xl mx-auto px-4">
-                        {tab === 'sim' && <Simulator />}
-                        {tab === 'wiz' && <Wizard />}
-                        {tab === 'comp' && <Comparison />}
-                        
-                        <div className="mt-12 mb-8 pt-8 border-t border-gray-800 text-center">
-                            <div className="text-cat font-bold text-xs uppercase mb-2">PROYECTO ACADÉMICO</div>
-                            <div className="text-gray-500 text-[10px] font-mono tracking-widest">
-                                CREADO POR: GARCÍA • FLORES • PINTO
-                            </div>
-                            <div className="text-gray-600 text-[10px] mt-1 uppercase">Universidad Católica de Santa María</div>
-                        </div>
-                    </main>
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      const label = document.getElementById('toastMessage');
+      label.textContent = message;
+      
+      toast.classList.remove('opacity-0', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
 
-                    {/* NAVEGACIÓN */}
-                    <nav className="fixed bottom-0 w-full bg-cat-panel border-t border-gray-800 pb-safe z-50">
-                        <div className="flex justify-around h-16 max-w-5xl mx-auto">
-                            <button onClick={()=>setTab('sim')} className={`flex-1 flex flex-col items-center justify-center ${tab==='sim' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
-                                <Icon d={icons.chart} c="w-6 h-6 mb-1" /><span className="text-[10px] font-bold uppercase">Simulador</span>
-                            </button>
-                            <button onClick={()=>setTab('wiz')} className={`flex-1 flex flex-col items-center justify-center ${tab==='wiz' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
-                                <Icon d={icons.gear} c="w-6 h-6 mb-1" /><span className="text-[10px] font-bold uppercase">Asistente</span>
-                            </button>
-                            <button onClick={()=>setTab('comp')} className={`flex-1 flex flex-col items-center justify-center ${tab==='comp' ? 'text-cat border-t-2 border-cat bg-white/5' : 'text-gray-500'}`}>
-                                <Icon d={icons.scale} c="w-6 h-6 mb-1" /><span className="text-[10px] font-bold uppercase">Comparar</span>
-                            </button>
-                        </div>
-                    </nav>
-                </div>
-            );
-        };
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-4');
+      }, 2500);
+    }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    function checkAuthentication() {
+      const isAuth = localStorage.getItem(STORAGE_KEY_AUTH) === 'true' || sessionStorage.getItem(STORAGE_KEY_AUTH) === 'true';
+      const loginOverlay = document.getElementById('loginScreen');
+
+      if (isAuth) {
+        loginOverlay.classList.add('hidden');
+        renderAllViews();
+      } else {
+        loginOverlay.classList.remove('hidden');
+        document.getElementById('loginUsername').focus();
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const userField = document.getElementById('loginUsername');
+      const passField = document.getElementById('loginPassword');
+      const errorBox = document.getElementById('loginErrorAlert');
+      const rememberCheck = document.getElementById('rememberSessionCheck').checked;
+
+      const user = userField.value.trim();
+      const pass = passField.value;
+
+      if (user === AUTH_VALID_USER && pass === AUTH_VALID_PASS) {
+        errorBox.classList.add('hidden');
+
+        if (rememberCheck) {
+          localStorage.setItem(STORAGE_KEY_AUTH, 'true');
+        } else {
+          sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');
+        }
+
+        document.getElementById('loginScreen').classList.add('hidden');
+        showToast('Sesión iniciada correctamente');
+        renderAllViews();
+        if (window.lucide) lucide.createIcons();
+      } else {
+        errorBox.classList.remove('hidden');
+        passField.value = '';
+        passField.focus();
+      }
+    }
+
+    function handleLogout() {
+      showConfirmModal(
+        'Cerrar Sesión',
+        '¿Deseas salir del sistema Roster RODASER?',
+        () => {
+          localStorage.removeItem(STORAGE_KEY_AUTH);
+          sessionStorage.removeItem(STORAGE_KEY_AUTH);
+          document.getElementById('loginUsername').value = '';
+          document.getElementById('loginPassword').value = '';
+          document.getElementById('loginErrorAlert').classList.add('hidden');
+          document.getElementById('loginScreen').classList.remove('hidden');
+          showToast('Sesión cerrada');
+          if (window.lucide) lucide.createIcons();
+        }
+      );
+    }
+
+    function renderAllViews() {
+      renderWorkerSelector();
+      renderCalendar();
+      renderGeneralCalendar();
+      renderHeadcount();
+      renderWorkersAdminList();
+    }
+
+    function setupTabs() {
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const viewCalendar = document.getElementById('viewCalendar');
+      const viewGeneral = document.getElementById('viewGeneralCalendar');
+      const viewHeadcount = document.getElementById('viewDailyHeadcount');
+      const viewWorkers = document.getElementById('viewWorkers');
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-tab');
+
+          tabButtons.forEach(b => {
+            b.classList.remove('text-indigo-400');
+            b.classList.add('text-slate-400');
+          });
+
+          btn.classList.add('text-indigo-400');
+          btn.classList.remove('text-slate-400');
+
+          viewCalendar.classList.add('hidden');
+          viewGeneral.classList.add('hidden');
+          viewHeadcount.classList.add('hidden');
+          viewWorkers.classList.add('hidden');
+
+          if (tab === 'calendar') {
+            viewCalendar.classList.remove('hidden');
+            renderCalendar();
+          } else if (tab === 'general') {
+            viewGeneral.classList.remove('hidden');
+            renderGeneralCalendar();
+          } else if (tab === 'headcount') {
+            viewHeadcount.classList.remove('hidden');
+            renderHeadcount();
+          } else if (tab === 'workers') {
+            viewWorkers.classList.remove('hidden');
+            renderWorkersAdminList();
+          }
+
+          if (window.lucide) lucide.createIcons();
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      setupTabs();
+
+      // Login form handler
+      document.getElementById('formLogin').addEventListener('submit', handleLogin);
+
+      // Password toggle visibility
+      document.getElementById('btnTogglePassword').addEventListener('click', () => {
+        const passInput = document.getElementById('loginPassword');
+        const iconEye = document.getElementById('iconEye');
+        if (passInput.type === 'password') {
+          passInput.type = 'text';
+          iconEye.setAttribute('data-lucide', 'eye-off');
+        } else {
+          passInput.type = 'password';
+          iconEye.setAttribute('data-lucide', 'eye');
+        }
+        if (window.lucide) lucide.createIcons();
+      });
+
+      // Logout button handler
+      document.getElementById('btnLogout').addEventListener('click', handleLogout);
+
+      // Worker select change in Individual View
+      document.getElementById('selectWorker').addEventListener('change', (e) => {
+        activeWorkerId = e.target.value;
+        renderWorkerSelector();
+        renderCalendar();
+      });
+
+      // Individual Calendar navigation
+      document.getElementById('btnPrevMonth').addEventListener('click', () => {
+        currentViewingDate = new Date(currentViewingDate.getFullYear(), currentViewingDate.getMonth() - 1, 1);
+        renderCalendar();
+      });
+
+      document.getElementById('btnNextMonth').addEventListener('click', () => {
+        currentViewingDate = new Date(currentViewingDate.getFullYear(), currentViewingDate.getMonth() + 1, 1);
+        renderCalendar();
+      });
+
+      document.getElementById('btnCurrentMonth').addEventListener('click', () => {
+        currentViewingDate = new Date();
+        renderCalendar();
+      });
+
+      // General Calendar navigation
+      document.getElementById('btnPrevGeneralMonth').addEventListener('click', () => {
+        currentGeneralViewingDate = new Date(currentGeneralViewingDate.getFullYear(), currentGeneralViewingDate.getMonth() - 1, 1);
+        renderGeneralCalendar();
+      });
+
+      document.getElementById('btnNextGeneralMonth').addEventListener('click', () => {
+        currentGeneralViewingDate = new Date(currentGeneralViewingDate.getFullYear(), currentGeneralViewingDate.getMonth() + 1, 1);
+        renderGeneralCalendar();
+      });
+
+      document.getElementById('selectGeneralBrigadeFilter').addEventListener('change', () => {
+        renderGeneralCalendar();
+      });
+
+      // Quick links
+      document.getElementById('btnManageWorkers').addEventListener('click', () => {
+        const workersTabBtn = document.querySelector('[data-tab="workers"]');
+        if (workersTabBtn) workersTabBtn.click();
+      });
+
+      document.getElementById('btnQuickAddException').addEventListener('click', () => {
+        const currentWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
+        if (currentWorker) {
+          openDayActionModal(currentWorker, new Date(), getWorkerDayStatus(currentWorker, new Date()));
+        }
+      });
+
+      // Headcount controls
+      document.getElementById('headcountDatePicker').addEventListener('change', renderHeadcount);
+      document.getElementById('selectHeadcountBrigade').addEventListener('change', renderHeadcount);
+
+      // Regime preset select change
+      document.getElementById('workerRegimePreset').addEventListener('change', handleRegimePresetChange);
+
+      // Worker Modal Controls
+      document.getElementById('btnOpenNewWorkerModal').addEventListener('click', openNewWorkerModal);
+      document.getElementById('btnCloseWorkerModal').addEventListener('click', () => {
+        document.getElementById('modalWorker').classList.add('hidden');
+      });
+      document.getElementById('btnCancelWorker').addEventListener('click', () => {
+        document.getElementById('modalWorker').classList.add('hidden');
+      });
+      document.getElementById('formWorker').addEventListener('submit', saveWorkerForm);
+
+      // Day Override Modal Controls
+      document.getElementById('btnCloseDayModal').addEventListener('click', () => {
+        document.getElementById('modalDayAction').classList.add('hidden');
+      });
+      document.getElementById('btnCancelDayModal').addEventListener('click', () => {
+        document.getElementById('modalDayAction').classList.add('hidden');
+      });
+      document.getElementById('btnSaveDayOverride').addEventListener('click', saveDayOverride);
+      document.getElementById('btnRemoveOverride').addEventListener('click', removeDayOverride);
+
+      // General Day Detail Modal Controls
+      document.getElementById('btnCloseGenDayModal').addEventListener('click', () => {
+        document.getElementById('modalGeneralDayDetail').classList.add('hidden');
+      });
+      document.getElementById('btnCloseGenDayModalBottom').addEventListener('click', () => {
+        document.getElementById('modalGeneralDayDetail').classList.add('hidden');
+      });
+
+      // Database & Excel Modal Controls
+      document.getElementById('btnDatabaseModal').addEventListener('click', () => {
+        document.getElementById('modalDatabase').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      });
+      document.getElementById('btnCloseDbModal').addEventListener('click', () => {
+        document.getElementById('modalDatabase').classList.add('hidden');
+      });
+      document.getElementById('btnExportExcel').addEventListener('click', exportRosterToExcel);
+      document.getElementById('btnExportBackupJson').addEventListener('click', exportBackupJson);
+      document.getElementById('inputFileImport').addEventListener('change', handleFileImport);
+
+      // Confirm Dialog Controls
+      document.getElementById('btnConfirmCancel').addEventListener('click', () => {
+        document.getElementById('modalConfirm').classList.add('hidden');
+        pendingConfirmAction = null;
+      });
+      document.getElementById('btnConfirmOk').addEventListener('click', () => {
+        if (typeof pendingConfirmAction === 'function') {
+          pendingConfirmAction();
+        }
+        document.getElementById('modalConfirm').classList.add('hidden');
+        pendingConfirmAction = null;
+      });
+
+      // Check Login status before rendering
+      checkAuthentication();
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
 </body>
 </html>
