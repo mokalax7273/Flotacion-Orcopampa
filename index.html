@@ -44,7 +44,6 @@
       user-select: none;
     }
     
-    /* Smooth custom scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -82,7 +81,7 @@
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
 
-  <!-- LOGIN SCREEN (OVERLAY) -->
+  <!-- PANTALLA DE ACCESO (LOGIN & MODO INVITADO) -->
   <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-900/80 dark:bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-2">
@@ -100,13 +99,13 @@
         <span>Credenciales incorrectas. Verifique usuario o contraseña.</span>
       </div>
 
-      <!-- Admin Login Form -->
+      <!-- Formulario Administrador -->
       <form id="formLogin" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Usuario Administrador</label>
           <div class="relative">
             <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
-            <input type="text" id="loginUsername" required autocomplete="username" placeholder="Ingresa tu usuario" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-600">
+            <input type="text" id="loginUsername" required autocomplete="username" placeholder="Ingresa usuario admin" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-600">
           </div>
         </div>
 
@@ -126,7 +125,7 @@
             <input type="checkbox" id="rememberSessionCheck" class="rounded bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0">
             <span>Recordar sesión</span>
           </label>
-          <span class="text-[11px] text-slate-400">v2.5 Oficial</span>
+          <span class="text-[11px] text-slate-400">v3.0 Nube</span>
         </div>
 
         <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
@@ -135,14 +134,14 @@
         </button>
       </form>
 
-      <!-- Divider -->
+      <!-- Divisor -->
       <div class="relative flex py-1 items-center">
         <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
         <span class="flex-shrink mx-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">o consulta libre</span>
         <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
       </div>
 
-      <!-- Guest Access Button -->
+      <!-- Botón Modo Invitado -->
       <button type="button" id="btnGuestMode" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-[0.99] text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 shadow-sm">
         <i data-lucide="eye" class="w-4 h-4 text-emerald-500"></i>
         <span>Modo Invitado (Solo Lectura)</span>
@@ -150,7 +149,7 @@
     </div>
   </div>
 
-  <!-- APP HEADER -->
+  <!-- CABECERA PRINCIPAL -->
   <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3.5 py-2.5 sm:px-6 shadow-sm">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
@@ -166,33 +165,37 @@
             <span id="badgeUserRole" class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">Admin</span>
             <span id="cloudStatusBadge" class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border border-slate-300 dark:border-slate-700 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-              <span>Local</span>
+              <span>Conectando...</span>
             </span>
           </div>
         </div>
       </div>
       
       <div class="flex items-center gap-1.5 sm:gap-2">
-        <!-- Theme Toggle Button (Light / Dark) -->
+        <!-- Alternar Tema Claro / Oscuro -->
         <button id="btnToggleTheme" title="Cambiar tema Claro/Oscuro" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-amber-400 transition shadow-sm">
-          <i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i>
+          <i data-lucide="sun" id="themeIcon" class="w-4 h-4"></i>
         </button>
 
-        <button id="btnManualSave" title="Guardar cambios permanentemente" class="flex items-center gap-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/40 px-2.5 py-2 rounded-xl transition shadow-md shadow-emerald-600/20">
+        <!-- Botón Guardar (Nube) -->
+        <button id="btnManualSave" title="Guardar cambios en la nube" class="flex items-center gap-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/40 px-2.5 py-2 rounded-xl transition shadow-md shadow-emerald-600/20">
           <i data-lucide="save" class="w-4 h-4"></i>
           <span class="hidden xs:inline">Guardar</span>
         </button>
 
+        <!-- Botón Base de Datos & Excel -->
         <button id="btnDatabaseModal" title="Base de Datos & Excel" class="flex items-center gap-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-2 rounded-xl transition shadow-sm">
           <i data-lucide="sheet" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
           <span class="hidden xs:inline">Excel</span>
         </button>
 
+        <!-- Botón Agregar Permiso Rápido -->
         <button id="btnQuickAddException" class="flex items-center gap-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white px-2.5 py-2 rounded-xl transition shadow-md shadow-indigo-600/20">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span>Permiso</span>
         </button>
 
+        <!-- Cerrar Sesión -->
         <button id="btnLogout" title="Cerrar Sesión" class="flex items-center justify-center text-xs font-semibold bg-slate-100 hover:bg-rose-500/20 dark:bg-slate-800 dark:hover:bg-rose-500/20 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 border border-slate-300 hover:border-rose-500/30 dark:border-slate-700 w-8 h-8 rounded-xl transition shadow-sm">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
@@ -200,7 +203,7 @@
     </div>
   </header>
 
-  <!-- NAVIGATION TABS -->
+  <!-- PESTAÑAS DE NAVEGACIÓN -->
   <nav class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-[53px] z-20 transition-colors">
     <div class="max-w-6xl mx-auto flex items-center justify-around px-2 text-xs font-semibold">
       <button id="tabBtnCalendar" class="nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition">
@@ -222,14 +225,12 @@
     </div>
   </nav>
 
-  <!-- MAIN CONTAINER -->
+  <!-- CONTENEDOR PRINCIPAL -->
   <main class="flex-1 max-w-6xl w-full mx-auto p-3.5 sm:p-6 space-y-4">
 
-    <!-- VIEW 1: CALENDAR VIEW -->
+    <!-- VISTA 1: CALENDARIO POR TRABAJADOR -->
     <section id="viewCalendar" class="space-y-4">
-      <!-- Selector & Filters -->
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-        <!-- Worker selector -->
         <div class="flex items-center gap-2 flex-1">
           <div id="workerAvatarCircle" class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
             PV
@@ -237,7 +238,6 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
               <select id="workerSelect" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 w-full focus:outline-none focus:border-indigo-500">
-                <!-- Populated by JS -->
               </select>
             </div>
             <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
@@ -248,7 +248,6 @@
           </div>
         </div>
 
-        <!-- Month Navigation -->
         <div class="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200 dark:border-slate-800">
           <button id="btnPrevMonth" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
@@ -265,7 +264,7 @@
         </div>
       </div>
 
-      <!-- Quick Summary Cards -->
+      <!-- Tarjetas de Conteo Rápido -->
       <div class="grid grid-cols-3 gap-2 sm:gap-4">
         <div class="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-3 flex items-center gap-3">
           <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
@@ -298,9 +297,8 @@
         </div>
       </div>
 
-      <!-- Calendar Grid Card -->
+      <!-- Cuadrícula del Calendario -->
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-3 sm:p-5 shadow-sm">
-        <!-- Weekdays Header -->
         <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[11px] sm:text-xs font-bold text-slate-400">
           <div class="text-rose-500 dark:text-rose-400">Dom</div>
           <div>Lun</div>
@@ -311,13 +309,11 @@
           <div class="text-amber-500 dark:text-amber-400">Sáb</div>
         </div>
 
-        <!-- Days Grid -->
         <div id="calendarGrid" class="grid grid-cols-7 gap-1 sm:gap-2">
-          <!-- Populated by JS -->
         </div>
       </div>
 
-      <!-- Legend -->
+      <!-- Leyenda -->
       <div class="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 flex flex-wrap items-center justify-around gap-2 text-xs text-slate-500 dark:text-slate-400">
         <div class="flex items-center gap-1.5">
           <span class="w-3 h-3 rounded-md bg-rose-600 border border-rose-400"></span>
@@ -338,7 +334,7 @@
       </div>
     </section>
 
-    <!-- VIEW 2: EN CAMPO (MONTHLY OVERVIEW OF HEADCOUNT IN FIELD) -->
+    <!-- VISTA 2: EN CAMPO (VISTA GENERAL MENSUAL) -->
     <section id="viewFieldOverview" class="hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
@@ -346,10 +342,9 @@
             <i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i>
             <span>Personal Activo en Mina / Campo</span>
           </h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Vista general mensual de presencia física en obra</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Vista general de presencia en obra</p>
         </div>
 
-        <!-- Filter by Brigade -->
         <div class="flex items-center gap-2">
           <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Brigada:</span>
           <select id="filterFieldBrigade" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
@@ -358,7 +353,6 @@
         </div>
       </div>
 
-      <!-- Field Monthly Grid Card -->
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-3 sm:p-5 shadow-sm">
         <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[11px] sm:text-xs font-bold text-slate-400">
           <div class="text-rose-500 dark:text-rose-400">Dom</div>
@@ -371,14 +365,12 @@
         </div>
 
         <div id="fieldCalendarGrid" class="grid grid-cols-7 gap-1 sm:gap-2">
-          <!-- Populated by JS -->
         </div>
       </div>
     </section>
 
-    <!-- VIEW 3: CONTROL DIARIO (TODAY'S HEADCOUNT) -->
+    <!-- VISTA 3: CONTROL DIARIO -->
     <section id="viewDaily" class="hidden space-y-4">
-      <!-- Date Selector for Daily View -->
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div class="flex items-center gap-2">
           <button id="btnDailyPrev" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
@@ -397,9 +389,8 @@
         </div>
       </div>
 
-      <!-- Three Columns for Today -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Working in Field -->
+        <!-- En Campo -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
             <div class="flex items-center gap-2">
@@ -409,11 +400,10 @@
             <span id="dailyCountWorking" class="text-xs font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30">0</span>
           </div>
           <div id="dailyListWorking" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
-            <!-- Populated by JS -->
           </div>
         </div>
 
-        <!-- In Rest (Bajada) -->
+        <!-- En Bajada -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
             <div class="flex items-center gap-2">
@@ -423,11 +413,10 @@
             <span id="dailyCountRest" class="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">0</span>
           </div>
           <div id="dailyListRest" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
-            <!-- Populated by JS -->
           </div>
         </div>
 
-        <!-- Exceptions / Permissions -->
+        <!-- Permisos -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
             <div class="flex items-center gap-2">
@@ -437,13 +426,12 @@
             <span id="dailyCountExceptions" class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">0</span>
           </div>
           <div id="dailyListExceptions" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
-            <!-- Populated by JS -->
           </div>
         </div>
       </div>
     </section>
 
-    <!-- VIEW 4: PERSONAL (WORKERS LIST) -->
+    <!-- VISTA 4: PERSONAL (ADMINISTRACIÓN) -->
     <section id="viewWorkers" class="hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
@@ -462,19 +450,15 @@
         </div>
       </div>
 
-      <!-- Brigade Filter Chips -->
       <div id="brigadeFilterChips" class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-        <!-- Chips populated by JS -->
       </div>
 
-      <!-- Workers List Container -->
       <div id="workersListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <!-- Populated by JS -->
       </div>
     </section>
   </main>
 
-  <!-- MODAL: DETALLE DE DÍA / AGREGAR EXCEPCIÓN O PERMISO -->
+  <!-- MODAL: DETALLE DE DÍA / EXCEPCIÓN -->
   <div id="modalDayAction" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -489,7 +473,6 @@
 
       <div class="space-y-3.5 text-xs">
         <div id="modalDayDefaultInfo" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-between">
-          <!-- Filled by JS -->
         </div>
 
         <div id="modalDayReadOnlyNotice" class="hidden p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] flex items-center gap-1.5">
@@ -512,7 +495,7 @@
 
           <div>
             <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Motivo / Nota (opcional)</label>
-            <input type="text" id="modalDayNoteInput" placeholder="Ej. Permiso legal, trámite familiar..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+            <input type="text" id="modalDayNoteInput" placeholder="Ej. Permiso legal, trámite personal..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
           </div>
         </div>
 
@@ -527,7 +510,7 @@
     </div>
   </div>
 
-  <!-- MODAL: AGREGAR O EDITAR TRABAJADOR -->
+  <!-- MODAL: AGREGAR O EDITAR INTEGRANTE -->
   <div id="modalWorker" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -576,7 +559,7 @@
           <input type="text" id="workerBrigadeInput" placeholder="Ej. Brigada 1, Brigada 2, Brigada Volante" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
         </div>
 
-        <!-- Shift Regime Configuration -->
+        <!-- Configuración de Turno -->
         <div class="p-3.5 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
           <label class="block font-bold text-indigo-600 dark:text-indigo-400">Régimen de Turno</label>
           <div class="grid grid-cols-2 gap-2">
@@ -600,7 +583,6 @@
           <div>
             <span class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Fecha de Inicio del Ciclo (Día 1 de Guardia)</span>
             <input type="date" id="workerAnchorDate" required class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500">
-            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Define el punto de sincronización para calcular subidas y bajadas exactas.</p>
           </div>
         </div>
 
@@ -626,7 +608,6 @@
       </div>
 
       <div class="space-y-3.5 text-xs">
-        <!-- Direct September 2026 JSON Download & Load Card -->
         <div class="p-3.5 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold">
@@ -636,7 +617,7 @@
             <span class="text-[10px] bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">21 Integrantes</span>
           </div>
           <p class="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
-            Nómina precargada con <strong>Christian Dávila (Coordinador 6x1)</strong>, 8 Supervisores y Asistentes de las 6 Brigadas en régimen 16x5.
+            Nómina con Christian Dávila (Coordinador 6x1), 8 Supervisores y Asistentes de las 6 Brigadas en régimen 16x5.
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
             <button id="btnDownloadSeptJson" class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/25 transition">
@@ -650,45 +631,33 @@
           </div>
         </div>
 
-        <!-- Export Excel Section -->
         <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5">
           <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold">
             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
             <span>Exportar Roster a Excel (.xlsx)</span>
           </div>
-          <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-            Genera un archivo Excel con la nómina, brigadas, regímenes de turno y el calendario del mes activo para imprimir o reportar.
-          </p>
           <button id="btnExportExcel" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Descargar Hoja Excel (.xlsx)</span>
           </button>
         </div>
 
-        <!-- JSON Backup Section -->
         <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5">
           <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
             <i data-lucide="hard-drive-download" class="w-4 h-4"></i>
             <span>Copia de Seguridad Completa (Backup)</span>
           </div>
-          <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-            Descarga toda tu información (trabajadores, ciclos, brigadas y permisos) en un archivo JSON seguro.
-          </p>
           <button id="btnExportBackupJson" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
             <i data-lucide="save" class="w-4 h-4"></i>
             <span>Guardar Copia (.json)</span>
           </button>
         </div>
 
-        <!-- Import / Restore Section -->
         <div id="sectionImportRestore" class="admin-only-action p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2.5">
           <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold">
             <i data-lucide="upload-cloud" class="w-4 h-4"></i>
             <span>Cargar / Restaurar Base de Datos</span>
           </div>
-          <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-            Sube un archivo de respaldo (.json) previamente guardado para restaurar tu información.
-          </p>
           <label class="w-full py-2.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer transition">
             <i data-lucide="folder-up" class="w-4 h-4"></i>
             <span>Seleccionar Archivo JSON</span>
@@ -699,7 +668,7 @@
     </div>
   </div>
 
-  <!-- MODAL: DETALLE DE PERSONAL EN CAMPO POR FECHA -->
+  <!-- MODAL: DETALLE EN CAMPO -->
   <div id="modalFieldDayDetail" class="hidden fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -713,18 +682,17 @@
       </div>
 
       <div id="modalFieldDayList" class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs">
-        <!-- Filled by JS -->
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
+  <!-- NOTIFICACIÓN TOAST -->
   <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white dark:bg-slate-800 border border-slate-700 text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2">
     <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
     <span id="toastMessage">Operación realizada</span>
   </div>
 
-  <!-- CONFIRM DIALOG -->
+  <!-- MODAL DE CONFIRMACIÓN -->
   <div id="modalConfirm" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4 text-center">
       <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-500 mx-auto flex items-center justify-center">
@@ -741,15 +709,11 @@
     </div>
   </div>
 
-  <!-- FIREBASE & APPLICATION LOGIC -->
+  <!-- CONEXIÓN A FIREBASE REALTIME DATABASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-    // =========================================================================
-    // CONFIGURACIÓN DE FIREBASE PARA GITHUB PAGES
-    // =========================================================================
     const customFirebaseConfig = {
       apiKey: "AIzaSyCDFDuw0xCmsUDho5SxD55uIG2fmvAbzSg",
       authDomain: "roster-rodaser.firebaseapp.com",
@@ -760,39 +724,36 @@
       appId: "1:279997001401:web:909d192b9b4c32e4e3f568"
     };
 
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'roster-rodaser';
-    const activeFirebaseConfig = typeof __firebase_config !== 'undefined' 
-      ? JSON.parse(__firebase_config) 
-      : (customFirebaseConfig && customFirebaseConfig.projectId ? customFirebaseConfig : null);
-
-    let db = null;
-    let auth = null;
+    let rtdb = null;
     let isCloudConnected = false;
 
-    async function initCloudSync() {
-      if (!activeFirebaseConfig) {
-        updateCloudStatusBadge('local');
-        return;
-      }
-
+    function initCloudSync() {
       try {
-        const app = initializeApp(activeFirebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
+        const app = initializeApp(customFirebaseConfig);
+        rtdb = getDatabase(app);
 
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
+        // Escuchar datos de la nube en tiempo real
+        const rosterRef = ref(rtdb, 'roster_data/shared_roster');
+        onValue(rosterRef, (snapshot) => {
+          const cloudData = snapshot.val();
+          if (cloudData && cloudData.workers && Array.isArray(cloudData.workers) && cloudData.workers.length > 0) {
+            workers = cloudData.workers;
+            exceptions = cloudData.exceptions || {};
+            if (!activeWorkerId || !workers.find(w => w.id === activeWorkerId)) {
+              activeWorkerId = workers[0].id;
+            }
+            saveLocalCache();
+            renderAllViews();
+          }
+          isCloudConnected = true;
+          updateCloudStatusBadge('connected');
+        }, (error) => {
+          console.warn('Error conectando a Realtime Database:', error);
+          updateCloudStatusBadge('error');
+        });
 
-        if (!auth.currentUser) return;
-
-        isCloudConnected = true;
-        updateCloudStatusBadge('connected');
-        setupCloudListener();
       } catch (err) {
-        console.warn('No se pudo conectar a Firebase, operando en modo local:', err);
+        console.warn('Error inicializando Firebase:', err);
         updateCloudStatusBadge('error');
       }
     }
@@ -815,63 +776,40 @@
       }
     }
 
-    function setupCloudListener() {
-      if (!db || !auth || !auth.currentUser) return;
-
-      const rosterDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roster_data', 'shared_roster');
-
-      onSnapshot(rosterDocRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const cloudData = docSnap.data();
-          if (cloudData.workers && Array.isArray(cloudData.workers) && cloudData.workers.length > 0) {
-            workers = cloudData.workers;
-            exceptions = cloudData.exceptions || {};
-            if (!activeWorkerId || !workers.find(w => w.id === activeWorkerId)) {
-              activeWorkerId = workers[0].id;
-            }
-            saveLocalCache();
-            renderAllViews();
-          }
-        }
-      }, (error) => {
-        console.error('Error al escuchar sincronización de la nube:', error);
-      });
-    }
-
     async function syncToCloud() {
-      if (!db || !auth || !auth.currentUser) return;
+      if (!rtdb) return;
       try {
         updateCloudStatusBadge('saving');
-        const rosterDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'roster_data', 'shared_roster');
-        await setDoc(rosterDocRef, {
+        const rosterRef = ref(rtdb, 'roster_data/shared_roster');
+        await set(rosterRef, {
           workers: workers,
           exceptions: exceptions,
           lastUpdated: new Date().toISOString(),
           updatedBy: currentUserRole
         });
         updateCloudStatusBadge('connected');
+        showToast('¡Guardado en la nube con éxito!');
       } catch (err) {
-        console.error('Error guardando en Firestore:', err);
+        console.error('Error guardando en Realtime Database:', err);
         updateCloudStatusBadge('error');
+        showToast('Error al conectar con la nube.');
       }
     }
 
+    // Configuración Local
     const STORAGE_KEY_WORKERS = 'rodaser_workers_v3';
     const STORAGE_KEY_EXCEPTIONS = 'rodaser_exceptions_v3';
     const STORAGE_KEY_AUTH = 'rodaser_auth_session';
     const STORAGE_KEY_ROLE = 'rodaser_user_role';
     const STORAGE_KEY_THEME = 'rodaser_theme_mode';
 
-    // Users and roles
     const USERS_CREDENTIALS = {
       'admin': { pass: 'rod1234', role: 'admin', label: 'Administrador' }
     };
 
-    let currentUserRole = 'admin'; // 'admin' | 'asistente' (invitado)
+    let currentUserRole = 'admin';
 
-    // =========================================================================
-    // THEME HANDLING (DARK / LIGHT)
-    // =========================================================================
+    // Manejo de Tema (Claro / Oscuro)
     function initTheme() {
       const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 'dark';
       applyTheme(savedTheme);
@@ -897,7 +835,7 @@
       applyTheme(isDark ? 'light' : 'dark');
     }
 
-    // September 2026 Baseline data from official Roster TM Set 2026
+    // Datos Base Setiembre 2026
     const ROSTER_SETIEMBRE_2026_DATA = {
       workers: [
         {
@@ -1114,7 +1052,6 @@
       exceptions: {}
     };
 
-    // Role styling configuration
     const ROLE_COLORS = {
       purple: {
         badgeBg: 'bg-purple-500/20',
@@ -1154,12 +1091,11 @@
       }
     };
 
-    // App State
     let workers = [];
     let exceptions = {};
     let activeWorkerId = null;
-    let activeViewDate = new Date(2026, 8, 1); // September 2026
-    let activeDailyDate = new Date(2026, 8, 14); // September 14, 2026
+    let activeViewDate = new Date(2026, 8, 1);
+    let activeDailyDate = new Date(2026, 8, 14);
     let selectedDateForAction = null;
     let activeBrigadeAdminFilter = 'ALL';
 
@@ -1184,7 +1120,6 @@
           activeWorkerId = workers[0].id;
         }
       } catch (err) {
-        console.error('Error cargando datos de localStorage', err);
         workers = JSON.parse(JSON.stringify(ROSTER_SETIEMBRE_2026_DATA.workers));
         exceptions = {};
         activeWorkerId = workers[0].id;
@@ -1196,15 +1131,13 @@
         localStorage.setItem(STORAGE_KEY_WORKERS, JSON.stringify(workers));
         localStorage.setItem(STORAGE_KEY_EXCEPTIONS, JSON.stringify(exceptions));
       } catch (err) {
-        console.error('Error guardando en localStorage', err);
+        console.error('Error en localStorage', err);
       }
     }
 
     function saveState() {
       saveLocalCache();
-      if (isCloudConnected) {
-        syncToCloud();
-      }
+      syncToCloud();
     }
 
     function parseDateString(str) {
@@ -1231,26 +1164,14 @@
       const exceptionKey = `${worker.id}_${dateStr}`;
       const ex = exceptions[exceptionKey];
 
-      // Custom exception override
       if (ex) {
-        if (ex.type === 'permiso') {
-          return { isWork: false, isException: true, type: 'permiso', label: 'Permiso', note: ex.note || 'Permiso con/sin goce' };
-        }
-        if (ex.type === 'medico') {
-          return { isWork: false, isException: true, type: 'medico', label: 'D. Médico', note: ex.note || 'Descanso Médico' };
-        }
-        if (ex.type === 'vacaciones') {
-          return { isWork: false, isException: true, type: 'vacaciones', label: 'Vacaciones', note: ex.note || 'Vacaciones' };
-        }
-        if (ex.type === 'cambio_trabajo') {
-          return { isWork: true, isException: true, type: 'cambio_trabajo', label: 'Guardia Ext.', note: ex.note || 'Día de trabajo forzado' };
-        }
-        if (ex.type === 'cambio_descanso') {
-          return { isWork: false, isException: true, type: 'cambio_descanso', label: 'Compensatorio', note: ex.note || 'Descanso forzado' };
-        }
+        if (ex.type === 'permiso') return { isWork: false, isException: true, type: 'permiso', label: 'Permiso', note: ex.note || 'Permiso con/sin goce' };
+        if (ex.type === 'medico') return { isWork: false, isException: true, type: 'medico', label: 'D. Médico', note: ex.note || 'Descanso Médico' };
+        if (ex.type === 'vacaciones') return { isWork: false, isException: true, type: 'vacaciones', label: 'Vacaciones', note: ex.note || 'Vacaciones' };
+        if (ex.type === 'cambio_trabajo') return { isWork: true, isException: true, type: 'cambio_trabajo', label: 'Guardia Ext.', note: ex.note || 'Día de trabajo forzado' };
+        if (ex.type === 'cambio_descanso') return { isWork: false, isException: true, type: 'cambio_descanso', label: 'Compensatorio', note: ex.note || 'Descanso forzado' };
       }
 
-      // Mathematical cycle calculation from anchorDate
       const anchor = parseDateString(worker.anchorDate);
       const targetMidnight = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
       const anchorMidnight = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate());
@@ -1321,7 +1242,6 @@
         document.getElementById('workerRegimeText').textContent = `${currentWorker.workDays}x${currentWorker.restDays}`;
       }
 
-      // Also populate Field filter dropdown
       const fieldBrigadeSelect = document.getElementById('filterFieldBrigade');
       const prevVal = fieldBrigadeSelect.value;
       fieldBrigadeSelect.innerHTML = '<option value="ALL">Todas las Brigadas</option>';
@@ -1341,14 +1261,13 @@
       const year = activeViewDate.getFullYear();
       const month = activeViewDate.getMonth();
 
-      // Month header
       const monthFormatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
       document.getElementById('currentMonthYearLabel').textContent = monthFormatter.format(activeViewDate);
 
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
       const totalDays = lastDay.getDate();
-      const startDayOfWeek = firstDay.getDay(); // 0 is Sunday
+      const startDayOfWeek = firstDay.getDay();
 
       const grid = document.getElementById('calendarGrid');
       grid.innerHTML = '';
@@ -1357,7 +1276,6 @@
       let restCount = 0;
       let exceptionCount = 0;
 
-      // Leading empty cells
       for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'min-h-[64px] sm:min-h-[82px] rounded-2xl bg-slate-100/60 dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-900/60 opacity-30';
@@ -1465,7 +1383,6 @@
           isCurrentDay ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950' : ''
         }`;
 
-        // Create avatar bubbles for workers on field
         let avatarsHtml = '';
         const maxDisplay = 6;
         const displayed = onFieldWorkers.slice(0, maxDisplay);
@@ -1700,7 +1617,7 @@
             const target = workers.find(x => x.id === id);
             showConfirmModal(
               'Eliminar Trabajador',
-              `¿Estás seguro de eliminar a "${target?.name}"? Se borrarán también sus permisos registrados.`,
+              `¿Estás seguro de eliminar a "${target?.name}"?`,
               () => deleteWorker(id)
             );
           });
@@ -1796,13 +1713,11 @@
 
       if (type === 'default') {
         delete exceptions[exceptionKey];
-        showToast('Día restaurado al ciclo regular');
       } else {
         exceptions[exceptionKey] = {
           type,
           note: note || (type === 'permiso' ? 'Permiso' : type === 'medico' ? 'Descanso Médico' : 'Ajuste de turno')
         };
-        showToast('Permiso guardado permanentemente');
       }
 
       saveState();
@@ -1821,7 +1736,6 @@
       delete exceptions[exceptionKey];
 
       saveState();
-      showToast('Excepción eliminada');
       document.getElementById('modalDayAction').classList.add('hidden');
       renderAllViews();
     }
@@ -1864,16 +1778,12 @@
         activeWorkerId = workers[0].id;
       }
       saveState();
-      showToast('Integrante eliminado');
       renderAllViews();
     }
 
     function saveWorkerForm(e) {
       e.preventDefault();
-      if (currentUserRole === 'asistente') {
-        showToast('Modo solo lectura: no puedes modificar personal.');
-        return;
-      }
+      if (currentUserRole === 'asistente') return;
 
       const id = document.getElementById('workerFormId').value;
       const name = document.getElementById('workerNameInput').value.trim();
@@ -1890,7 +1800,6 @@
         const index = workers.findIndex(w => w.id === id);
         if (index !== -1) {
           workers[index] = { ...workers[index], name, role, color, brigade, workDays, restDays, anchorDate };
-          showToast(`"${name}" actualizado correctamente`);
         }
       } else {
         const newWorker = {
@@ -1905,7 +1814,6 @@
         };
         workers.push(newWorker);
         activeWorkerId = newWorker.id;
-        showToast(`"${name}" añadido al Roster`);
       }
 
       saveState();
@@ -1915,7 +1823,7 @@
 
     function exportToExcel() {
       if (!window.XLSX) {
-        showToast('Error: Librería SheetJS no disponible.');
+        showToast('Error: SheetJS no disponible.');
         return;
       }
 
@@ -1924,7 +1832,6 @@
       const monthName = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(activeViewDate).toUpperCase();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      // Headers: Brigada, Cargo, Trabajador, Régimen, 1..Days
       const headers = ['BRIGADA', 'CARGO', 'TRABAJADOR', 'REGIMEN'];
       for (let d = 1; d <= daysInMonth; d++) {
         headers.push(d.toString());
@@ -1940,9 +1847,9 @@
           if (st.isException) {
             row.push(st.type === 'permiso' ? 'P' : st.type === 'medico' ? 'DM' : 'V');
           } else if (st.isWork) {
-            row.push('G'); // Guardia / Trabajo
+            row.push('G');
           } else {
-            row.push('D'); // Descanso / Bajada
+            row.push('D');
           }
         }
         dataRows.push(row);
@@ -1951,9 +1858,8 @@
       const ws = XLSX.utils.aoa_to_sheet(dataRows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, `ROSTER_${monthName}_${year}`);
-
       XLSX.writeFile(wb, `ROSTER_RODASER_${monthName}_${year}.xlsx`);
-      showToast('Archivo Excel descargado con éxito');
+      showToast('Excel descargado con éxito');
     }
 
     function exportBackupJson() {
@@ -1975,7 +1881,7 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Copia de respaldo JSON descargada');
+      showToast('Copia JSON descargada');
     }
 
     function downloadOfficialSeptJson() {
@@ -1989,24 +1895,19 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Descargando archivo JSON oficial');
     }
 
     function applySeptDataDirectly() {
-      if (currentUserRole === 'asistente') {
-        showToast('Modo solo lectura: no puedes restaurar datos.');
-        return;
-      }
+      if (currentUserRole === 'asistente') return;
       showConfirmModal(
         'Restablecer Nómina Oficial',
-        '¿Deseas restablecer la base de datos al Roster oficial de Setiembre 2026 (21 integrantes)?',
+        '¿Deseas restablecer la base de datos al Roster oficial de Setiembre 2026?',
         () => {
           workers = JSON.parse(JSON.stringify(ROSTER_SETIEMBRE_2026_DATA.workers));
           exceptions = JSON.parse(JSON.stringify(ROSTER_SETIEMBRE_2026_DATA.exceptions || {}));
           activeWorkerId = workers[0].id;
           activeViewDate = new Date(2026, 8, 1);
           saveState();
-          showToast('Roster oficial de Setiembre 2026 aplicado');
           document.getElementById('modalDatabase').classList.add('hidden');
           renderAllViews();
         }
@@ -2014,11 +1915,7 @@
     }
 
     function handleFileImport(e) {
-      if (currentUserRole === 'asistente') {
-        showToast('Modo solo lectura: no puedes importar archivos.');
-        return;
-      }
-
+      if (currentUserRole === 'asistente') return;
       const file = e.target.files[0];
       if (!file) return;
 
@@ -2031,7 +1928,6 @@
             exceptions = imported.exceptions || {};
             if (workers.length > 0) activeWorkerId = workers[0].id;
             saveState();
-            showToast(`Base de datos restaurada (${workers.length} trabajadores)`);
             document.getElementById('modalDatabase').classList.add('hidden');
             renderAllViews();
           } else {
@@ -2072,13 +1968,13 @@
     }
 
     function enterGuestMode() {
-      currentUserRole = 'asistente'; // Guest operates under read-only mode
+      currentUserRole = 'asistente';
       sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');
       sessionStorage.setItem(STORAGE_KEY_ROLE, 'asistente');
 
       document.getElementById('loginScreen').classList.add('hidden');
       applyUserRolePermissions();
-      showToast('Ingresó en Modo Invitado (Solo Lectura)');
+      showToast('Modo Invitado (Solo Lectura)');
       renderAllViews();
       initCloudSync();
       if (window.lucide) lucide.createIcons();
@@ -2112,7 +2008,6 @@
 
       const user = userField.value.trim().toLowerCase();
       const pass = passField.value;
-
       const account = USERS_CREDENTIALS[user];
 
       if (account && account.pass === pass) {
@@ -2129,7 +2024,7 @@
 
         document.getElementById('loginScreen').classList.add('hidden');
         applyUserRolePermissions();
-        showToast(`Bienvenido (${account.label})`);
+        showToast('Bienvenido Administrador');
         renderAllViews();
         initCloudSync();
       } else {
@@ -2153,13 +2048,11 @@
           document.getElementById('loginPassword').value = '';
           document.getElementById('loginErrorAlert').classList.add('hidden');
           document.getElementById('loginScreen').classList.remove('hidden');
-          showToast('Sesión cerrada');
           if (window.lucide) lucide.createIcons();
         }
       );
     }
 
-    // UI Helpers
     let toastTimeout = null;
     function showToast(message) {
       const toast = document.getElementById('toastNotification');
@@ -2185,7 +2078,6 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadState();
 
-      // Navigation tabs switching
       const tabs = [
         { btn: 'tabBtnCalendar', view: 'viewCalendar' },
         { btn: 'tabBtnFieldOverview', view: 'viewFieldOverview' },
@@ -2210,14 +2102,12 @@
         });
       });
 
-      // Worker select change
       document.getElementById('workerSelect').addEventListener('change', (e) => {
         activeWorkerId = e.target.value;
         renderWorkerSelector();
         renderPersonalCalendar();
       });
 
-      // Calendar month buttons
       document.getElementById('btnPrevMonth').addEventListener('click', () => {
         activeViewDate.setMonth(activeViewDate.getMonth() - 1);
         renderPersonalCalendar();
@@ -2236,12 +2126,8 @@
         renderFieldOverview();
       });
 
-      // Filter Field Overview
-      document.getElementById('filterFieldBrigade').addEventListener('change', () => {
-        renderFieldOverview();
-      });
+      document.getElementById('filterFieldBrigade').addEventListener('change', renderFieldOverview);
 
-      // Daily Controls
       document.getElementById('dailyDatePicker').addEventListener('change', (e) => {
         activeDailyDate = parseDateString(e.target.value);
         renderDailyView();
@@ -2262,7 +2148,6 @@
         renderDailyView();
       });
 
-      // Modals
       document.getElementById('btnCloseDayModal').addEventListener('click', () => {
         document.getElementById('modalDayAction').classList.add('hidden');
       });
@@ -2272,12 +2157,10 @@
       document.getElementById('btnSaveDayOverride').addEventListener('click', saveDayOverride);
       document.getElementById('btnRemoveOverride').addEventListener('click', removeDayOverride);
 
-      // Field Detail Modal
       document.getElementById('btnCloseFieldDayModal').addEventListener('click', () => {
         document.getElementById('modalFieldDayDetail').classList.add('hidden');
       });
 
-      // Worker Modal
       document.getElementById('btnOpenNewWorkerModal').addEventListener('click', openNewWorkerModal);
       document.getElementById('btnCloseWorkerModal').addEventListener('click', () => {
         document.getElementById('modalWorker').classList.add('hidden');
@@ -2287,7 +2170,6 @@
       });
       document.getElementById('formWorker').addEventListener('submit', saveWorkerForm);
 
-      // Regime preset buttons
       document.querySelectorAll('.btnRegimePreset').forEach(btn => {
         btn.addEventListener('click', () => {
           document.getElementById('workerWorkDays').value = btn.getAttribute('data-work');
@@ -2295,7 +2177,6 @@
         });
       });
 
-      // Database & Excel Modal
       document.getElementById('btnDatabaseModal').addEventListener('click', () => {
         document.getElementById('modalDatabase').classList.remove('hidden');
       });
@@ -2308,13 +2189,10 @@
       document.getElementById('btnApplySeptDirectly').addEventListener('click', applySeptDataDirectly);
       document.getElementById('inputFileImport').addEventListener('change', handleFileImport);
 
-      // Manual Save Button
       document.getElementById('btnManualSave').addEventListener('click', () => {
         saveState();
-        showToast('¡Datos guardados con éxito!');
       });
 
-      // Quick Add Permission Button
       document.getElementById('btnQuickAddException').addEventListener('click', () => {
         const currentWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
         if (currentWorker) {
@@ -2322,24 +2200,19 @@
         }
       });
 
-      // Confirmation Modal
       document.getElementById('btnConfirmCancel').addEventListener('click', () => {
-        document.getElementById('modalConfirm').classList.remove('hidden');
+        document.getElementById('modalConfirm').classList.add('hidden');
       });
       document.getElementById('btnConfirmAccept').addEventListener('click', () => {
         if (confirmCallback) confirmCallback();
         document.getElementById('modalConfirm').classList.add('hidden');
       });
 
-      // Login form & Guest mode
       document.getElementById('formLogin').addEventListener('submit', handleLogin);
       document.getElementById('btnGuestMode').addEventListener('click', enterGuestMode);
       document.getElementById('btnLogout').addEventListener('click', handleLogout);
-
-      // Theme toggle button
       document.getElementById('btnToggleTheme').addEventListener('click', toggleTheme);
 
-      // Toggle password visibility
       document.getElementById('btnTogglePassword').addEventListener('click', () => {
         const passInput = document.getElementById('loginPassword');
         const eyeIcon = document.getElementById('eyeIcon');
@@ -2353,7 +2226,6 @@
         if (window.lucide) lucide.createIcons();
       });
 
-      // Check credentials, theme and start view
       initTheme();
       checkAuthentication();
     });
