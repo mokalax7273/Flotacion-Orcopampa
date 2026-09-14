@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- Directivas Anti-Caché para PWA e iOS/Android -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <title>Roster RODASER - Control de Turnos & Relevos</title>
   
   <!-- Tailwind CSS -->
@@ -125,7 +131,7 @@
             <input type="checkbox" id="rememberSessionCheck" checked class="rounded bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0">
             <span>Recordar sesión</span>
           </label>
-          <span class="text-[11px] text-slate-400 font-mono">v3.6 Operativa</span>
+          <span class="text-[11px] text-slate-400 font-mono">v3.7 Móvil</span>
         </div>
 
         <button type="submit" id="btnSubmitLogin" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer">
@@ -233,6 +239,18 @@
 
     <!-- VISTA 1: CALENDARIO POR TRABAJADOR -->
     <section id="viewCalendar" class="space-y-4">
+      
+      <!-- BUSCADOR PREDICTIVO RÁPIDO PARA MÓVILES -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 shadow-sm">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 text-indigo-500 absolute left-3 top-3"></i>
+          <input type="text" id="workerCalendarSearch" placeholder="🔍 Buscar por apellido, nombre o brigada (ej: Valle, B4, Olazabal)..." class="w-full pl-9 pr-9 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white font-medium focus:outline-none focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-600 transition">
+          <button id="btnClearCalendarSearch" type="button" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-white p-0.5">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div class="flex items-center gap-2 flex-1">
           <div id="workerAvatarCircle" class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
@@ -434,7 +452,7 @@
       </div>
     </section>
 
-    <!-- VISTA 4: RELEVOS Y ALERTAS OPERATIVAS (CORREGIDO SIN DUPLICADOS) -->
+    <!-- VISTA 4: RELEVOS Y ALERTAS OPERATIVAS -->
     <section id="viewRelevos" class="hidden space-y-4">
       <!-- Selector de Horizonte de Relevos -->
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5">
@@ -543,6 +561,15 @@
             <span>Agregar Integrante</span>
           </button>
         </div>
+      </div>
+
+      <!-- Buscador en Personal -->
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+        <input type="text" id="workersAdminSearch" placeholder="Filtrar por nombre, celular o cargo..." class="w-full pl-10 pr-9 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 placeholder:text-slate-400">
+        <button id="btnClearAdminSearch" type="button" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-white p-0.5">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
       </div>
 
       <div id="brigadeFilterChips" class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
@@ -1224,6 +1251,8 @@
     let activeRelevosDate = new Date(2026, 8, 14);
     let selectedDateForAction = null;
     let activeBrigadeAdminFilter = 'ALL';
+    let calendarFilterQuery = '';
+    let adminFilterQuery = '';
 
     function loadState() {
       try {
@@ -1346,13 +1375,35 @@
       if (!select) return;
       select.innerHTML = '';
 
-      workers.forEach(w => {
+      const query = (calendarFilterQuery || '').trim().toLowerCase();
+      const filteredWorkers = query === ''
+        ? workers
+        : workers.filter(w => 
+            w.name.toLowerCase().includes(query) ||
+            (w.brigade && w.brigade.toLowerCase().includes(query)) ||
+            (w.role && w.role.toLowerCase().includes(query))
+          );
+
+      if (filteredWorkers.length === 0) {
         const opt = document.createElement('option');
-        opt.value = w.id;
-        opt.textContent = `${w.name} (${w.role} - ${w.brigade})`;
-        if (w.id === activeWorkerId) opt.selected = true;
+        opt.value = "";
+        opt.textContent = "No se encontraron coincidencias";
         select.appendChild(opt);
-      });
+      } else {
+        filteredWorkers.forEach(w => {
+          const opt = document.createElement('option');
+          opt.value = w.id;
+          opt.textContent = `${w.name} (${w.role} - ${w.brigade})`;
+          if (w.id === activeWorkerId) opt.selected = true;
+          select.appendChild(opt);
+        });
+
+        // Si el trabajador activo no coincide con el filtro, saltar al primero filtrado
+        if (!filteredWorkers.some(w => w.id === activeWorkerId)) {
+          activeWorkerId = filteredWorkers[0].id;
+          select.value = activeWorkerId;
+        }
+      }
 
       const currentWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
       if (currentWorker) {
@@ -2001,9 +2052,21 @@
         chipsContainer.appendChild(chip);
       });
 
-      const filtered = activeBrigadeAdminFilter === 'ALL' 
-        ? workers 
-        : workers.filter(w => w.brigade === activeBrigadeAdminFilter);
+      const query = (adminFilterQuery || '').trim().toLowerCase();
+
+      const filtered = workers.filter(w => {
+        const matchesBrigade = activeBrigadeAdminFilter === 'ALL' || w.brigade === activeBrigadeAdminFilter;
+        const matchesQuery = query === '' || 
+          w.name.toLowerCase().includes(query) ||
+          (w.role && w.role.toLowerCase().includes(query)) ||
+          (w.phone && w.phone.includes(query)) ||
+          (w.brigade && w.brigade.toLowerCase().includes(query));
+        return matchesBrigade && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="col-span-1 sm:col-span-2 text-center py-8 text-slate-400 text-xs">No se encontraron trabajadores que coincidan con la búsqueda.</div>';
+      }
 
       filtered.forEach(w => {
         const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
@@ -2321,7 +2384,7 @@
     function exportBackupJson() {
       const backupData = {
         app: 'Roster_RODASER',
-        version: 3.6,
+        version: 3.7,
         exportedAt: new Date().toISOString(),
         workers,
         exceptions
@@ -2586,6 +2649,54 @@
           if (t.view === 'viewCalendar') renderPersonalCalendar();
         });
       });
+
+      // BUSCADOR EN CALENDARIO (MÓVILES)
+      const calSearchInput = document.getElementById('workerCalendarSearch');
+      const btnClearCalSearch = document.getElementById('btnClearCalendarSearch');
+      if (calSearchInput) {
+        calSearchInput.addEventListener('input', (e) => {
+          calendarFilterQuery = e.target.value;
+          if (btnClearCalSearch) {
+            if (calendarFilterQuery.length > 0) btnClearCalSearch.classList.remove('hidden');
+            else btnClearCalSearch.classList.add('hidden');
+          }
+          renderWorkerSelector();
+          renderPersonalCalendar();
+        });
+      }
+
+      if (btnClearCalSearch) {
+        btnClearCalSearch.addEventListener('click', () => {
+          if (calSearchInput) calSearchInput.value = '';
+          calendarFilterQuery = '';
+          btnClearCalSearch.classList.add('hidden');
+          renderWorkerSelector();
+          renderPersonalCalendar();
+        });
+      }
+
+      // BUSCADOR EN PESTAÑA PERSONAL
+      const adminSearchInput = document.getElementById('workersAdminSearch');
+      const btnClearAdminSearch = document.getElementById('btnClearAdminSearch');
+      if (adminSearchInput) {
+        adminSearchInput.addEventListener('input', (e) => {
+          adminFilterQuery = e.target.value;
+          if (btnClearAdminSearch) {
+            if (adminFilterQuery.length > 0) btnClearAdminSearch.classList.remove('hidden');
+            else btnClearAdminSearch.classList.add('hidden');
+          }
+          renderWorkersAdminList();
+        });
+      }
+
+      if (btnClearAdminSearch) {
+        btnClearAdminSearch.addEventListener('click', () => {
+          if (adminSearchInput) adminSearchInput.value = '';
+          adminFilterQuery = '';
+          btnClearAdminSearch.classList.add('hidden');
+          renderWorkersAdminList();
+        });
+      }
 
       // Navegación Calendario Personal
       safeAddListener('workerSelect', 'change', (e) => {
