@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Roster RODASER - Control de Turnos & Campo</title>
+  <title>Roster RODASER - Control de Turnos & Relevos</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -32,7 +32,7 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- SheetJS for real Excel export/import -->
+  <!-- SheetJS for Excel export/import -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -91,7 +91,7 @@
         <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
           Roster <span class="text-indigo-600 dark:text-indigo-400">RODASER</span>
         </h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Control de Turnos Mineros & Campo</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Control de Turnos, Relevos & Campo</p>
       </div>
 
       <div id="loginErrorAlert" class="hidden p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs flex items-center gap-2">
@@ -100,7 +100,7 @@
       </div>
 
       <!-- Formulario Administrador -->
-      <form id="formLogin" class="space-y-4">
+      <form id="formLogin" class="space-y-4" onsubmit="return false;">
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Usuario Administrador</label>
           <div class="relative">
@@ -122,13 +122,13 @@
 
         <div class="flex items-center justify-between text-xs pt-1">
           <label class="flex items-center gap-2 text-slate-600 dark:text-slate-400 cursor-pointer">
-            <input type="checkbox" id="rememberSessionCheck" class="rounded bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0">
+            <input type="checkbox" id="rememberSessionCheck" checked class="rounded bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0">
             <span>Recordar sesión</span>
           </label>
-          <span class="text-[11px] text-slate-400">v3.0 Nube</span>
+          <span class="text-[11px] text-slate-400 font-mono">v3.6 Operativa</span>
         </div>
 
-        <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+        <button type="submit" id="btnSubmitLogin" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.99] text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer">
           <i data-lucide="log-in" class="w-4 h-4"></i>
           <span>Ingresar como Administrador</span>
         </button>
@@ -142,7 +142,7 @@
       </div>
 
       <!-- Botón Modo Invitado -->
-      <button type="button" id="btnGuestMode" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-[0.99] text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 shadow-sm">
+      <button type="button" id="btnGuestMode" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-[0.99] text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 shadow-sm cursor-pointer">
         <i data-lucide="eye" class="w-4 h-4 text-emerald-500"></i>
         <span>Modo Invitado (Solo Lectura)</span>
       </button>
@@ -173,30 +173,30 @@
       
       <div class="flex items-center gap-1.5 sm:gap-2">
         <!-- Alternar Tema Claro / Oscuro -->
-        <button id="btnToggleTheme" title="Cambiar tema Claro/Oscuro" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-amber-400 transition shadow-sm">
+        <button id="btnToggleTheme" type="button" title="Cambiar tema Claro/Oscuro" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-amber-400 transition shadow-sm">
           <i data-lucide="sun" id="themeIcon" class="w-4 h-4"></i>
         </button>
 
         <!-- Botón Guardar (Nube) -->
-        <button id="btnManualSave" title="Guardar cambios en la nube" class="flex items-center gap-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/40 px-2.5 py-2 rounded-xl transition shadow-md shadow-emerald-600/20">
+        <button id="btnManualSave" type="button" title="Guardar cambios en la nube" class="flex items-center gap-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/40 px-2.5 py-2 rounded-xl transition shadow-md shadow-emerald-600/20">
           <i data-lucide="save" class="w-4 h-4"></i>
           <span class="hidden xs:inline">Guardar</span>
         </button>
 
         <!-- Botón Base de Datos & Excel -->
-        <button id="btnDatabaseModal" title="Base de Datos & Excel" class="flex items-center gap-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-2 rounded-xl transition shadow-sm">
+        <button id="btnDatabaseModal" type="button" title="Base de Datos & Excel" class="flex items-center gap-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-2 rounded-xl transition shadow-sm">
           <i data-lucide="sheet" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
           <span class="hidden xs:inline">Excel</span>
         </button>
 
         <!-- Botón Agregar Permiso Rápido -->
-        <button id="btnQuickAddException" class="flex items-center gap-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white px-2.5 py-2 rounded-xl transition shadow-md shadow-indigo-600/20">
+        <button id="btnQuickAddException" type="button" class="flex items-center gap-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white px-2.5 py-2 rounded-xl transition shadow-md shadow-indigo-600/20">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
-          <span>Permiso</span>
+          <span class="hidden sm:inline">Permiso</span>
         </button>
 
         <!-- Cerrar Sesión -->
-        <button id="btnLogout" title="Cerrar Sesión" class="flex items-center justify-center text-xs font-semibold bg-slate-100 hover:bg-rose-500/20 dark:bg-slate-800 dark:hover:bg-rose-500/20 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 border border-slate-300 hover:border-rose-500/30 dark:border-slate-700 w-8 h-8 rounded-xl transition shadow-sm">
+        <button id="btnLogout" type="button" title="Cerrar Sesión" class="flex items-center justify-center text-xs font-semibold bg-slate-100 hover:bg-rose-500/20 dark:bg-slate-800 dark:hover:bg-rose-500/20 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 border border-slate-300 hover:border-rose-500/30 dark:border-slate-700 w-8 h-8 rounded-xl transition shadow-sm">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
@@ -205,27 +205,30 @@
 
   <!-- PESTAÑAS DE NAVEGACIÓN -->
   <nav class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-[53px] z-20 transition-colors">
-    <div class="max-w-6xl mx-auto flex items-center justify-around px-2 text-xs font-semibold">
-      <button id="tabBtnCalendar" class="nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition">
+    <div class="max-w-6xl mx-auto flex items-center justify-around px-2 text-xs font-semibold overflow-x-auto no-scrollbar">
+      <button id="tabBtnCalendar" class="nav-tab active-tab flex-1 py-3 px-2 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
         <i data-lucide="calendar" class="w-4 h-4"></i>
         <span>Calendario</span>
       </button>
-      <button id="tabBtnFieldOverview" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnFieldOverview" class="nav-tab flex-1 py-3 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
         <i data-lucide="users-round" class="w-4 h-4"></i>
         <span>En Campo</span>
       </button>
-      <button id="tabBtnDaily" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnDaily" class="nav-tab flex-1 py-3 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
         <i data-lucide="activity" class="w-4 h-4"></i>
         <span>Control Diario</span>
       </button>
-      <button id="tabBtnWorkers" class="nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition">
+      <button id="tabBtnRelevos" class="nav-tab flex-1 py-3 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
+        <i data-lucide="shuffle" class="w-4 h-4 text-amber-500"></i>
+        <span>Relevos & Alertas</span>
+      </button>
+      <button id="tabBtnWorkers" class="nav-tab flex-1 py-3 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition whitespace-nowrap">
         <i data-lucide="users" class="w-4 h-4"></i>
         <span>Personal (<span id="workersCountBadge">21</span>)</span>
       </button>
     </div>
   </nav>
 
-  <!-- CONTENEDOR PRINCIPAL -->
   <main class="flex-1 max-w-6xl w-full mx-auto p-3.5 sm:p-6 space-y-4">
 
     <!-- VISTA 1: CALENDARIO POR TRABAJADOR -->
@@ -233,7 +236,7 @@
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div class="flex items-center gap-2 flex-1">
           <div id="workerAvatarCircle" class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
-            PV
+            CD
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
@@ -241,24 +244,24 @@
               </select>
             </div>
             <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              <span id="workerRoleBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">Supervisor</span>
-              <span id="workerBrigadeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Brigada 1</span>
-              <span id="workerRegimeText" class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">16x5</span>
+              <span id="workerRoleBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">Coordinador</span>
+              <span id="workerBrigadeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Coordinación</span>
+              <span id="workerRegimeText" class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">6x1</span>
             </div>
           </div>
         </div>
 
         <div class="flex items-center justify-between sm:justify-end gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200 dark:border-slate-800">
-          <button id="btnPrevMonth" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <button id="btnPrevMonth" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
           <span id="currentMonthYearLabel" class="text-sm font-bold text-slate-900 dark:text-white px-2 tracking-wide capitalize text-center min-w-[130px]">
             Setiembre 2026
           </span>
-          <button id="btnNextMonth" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <button id="btnNextMonth" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
-          <button id="btnToday" class="px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 transition">
+          <button id="btnToday" type="button" class="px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 transition">
             Hoy
           </button>
         </div>
@@ -373,17 +376,17 @@
     <section id="viewDaily" class="hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div class="flex items-center gap-2">
-          <button id="btnDailyPrev" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <button id="btnDailyPrev" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
           <input type="date" id="dailyDatePicker" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500">
-          <button id="btnDailyNext" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <button id="btnDailyNext" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
         </div>
 
         <div class="flex items-center gap-2">
-          <button id="btnDailyToday" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-md shadow-indigo-600/20">
+          <button id="btnDailyToday" type="button" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-md shadow-indigo-600/20">
             Ir a Hoy
           </button>
         </div>
@@ -431,7 +434,99 @@
       </div>
     </section>
 
-    <!-- VISTA 4: PERSONAL (ADMINISTRACIÓN) -->
+    <!-- VISTA 4: RELEVOS Y ALERTAS OPERATIVAS (CORREGIDO SIN DUPLICADOS) -->
+    <section id="viewRelevos" class="hidden space-y-4">
+      <!-- Selector de Horizonte de Relevos -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="p-1.5 rounded-xl bg-amber-500/20 text-amber-500 dark:text-amber-400">
+                <i data-lucide="shuffle" class="w-4 h-4"></i>
+              </span>
+              <span>Relevos de Personal & Diagnóstico de Guardia</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Identifica exactamente qué personas suben o bajan en la fecha y revisa la cobertura operativa
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <button id="btnRelevoPrevDay" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <input type="date" id="relevoDatePicker" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+            <button id="btnRelevoNextDay" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones de Horizonte Rápido -->
+        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
+          <button id="btnRelevoQuickToday" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+            14 Set (Hoy)
+          </button>
+          <button id="btnRelevoQuickTomorrow" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">
+            15 Set (+1 Día)
+          </button>
+          <button id="btnRelevoQuickPlus2" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">
+            16 Set (+2 Días)
+          </button>
+          <button id="btnRelevoQuickPlus3" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">
+            17 Set (+3 Días)
+          </button>
+          <span id="relevoFormattedDateLabel" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto capitalize">
+            Lunes, 14 de Setiembre 2026
+          </span>
+        </div>
+      </div>
+
+      <!-- Panel Destacado de Alertas y Recomendaciones Operativas -->
+      <div id="relevosAlertsContainer" class="rounded-3xl p-4 sm:p-5 border space-y-2.5 shadow-sm transition-all">
+      </div>
+
+      <!-- Columnas de Personal que SUBE y que BAJA -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Tarjeta Subida -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>🟢 Personal que SUBE a Mina</span>
+              </h3>
+            </div>
+            <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+              Inicio de Guardia
+            </span>
+          </div>
+
+          <div id="relevosListUp" class="space-y-2.5 min-h-[160px]">
+          </div>
+        </div>
+
+        <!-- Tarjeta Bajada -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 ring-4 ring-rose-500/20"></span>
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>🔴 Personal que BAJA a Descanso</span>
+              </h3>
+            </div>
+            <span class="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-lg border border-rose-500/20">
+              Fin de Guardia
+            </span>
+          </div>
+
+          <div id="relevosListDown" class="space-y-2.5 min-h-[160px]">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA 5: PERSONAL (ADMINISTRACIÓN) -->
     <section id="viewWorkers" class="hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
@@ -439,11 +534,11 @@
             <i data-lucide="users" class="w-4 h-4 text-indigo-500"></i>
             <span>Nómina del Roster RODASER</span>
           </h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Gestiona integrantes, regímenes de turno, colores y brigadas</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Gestiona integrantes, regímenes de turno, números de contacto y brigadas</p>
         </div>
 
         <div class="flex items-center gap-2">
-          <button id="btnOpenNewWorkerModal" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-600/30 flex items-center gap-1.5">
+          <button id="btnOpenNewWorkerModal" type="button" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-600/30 flex items-center gap-1.5">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
             <span>Agregar Integrante</span>
           </button>
@@ -466,7 +561,7 @@
           <h3 id="modalDayDateTitle" class="text-sm font-bold text-slate-900 dark:text-white">Fecha</h3>
           <p id="modalDayWorkerName" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">Trabajador</p>
         </div>
-        <button id="btnCloseDayModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button id="btnCloseDayModal" type="button" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -515,7 +610,7 @@
     <div class="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 id="modalWorkerTitle" class="text-sm font-bold text-slate-900 dark:text-white">Nuevo Integrante</h3>
-        <button id="btnCloseWorkerModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button id="btnCloseWorkerModal" type="button" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -554,9 +649,16 @@
           </div>
         </div>
 
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Brigada / Grupo</label>
-          <input type="text" id="workerBrigadeInput" placeholder="Ej. Brigada 1, Brigada 2, Brigada Volante" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Brigada / Grupo</label>
+            <input type="text" id="workerBrigadeInput" placeholder="Ej. Brigada 1, Brigada 2..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Celular / Contacto</label>
+            <input type="tel" id="workerPhoneInput" placeholder="Ej. 987654321" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          </div>
         </div>
 
         <!-- Configuración de Turno -->
@@ -602,7 +704,7 @@
           <i data-lucide="database" class="w-4 h-4 text-emerald-500"></i>
           <span>Base de Datos & Exportaciones</span>
         </div>
-        <button id="btnCloseDatabaseModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button id="btnCloseDatabaseModal" type="button" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -620,11 +722,11 @@
             Nómina con Christian Dávila (Coordinador 6x1), 8 Supervisores y Asistentes de las 6 Brigadas en régimen 16x5.
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            <button id="btnDownloadSeptJson" class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/25 transition">
+            <button id="btnDownloadSeptJson" type="button" class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/25 transition">
               <i data-lucide="download" class="w-4 h-4"></i>
               <span>Descargar .JSON</span>
             </button>
-            <button id="btnApplySeptDirectly" class="admin-only-action w-full py-2 px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">
+            <button id="btnApplySeptDirectly" type="button" class="admin-only-action w-full py-2 px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 rounded-xl font-bold flex items-center justify-center gap-1.5 transition">
               <i data-lucide="check-check" class="w-4 h-4 text-emerald-500"></i>
               <span>Restablecer Base</span>
             </button>
@@ -636,7 +738,7 @@
             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
             <span>Exportar Roster a Excel (.xlsx)</span>
           </div>
-          <button id="btnExportExcel" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+          <button id="btnExportExcel" type="button" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition">
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Descargar Hoja Excel (.xlsx)</span>
           </button>
@@ -647,7 +749,7 @@
             <i data-lucide="hard-drive-download" class="w-4 h-4"></i>
             <span>Copia de Seguridad Completa (Backup)</span>
           </div>
-          <button id="btnExportBackupJson" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
+          <button id="btnExportBackupJson" type="button" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 rounded-xl font-semibold flex items-center justify-center gap-2 transition">
             <i data-lucide="save" class="w-4 h-4"></i>
             <span>Guardar Copia (.json)</span>
           </button>
@@ -676,7 +778,7 @@
           <h3 id="modalFieldDayDate" class="text-sm font-bold text-slate-900 dark:text-white">Fecha</h3>
           <p class="text-xs text-slate-500 dark:text-slate-400">Personal en campo en esta fecha</p>
         </div>
-        <button id="btnCloseFieldDayModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button id="btnCloseFieldDayModal" type="button" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -703,17 +805,13 @@
         <p id="confirmDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Esta acción no se puede deshacer.</p>
       </div>
       <div class="flex items-center justify-center gap-2 pt-2">
-        <button id="btnConfirmCancel" class="px-4 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs">Cancelar</button>
-        <button id="btnConfirmAccept" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md shadow-rose-600/30">Confirmar</button>
+        <button id="btnConfirmCancel" type="button" class="px-4 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs">Cancelar</button>
+        <button id="btnConfirmAccept" type="button" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md shadow-rose-600/30">Confirmar</button>
       </div>
     </div>
   </div>
 
-  <!-- CONEXIÓN A FIREBASE REALTIME DATABASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-
+  <script>
     const customFirebaseConfig = {
       apiKey: "AIzaSyCDFDuw0xCmsUDho5SxD55uIG2fmvAbzSg",
       authDomain: "roster-rodaser.firebaseapp.com",
@@ -725,14 +823,20 @@
     };
 
     let rtdb = null;
+    let rtdbRef = null;
+    let rtdbSet = null;
     let isCloudConnected = false;
 
-    function initCloudSync() {
+    async function initCloudSync() {
       try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+        const { getDatabase, ref, set, onValue } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js");
+
         const app = initializeApp(customFirebaseConfig);
         rtdb = getDatabase(app);
+        rtdbRef = ref;
+        rtdbSet = set;
 
-        // Escuchar datos de la nube en tiempo real
         const rosterRef = ref(rtdb, 'roster_data/shared_roster');
         onValue(rosterRef, (snapshot) => {
           const cloudData = snapshot.val();
@@ -748,12 +852,12 @@
           isCloudConnected = true;
           updateCloudStatusBadge('connected');
         }, (error) => {
-          console.warn('Error conectando a Realtime Database:', error);
+          console.warn('Firebase RTDB error:', error);
           updateCloudStatusBadge('error');
         });
 
       } catch (err) {
-        console.warn('Error inicializando Firebase:', err);
+        console.warn('Modo local (Firebase offline):', err);
         updateCloudStatusBadge('error');
       }
     }
@@ -777,11 +881,14 @@
     }
 
     async function syncToCloud() {
-      if (!rtdb) return;
+      if (!rtdb || !rtdbRef || !rtdbSet) {
+        showToast('Guardado en memoria local');
+        return;
+      }
       try {
         updateCloudStatusBadge('saving');
-        const rosterRef = ref(rtdb, 'roster_data/shared_roster');
-        await set(rosterRef, {
+        const rRef = rtdbRef(rtdb, 'roster_data/shared_roster');
+        await rtdbSet(rRef, {
           workers: workers,
           exceptions: exceptions,
           lastUpdated: new Date().toISOString(),
@@ -790,13 +897,12 @@
         updateCloudStatusBadge('connected');
         showToast('¡Guardado en la nube con éxito!');
       } catch (err) {
-        console.error('Error guardando en Realtime Database:', err);
+        console.error('Error guardando en RTDB:', err);
         updateCloudStatusBadge('error');
-        showToast('Error al conectar con la nube.');
+        showToast('Guardado local (sin conexión nube)');
       }
     }
 
-    // Configuración Local
     const STORAGE_KEY_WORKERS = 'rodaser_workers_v3';
     const STORAGE_KEY_EXCEPTIONS = 'rodaser_exceptions_v3';
     const STORAGE_KEY_AUTH = 'rodaser_auth_session';
@@ -809,7 +915,6 @@
 
     let currentUserRole = 'admin';
 
-    // Manejo de Tema (Claro / Oscuro)
     function initTheme() {
       const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 'dark';
       applyTheme(savedTheme);
@@ -827,7 +932,7 @@
         localStorage.setItem(STORAGE_KEY_THEME, 'dark');
         if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
       }
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function toggleTheme() {
@@ -835,7 +940,6 @@
       applyTheme(isDark ? 'light' : 'dark');
     }
 
-    // Datos Base Setiembre 2026
     const ROSTER_SETIEMBRE_2026_DATA = {
       workers: [
         {
@@ -844,6 +948,7 @@
           role: "Coordinador",
           brigade: "Coordinación",
           color: "amber",
+          phone: "987456123",
           workDays: 6,
           restDays: 1,
           anchorDate: "2026-08-31"
@@ -854,6 +959,7 @@
           role: "Supervisor",
           brigade: "Brigada 1",
           color: "purple",
+          phone: "958123456",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-08-27"
@@ -864,6 +970,7 @@
           role: "Asistente",
           brigade: "Brigada 1",
           color: "emerald",
+          phone: "954789123",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-08-29"
@@ -874,6 +981,7 @@
           role: "Asistente",
           brigade: "Brigada 1",
           color: "emerald",
+          phone: "956321478",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-03"
@@ -884,6 +992,7 @@
           role: "Supervisor",
           brigade: "Brigada 2",
           color: "purple",
+          phone: "951478523",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-08"
@@ -894,6 +1003,7 @@
           role: "Asistente",
           brigade: "Brigada 2",
           color: "emerald",
+          phone: "953214569",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-15"
@@ -904,6 +1014,7 @@
           role: "Asistente",
           brigade: "Brigada 2",
           color: "emerald",
+          phone: "957896321",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-08-27"
@@ -914,6 +1025,7 @@
           role: "Supervisor",
           brigade: "Brigada 3",
           color: "purple",
+          phone: "959632147",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-04"
@@ -924,6 +1036,7 @@
           role: "Asistente",
           brigade: "Brigada 3",
           color: "slate",
+          phone: "",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-12"
@@ -934,6 +1047,7 @@
           role: "Asistente",
           brigade: "Brigada 3",
           color: "emerald",
+          phone: "952147856",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-15"
@@ -944,6 +1058,7 @@
           role: "Supervisor",
           brigade: "Brigada Volante",
           color: "purple",
+          phone: "954123987",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-08-30"
@@ -954,6 +1069,7 @@
           role: "Supervisor",
           brigade: "Brigada 4",
           color: "purple",
+          phone: "987123654",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-14"
@@ -964,6 +1080,7 @@
           role: "Asistente",
           brigade: "Brigada 4",
           color: "emerald",
+          phone: "951987321",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-08-27"
@@ -974,6 +1091,7 @@
           role: "Asistente",
           brigade: "Brigada 4",
           color: "emerald",
+          phone: "953654789",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-04"
@@ -984,6 +1102,7 @@
           role: "Supervisor",
           brigade: "Brigada 5",
           color: "purple",
+          phone: "956987412",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-08-30"
@@ -994,6 +1113,7 @@
           role: "Asistente",
           brigade: "Brigada 5",
           color: "emerald",
+          phone: "954321654",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-04"
@@ -1004,6 +1124,7 @@
           role: "Asistente",
           brigade: "Brigada 5",
           color: "emerald",
+          phone: "957123951",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-12"
@@ -1014,6 +1135,7 @@
           role: "Supervisor",
           brigade: "Brigada 6",
           color: "purple",
+          phone: "958741258",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-04"
@@ -1024,6 +1146,7 @@
           role: "Asistente",
           brigade: "Brigada 6",
           color: "emerald",
+          phone: "952369852",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-12"
@@ -1034,6 +1157,7 @@
           role: "Asistente",
           brigade: "Brigada 6",
           color: "emerald",
+          phone: "956325874",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-15"
@@ -1044,6 +1168,7 @@
           role: "Supervisor",
           brigade: "Brigada Volante",
           color: "purple",
+          phone: "951753951",
           workDays: 16,
           restDays: 5,
           anchorDate: "2026-09-08"
@@ -1096,6 +1221,7 @@
     let activeWorkerId = null;
     let activeViewDate = new Date(2026, 8, 1);
     let activeDailyDate = new Date(2026, 8, 14);
+    let activeRelevosDate = new Date(2026, 8, 14);
     let selectedDateForAction = null;
     let activeBrigadeAdminFilter = 'ALL';
 
@@ -1190,7 +1316,8 @@
           type: 'trabajo',
           label: `T-${cycleIndex + 1}`,
           subLabel: `Día ${cycleIndex + 1}/${worker.workDays}`,
-          dayIndex: cycleIndex + 1
+          dayIndex: cycleIndex + 1,
+          isLastWorkDay: (cycleIndex + 1) === (worker.workDays || 16)
         };
       } else {
         const restIndex = cycleIndex - (worker.workDays || 16);
@@ -1200,7 +1327,8 @@
           type: 'bajada',
           label: `B-${restIndex + 1}`,
           subLabel: `Descanso ${restIndex + 1}/${worker.restDays}`,
-          dayIndex: restIndex + 1
+          dayIndex: restIndex + 1,
+          isLastRestDay: (restIndex + 1) === (worker.restDays || 5)
         };
       }
     }
@@ -1215,6 +1343,7 @@
 
     function renderWorkerSelector() {
       const select = document.getElementById('workerSelect');
+      if (!select) return;
       select.innerHTML = '';
 
       workers.forEach(w => {
@@ -1231,27 +1360,36 @@
         const colorMeta = ROLE_COLORS[currentWorker.color] || ROLE_COLORS.slate;
         
         const avatar = document.getElementById('workerAvatarCircle');
-        avatar.className = `w-10 h-10 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0`;
-        avatar.textContent = currentWorker.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        if (avatar) {
+          avatar.className = `w-10 h-10 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0`;
+          avatar.textContent = currentWorker.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        }
 
         const roleBadge = document.getElementById('workerRoleBadge');
-        roleBadge.textContent = currentWorker.role;
-        roleBadge.className = `px-1.5 py-0.5 rounded text-[10px] font-bold border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}`;
+        if (roleBadge) {
+          roleBadge.textContent = currentWorker.role;
+          roleBadge.className = `px-1.5 py-0.5 rounded text-[10px] font-bold border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}`;
+        }
 
-        document.getElementById('workerBrigadeBadge').textContent = currentWorker.brigade || 'General';
-        document.getElementById('workerRegimeText').textContent = `${currentWorker.workDays}x${currentWorker.restDays}`;
+        const brigadeBadge = document.getElementById('workerBrigadeBadge');
+        if (brigadeBadge) brigadeBadge.textContent = currentWorker.brigade || 'General';
+
+        const regimeText = document.getElementById('workerRegimeText');
+        if (regimeText) regimeText.textContent = `${currentWorker.workDays}x${currentWorker.restDays}`;
       }
 
       const fieldBrigadeSelect = document.getElementById('filterFieldBrigade');
-      const prevVal = fieldBrigadeSelect.value;
-      fieldBrigadeSelect.innerHTML = '<option value="ALL">Todas las Brigadas</option>';
-      getUniqueBrigades().forEach(b => {
-        const opt = document.createElement('option');
-        opt.value = b;
-        opt.textContent = b;
-        if (b === prevVal) opt.selected = true;
-        fieldBrigadeSelect.appendChild(opt);
-      });
+      if (fieldBrigadeSelect) {
+        const prevVal = fieldBrigadeSelect.value;
+        fieldBrigadeSelect.innerHTML = '<option value="ALL">Todas las Brigadas</option>';
+        getUniqueBrigades().forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b;
+          if (b === prevVal) opt.selected = true;
+          fieldBrigadeSelect.appendChild(opt);
+        });
+      }
     }
 
     function renderPersonalCalendar() {
@@ -1262,7 +1400,8 @@
       const month = activeViewDate.getMonth();
 
       const monthFormatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
-      document.getElementById('currentMonthYearLabel').textContent = monthFormatter.format(activeViewDate);
+      const label = document.getElementById('currentMonthYearLabel');
+      if (label) label.textContent = monthFormatter.format(activeViewDate);
 
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
@@ -1270,6 +1409,7 @@
       const startDayOfWeek = firstDay.getDay();
 
       const grid = document.getElementById('calendarGrid');
+      if (!grid) return;
       grid.innerHTML = '';
 
       let workCount = 0;
@@ -1339,9 +1479,12 @@
         grid.appendChild(cell);
       }
 
-      document.getElementById('statWorkDays').textContent = `${workCount} días`;
-      document.getElementById('statRestDays').textContent = `${restCount} días`;
-      document.getElementById('statExceptionDays').textContent = `${exceptionCount} días`;
+      const sw = document.getElementById('statWorkDays');
+      if (sw) sw.textContent = `${workCount} días`;
+      const sr = document.getElementById('statRestDays');
+      if (sr) sr.textContent = `${restCount} días`;
+      const se = document.getElementById('statExceptionDays');
+      if (se) se.textContent = `${exceptionCount} días`;
     }
 
     function renderFieldOverview() {
@@ -1352,12 +1495,14 @@
       const totalDays = lastDay.getDate();
       const startDayOfWeek = firstDay.getDay();
 
-      const filterBrigade = document.getElementById('filterFieldBrigade').value;
+      const brigadeEl = document.getElementById('filterFieldBrigade');
+      const filterBrigade = brigadeEl ? brigadeEl.value : 'ALL';
       const relevantWorkers = filterBrigade === 'ALL'
         ? workers
         : workers.filter(w => w.brigade === filterBrigade);
 
       const grid = document.getElementById('fieldCalendarGrid');
+      if (!grid) return;
       grid.innerHTML = '';
 
       for (let i = 0; i < startDayOfWeek; i++) {
@@ -1430,9 +1575,11 @@
 
     function openFieldDayDetailModal(dateObj, onFieldWorkers) {
       const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      document.getElementById('modalFieldDayDate').textContent = dFormatter.format(dateObj);
+      const dateHeader = document.getElementById('modalFieldDayDate');
+      if (dateHeader) dateHeader.textContent = dFormatter.format(dateObj);
       
       const listContainer = document.getElementById('modalFieldDayList');
+      if (!listContainer) return;
       listContainer.innerHTML = '';
 
       if (onFieldWorkers.length === 0) {
@@ -1466,11 +1613,14 @@
 
     function renderDailyView() {
       const dateStr = formatDateString(activeDailyDate);
-      document.getElementById('dailyDatePicker').value = dateStr;
+      const picker = document.getElementById('dailyDatePicker');
+      if (picker) picker.value = dateStr;
 
       const workingList = document.getElementById('dailyListWorking');
       const restList = document.getElementById('dailyListRest');
       const exceptionsList = document.getElementById('dailyListExceptions');
+
+      if (!workingList || !restList || !exceptionsList) return;
 
       workingList.innerHTML = '';
       restList.innerHTML = '';
@@ -1521,13 +1671,305 @@
         }
       });
 
-      document.getElementById('dailyCountWorking').textContent = cWork;
-      document.getElementById('dailyCountRest').textContent = cRest;
-      document.getElementById('dailyCountExceptions').textContent = cEx;
+      const cwEl = document.getElementById('dailyCountWorking');
+      if (cwEl) cwEl.textContent = cWork;
+      const crEl = document.getElementById('dailyCountRest');
+      if (crEl) crEl.textContent = cRest;
+      const ceEl = document.getElementById('dailyCountExceptions');
+      if (ceEl) ceEl.textContent = cEx;
 
       if (cWork === 0) workingList.innerHTML = '<p class="text-slate-400 text-center py-4 text-[11px]">Nadie en campo</p>';
       if (cRest === 0) restList.innerHTML = '<p class="text-slate-400 text-center py-4 text-[11px]">Nadie en bajada</p>';
       if (cEx === 0) exceptionsList.innerHTML = '<p class="text-slate-400 text-center py-4 text-[11px]">Sin permisos especiales</p>';
+    }
+
+    function computeRelevosData(targetDate) {
+      const prevDate = new Date(targetDate);
+      prevDate.setDate(prevDate.getDate() - 1);
+
+      const nextDate = new Date(targetDate);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      const goingUp = [];
+      const goingDown = [];
+      const activeInField = [];
+      const availableVolantes = [];
+
+      const brigadeCoverage = {};
+
+      workers.forEach(w => {
+        const todayStatus = getDayStatus(w, targetDate);
+        const prevStatus = getDayStatus(w, prevDate);
+        const nextStatus = getDayStatus(w, nextDate);
+
+        if (todayStatus.isWork) {
+          activeInField.push(w);
+
+          const bName = w.brigade || 'General';
+          if (!brigadeCoverage[bName]) {
+            brigadeCoverage[bName] = { supervisors: [], asistentes: [], total: 0 };
+          }
+          brigadeCoverage[bName].total++;
+          if (w.role === 'Supervisor' || w.role === 'Coordinador') {
+            brigadeCoverage[bName].supervisors.push(w.name);
+          }
+          if (w.role === 'Asistente') {
+            brigadeCoverage[bName].asistentes.push(w.name);
+          }
+
+          if (w.brigade === 'Brigada Volante') {
+            availableVolantes.push(w);
+          }
+        }
+
+        if (!prevStatus.isWork && todayStatus.isWork) {
+          goingUp.push({
+            worker: w,
+            todayStatus,
+            prevStatus
+          });
+        }
+
+        if (todayStatus.isWork && !nextStatus.isWork) {
+          goingDown.push({
+            worker: w,
+            todayStatus,
+            nextStatus
+          });
+        }
+      });
+
+      const alerts = [];
+      const recommendations = [];
+
+      getUniqueBrigades().forEach(bName => {
+        if (bName === 'Coordinación' || bName === 'Brigada Volante') return;
+        const cov = brigadeCoverage[bName] || { supervisors: [], asistentes: [], total: 0 };
+
+        if (cov.total === 0) {
+          alerts.push({
+            type: 'danger',
+            brigade: bName,
+            text: `<b>${bName}:</b> Se encuentra totalmente <b>vacía</b> en mina (sin Supervisor ni Asistente).`
+          });
+          if (availableVolantes.length > 0) {
+            recommendations.push(`Asignar a <b>${availableVolantes[0].name} (Volante)</b> como soporte para cubrir frentes de ${bName}.`);
+          }
+        } else if (cov.supervisors.length === 0) {
+          alerts.push({
+            type: 'warning',
+            brigade: bName,
+            text: `<b>${bName}:</b> Cuenta con asistente(s) (${cov.asistentes.join(', ')}), pero está <b>sin Supervisor</b> asignado.`
+          });
+          if (availableVolantes.length > 0) {
+            recommendations.push(`Delegar la supervisión de ${bName} al Supervisor Volante activo en campo (<b>${availableVolantes.map(v => v.name).join(', ')}</b>).`);
+          }
+        } else if (cov.asistentes.length === 0) {
+          alerts.push({
+            type: 'info',
+            brigade: bName,
+            text: `<b>${bName}:</b> El Supervisor <b>${cov.supervisors.join(', ')}</b> está solo en campo, sin asistente.`
+          });
+          recommendations.push(`Coordinar apoyo de cuadrilla compartida para los levantamientos de ${bName}.`);
+        }
+      });
+
+      return { goingUp, goingDown, activeInField, alerts, recommendations, availableVolantes };
+    }
+
+    function renderRelevosView() {
+      const dateStr = formatDateString(activeRelevosDate);
+      const datePicker = document.getElementById('relevoDatePicker');
+      if (datePicker) datePicker.value = dateStr;
+
+      const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const dateLabel = document.getElementById('relevoFormattedDateLabel');
+      if (dateLabel) dateLabel.textContent = dFormatter.format(activeRelevosDate);
+
+      const data = computeRelevosData(activeRelevosDate);
+
+      // Renderizar Alertas y Recomendaciones
+      const alertsBox = document.getElementById('relevosAlertsContainer');
+      const hasIssues = data.alerts.length > 0 || data.recommendations.length > 0;
+
+      if (alertsBox) {
+        if (!hasIssues) {
+          alertsBox.className = 'rounded-3xl p-4 sm:p-5 border bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-200 text-xs space-y-2';
+          alertsBox.innerHTML = `
+            <div class="flex items-center gap-2 font-bold text-sm text-emerald-700 dark:text-emerald-300">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500 shrink-0"></i>
+              <span>Cobertura Operativa Óptima en Campo</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+              Todas las brigadas activas cuentan con dotación completa (Supervisores y Asistentes) para esta fecha.
+            </p>
+          `;
+        } else {
+          alertsBox.className = 'rounded-3xl p-4 sm:p-5 border bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100 text-xs space-y-3';
+          
+          let alertsHtml = data.alerts.map(a => `
+            <div class="flex items-start gap-2 text-[11px] leading-snug">
+              <span class="w-2 h-2 rounded-full mt-1.5 shrink-0 ${a.type === 'danger' ? 'bg-rose-500' : a.type === 'warning' ? 'bg-amber-500' : 'bg-sky-500'}"></span>
+              <span>${a.text}</span>
+            </div>
+          `).join('');
+
+          let recsHtml = '';
+          if (data.recommendations.length > 0) {
+            recsHtml = `
+              <div class="pt-2 border-t border-amber-500/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300 block mb-1 flex items-center gap-1.5">
+                  <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i>
+                  <span>Recomendaciones sugeridas:</span>
+                </span>
+                <ul class="space-y-1 pl-4 list-disc text-[11px] text-slate-700 dark:text-slate-300">
+                  ${data.recommendations.map(r => `<li>${r}</li>`).join('')}
+                </ul>
+              </div>
+            `;
+          }
+
+          alertsBox.innerHTML = `
+            <div class="flex items-center justify-between gap-2 border-b border-amber-500/20 pb-2">
+              <div class="flex items-center gap-2 font-bold text-sm text-amber-800 dark:text-amber-300">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0"></i>
+                <span>Diagnóstico de Cobertura y Alertas</span>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                ${data.alerts.length} aviso(s)
+              </span>
+            </div>
+            <div class="space-y-1.5">
+              ${alertsHtml}
+            </div>
+            ${recsHtml}
+          `;
+        }
+      }
+
+      // Lista SUBEN
+      const listUp = document.getElementById('relevosListUp');
+      if (listUp) {
+        listUp.innerHTML = '';
+        if (data.goingUp.length === 0) {
+          listUp.innerHTML = `
+            <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+              <i data-lucide="info" class="w-7 h-7 mx-auto mb-1.5 opacity-40 text-emerald-500"></i>
+              <span>Nadie tiene programada subida a mina en esta fecha.</span>
+            </div>
+          `;
+        } else {
+          data.goingUp.forEach(({ worker }) => {
+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+            const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
+            const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER para coordinar tu subida a mina para la fecha.`);
+            const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
+
+            const item = document.createElement('div');
+            item.className = 'p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 transition hover:border-emerald-500/40 shadow-sm';
+            item.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  ${worker.name.charAt(0)}
+                </span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-0.5 flex-wrap text-[10px]">
+                    <span class="font-semibold text-slate-600 dark:text-slate-400">${worker.brigade}</span>
+                    <span class="text-slate-300 dark:text-slate-700">•</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">Inicia guardia (Día 1)</span>
+                    ${worker.phone ? `
+                    <span class="text-slate-300 dark:text-slate-700">•</span>
+                    <span class="font-mono text-slate-500 dark:text-slate-400">📞 ${worker.phone}</span>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                ${waLink ? `
+                <a href="${waLink}" target="_blank" title="Enviar WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+                ${phoneLink ? `
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                  <i data-lucide="phone" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+              </div>
+            `;
+            listUp.appendChild(item);
+          });
+        }
+      }
+
+      // Lista BAJAN
+      const listDown = document.getElementById('relevosListDown');
+      if (listDown) {
+        listDown.innerHTML = '';
+        if (data.goingDown.length === 0) {
+          listDown.innerHTML = `
+            <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+              <i data-lucide="shield-check" class="w-7 h-7 mx-auto mb-1.5 opacity-40 text-indigo-500"></i>
+              <span>Nadie baja a descanso en esta fecha.</span>
+            </div>
+          `;
+        } else {
+          data.goingDown.forEach(({ worker, todayStatus }) => {
+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+            const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
+            const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER sobre la finalización de tu guardia.`);
+            const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
+
+            const item = document.createElement('div');
+            item.className = 'p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 transition hover:border-rose-500/40 shadow-sm';
+            item.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  ${worker.name.charAt(0)}
+                </span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-0.5 flex-wrap text-[10px]">
+                    <span class="font-semibold text-slate-600 dark:text-slate-400">${worker.brigade}</span>
+                    <span class="text-slate-300 dark:text-slate-700">•</span>
+                    <span class="text-rose-600 dark:text-rose-400 font-bold">${todayStatus.subLabel || 'Fin de guardia (T-16)'}</span>
+                    ${worker.phone ? `
+                    <span class="text-slate-300 dark:text-slate-700">•</span>
+                    <span class="font-mono text-slate-500 dark:text-slate-400">📞 ${worker.phone}</span>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                ${waLink ? `
+                <a href="${waLink}" target="_blank" title="Enviar WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+                ${phoneLink ? `
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                  <i data-lucide="phone" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+              </div>
+            `;
+            listDown.appendChild(item);
+          });
+        }
+      }
+
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function renderWorkersAdminList() {
@@ -1540,6 +1982,7 @@
         addWorkerBtn.style.display = isReadOnly ? 'none' : 'flex';
       }
 
+      if (!container || !chipsContainer) return;
       container.innerHTML = '';
       chipsContainer.innerHTML = '';
 
@@ -1581,19 +2024,20 @@
         `;
 
         item.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-md">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
               ${w.name.charAt(0)}
             </div>
-            <div>
+            <div class="min-w-0">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${w.name}</h4>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${w.name}</h4>
                 <span class="text-[10px] px-1.5 py-0.5 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder} font-bold">${w.role}</span>
                 <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-indigo-700 dark:text-indigo-300 font-bold border border-slate-200 dark:border-slate-800">${w.brigade}</span>
               </div>
               <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                 Régimen: <span class="font-bold text-slate-800 dark:text-slate-200">${w.workDays}x${w.restDays}</span> · Inicio ciclo: ${w.anchorDate}
               </p>
+              ${w.phone ? `<p class="text-[10px] text-slate-400 mt-0.5">📞 ${w.phone}</p>` : ''}
             </div>
           </div>
           ${actionButtonsHtml}
@@ -1624,8 +2068,9 @@
         });
       }
 
-      document.getElementById('workersCountBadge').textContent = workers.length;
-      if (window.lucide) lucide.createIcons();
+      const wcb = document.getElementById('workersCountBadge');
+      if (wcb) wcb.textContent = workers.length;
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function renderAllViews() {
@@ -1633,8 +2078,9 @@
       renderPersonalCalendar();
       renderFieldOverview();
       renderDailyView();
+      renderRelevosView();
       renderWorkersAdminList();
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function openDayActionModal(worker, dateObj, statusInfo) {
@@ -1647,21 +2093,26 @@
       const dateStr = formatDateString(dateObj);
       const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
       
-      document.getElementById('modalDayDateTitle').textContent = dFormatter.format(dateObj);
-      document.getElementById('modalDayWorkerName').textContent = `${worker.name} (${worker.role} - ${worker.brigade})`;
+      const titleEl = document.getElementById('modalDayDateTitle');
+      if (titleEl) titleEl.textContent = dFormatter.format(dateObj);
+
+      const nameEl = document.getElementById('modalDayWorkerName');
+      if (nameEl) nameEl.textContent = `${worker.name} (${worker.role} - ${worker.brigade})`;
 
       const defaultInfoBox = document.getElementById('modalDayDefaultInfo');
-      defaultInfoBox.innerHTML = `
-        <div>
-          <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Ciclo normal (${worker.workDays}x${worker.restDays}):</span>
-          <span class="text-xs font-bold text-slate-900 dark:text-white">${statusInfo.isWork ? 'Trabajo en Campo (Subida)' : 'Bajada (Descanso)'}</span>
-        </div>
-        <div class="text-right">
-          <span class="text-[10px] font-mono bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
-            ${statusInfo.subLabel || statusInfo.label}
-          </span>
-        </div>
-      `;
+      if (defaultInfoBox) {
+        defaultInfoBox.innerHTML = `
+          <div>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Ciclo normal (${worker.workDays}x${worker.restDays}):</span>
+            <span class="text-xs font-bold text-slate-900 dark:text-white">${statusInfo.isWork ? 'Trabajo en Campo (Subida)' : 'Bajada (Descanso)'}</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] font-mono bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+              ${statusInfo.subLabel || statusInfo.label}
+            </span>
+          </div>
+        `;
+      }
 
       const exceptionKey = `${worker.id}_${dateStr}`;
       const currentOverride = exceptions[exceptionKey];
@@ -1673,30 +2124,31 @@
       const btnRemove = document.getElementById('btnRemoveOverride');
 
       if (currentOverride) {
-        selectOverride.value = currentOverride.type;
-        noteInput.value = currentOverride.note || '';
-        if (!isReadOnly) btnRemove.classList.remove('hidden');
+        if (selectOverride) selectOverride.value = currentOverride.type;
+        if (noteInput) noteInput.value = currentOverride.note || '';
+        if (!isReadOnly && btnRemove) btnRemove.classList.remove('hidden');
       } else {
-        selectOverride.value = 'default';
-        noteInput.value = '';
-        btnRemove.classList.add('hidden');
+        if (selectOverride) selectOverride.value = 'default';
+        if (noteInput) noteInput.value = '';
+        if (btnRemove) btnRemove.classList.add('hidden');
       }
 
       if (isReadOnly) {
-        selectOverride.disabled = true;
-        noteInput.disabled = true;
-        readOnlyNotice.classList.remove('hidden');
-        btnSave.classList.add('hidden');
-        btnRemove.classList.add('hidden');
+        if (selectOverride) selectOverride.disabled = true;
+        if (noteInput) noteInput.disabled = true;
+        if (readOnlyNotice) readOnlyNotice.classList.remove('hidden');
+        if (btnSave) btnSave.classList.add('hidden');
+        if (btnRemove) btnRemove.classList.add('hidden');
       } else {
-        selectOverride.disabled = false;
-        noteInput.disabled = false;
-        readOnlyNotice.classList.add('hidden');
-        btnSave.classList.remove('hidden');
+        if (selectOverride) selectOverride.disabled = false;
+        if (noteInput) noteInput.disabled = false;
+        if (readOnlyNotice) readOnlyNotice.classList.add('hidden');
+        if (btnSave) btnSave.classList.remove('hidden');
       }
 
-      document.getElementById('modalDayAction').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
+      const modal = document.getElementById('modalDayAction');
+      if (modal) modal.classList.remove('hidden');
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function saveDayOverride() {
@@ -1748,6 +2200,7 @@
       document.getElementById('workerRoleSelect').value = 'Supervisor';
       document.getElementById('workerColorSelect').value = 'purple';
       document.getElementById('workerBrigadeInput').value = 'Brigada 1';
+      document.getElementById('workerPhoneInput').value = '';
       document.getElementById('workerWorkDays').value = 16;
       document.getElementById('workerRestDays').value = 5;
       document.getElementById('workerAnchorDate').value = formatDateString(new Date(2026, 8, 1));
@@ -1765,6 +2218,7 @@
       document.getElementById('workerRoleSelect').value = target.role;
       document.getElementById('workerColorSelect').value = target.color || 'purple';
       document.getElementById('workerBrigadeInput').value = target.brigade || 'General';
+      document.getElementById('workerPhoneInput').value = target.phone || '';
       document.getElementById('workerWorkDays').value = target.workDays || 16;
       document.getElementById('workerRestDays').value = target.restDays || 5;
       document.getElementById('workerAnchorDate').value = target.anchorDate || formatDateString(new Date());
@@ -1782,7 +2236,7 @@
     }
 
     function saveWorkerForm(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
       if (currentUserRole === 'asistente') return;
 
       const id = document.getElementById('workerFormId').value;
@@ -1790,6 +2244,7 @@
       const role = document.getElementById('workerRoleSelect').value;
       const color = document.getElementById('workerColorSelect').value;
       const brigade = document.getElementById('workerBrigadeInput').value.trim() || 'General';
+      const phone = document.getElementById('workerPhoneInput').value.trim();
       const workDays = parseInt(document.getElementById('workerWorkDays').value, 10) || 16;
       const restDays = parseInt(document.getElementById('workerRestDays').value, 10) || 5;
       const anchorDate = document.getElementById('workerAnchorDate').value;
@@ -1799,7 +2254,7 @@
       if (id) {
         const index = workers.findIndex(w => w.id === id);
         if (index !== -1) {
-          workers[index] = { ...workers[index], name, role, color, brigade, workDays, restDays, anchorDate };
+          workers[index] = { ...workers[index], name, role, color, brigade, phone, workDays, restDays, anchorDate };
         }
       } else {
         const newWorker = {
@@ -1808,6 +2263,7 @@
           role,
           color,
           brigade,
+          phone,
           workDays,
           restDays,
           anchorDate: anchorDate || formatDateString(new Date())
@@ -1832,7 +2288,7 @@
       const monthName = new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(activeViewDate).toUpperCase();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      const headers = ['BRIGADA', 'CARGO', 'TRABAJADOR', 'REGIMEN'];
+      const headers = ['BRIGADA', 'CARGO', 'TRABAJADOR', 'TELEFONO', 'REGIMEN'];
       for (let d = 1; d <= daysInMonth; d++) {
         headers.push(d.toString());
       }
@@ -1840,7 +2296,7 @@
       const dataRows = [headers];
 
       workers.forEach(w => {
-        const row = [w.brigade, w.role, w.name, `${w.workDays}x${w.restDays}`];
+        const row = [w.brigade, w.role, w.name, w.phone || '', `${w.workDays}x${w.restDays}`];
         for (let d = 1; d <= daysInMonth; d++) {
           const dateObj = new Date(year, month, d);
           const st = getDayStatus(w, dateObj);
@@ -1865,7 +2321,7 @@
     function exportBackupJson() {
       const backupData = {
         app: 'Roster_RODASER',
-        version: 3,
+        version: 3.6,
         exportedAt: new Date().toISOString(),
         workers,
         exceptions
@@ -1972,12 +2428,13 @@
       sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');
       sessionStorage.setItem(STORAGE_KEY_ROLE, 'asistente');
 
-      document.getElementById('loginScreen').classList.add('hidden');
+      const loginScreen = document.getElementById('loginScreen');
+      if (loginScreen) loginScreen.classList.add('hidden');
       applyUserRolePermissions();
       showToast('Modo Invitado (Solo Lectura)');
       renderAllViews();
       initCloudSync();
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function checkAuthentication() {
@@ -1988,30 +2445,34 @@
       const loginOverlay = document.getElementById('loginScreen');
 
       if (isAuth) {
-        loginOverlay.classList.add('hidden');
+        if (loginOverlay) loginOverlay.classList.add('hidden');
         applyUserRolePermissions();
         renderAllViews();
         initCloudSync();
       } else {
-        loginOverlay.classList.remove('hidden');
-        setTimeout(() => document.getElementById('loginUsername').focus(), 150);
+        if (loginOverlay) loginOverlay.classList.remove('hidden');
+        setTimeout(() => {
+          const uInput = document.getElementById('loginUsername');
+          if (uInput) uInput.focus();
+        }, 150);
       }
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
-    function handleLogin(e) {
-      e.preventDefault();
+    function executeLogin() {
       const userField = document.getElementById('loginUsername');
       const passField = document.getElementById('loginPassword');
       const errorBox = document.getElementById('loginErrorAlert');
-      const rememberCheck = document.getElementById('rememberSessionCheck').checked;
+      const rememberCheck = document.getElementById('rememberSessionCheck')?.checked;
+
+      if (!userField || !passField) return;
 
       const user = userField.value.trim().toLowerCase();
-      const pass = passField.value;
+      const pass = passField.value.trim();
       const account = USERS_CREDENTIALS[user];
 
       if (account && account.pass === pass) {
-        errorBox.classList.add('hidden');
+        if (errorBox) errorBox.classList.add('hidden');
         currentUserRole = account.role;
 
         if (rememberCheck) {
@@ -2022,17 +2483,18 @@
           sessionStorage.setItem(STORAGE_KEY_ROLE, currentUserRole);
         }
 
-        document.getElementById('loginScreen').classList.add('hidden');
+        const loginScreen = document.getElementById('loginScreen');
+        if (loginScreen) loginScreen.classList.add('hidden');
         applyUserRolePermissions();
         showToast('Bienvenido Administrador');
         renderAllViews();
         initCloudSync();
       } else {
-        errorBox.classList.remove('hidden');
+        if (errorBox) errorBox.classList.remove('hidden');
         passField.value = '';
         passField.focus();
       }
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     }
 
     function handleLogout() {
@@ -2044,11 +2506,15 @@
           localStorage.removeItem(STORAGE_KEY_ROLE);
           sessionStorage.removeItem(STORAGE_KEY_AUTH);
           sessionStorage.removeItem(STORAGE_KEY_ROLE);
-          document.getElementById('loginUsername').value = '';
-          document.getElementById('loginPassword').value = '';
-          document.getElementById('loginErrorAlert').classList.add('hidden');
-          document.getElementById('loginScreen').classList.remove('hidden');
-          if (window.lucide) lucide.createIcons();
+          const u = document.getElementById('loginUsername');
+          if (u) u.value = '';
+          const p = document.getElementById('loginPassword');
+          if (p) p.value = '';
+          const eb = document.getElementById('loginErrorAlert');
+          if (eb) eb.classList.add('hidden');
+          const ls = document.getElementById('loginScreen');
+          if (ls) ls.classList.remove('hidden');
+          if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
         }
       );
     }
@@ -2056,7 +2522,9 @@
     let toastTimeout = null;
     function showToast(message) {
       const toast = document.getElementById('toastNotification');
-      document.getElementById('toastMessage').textContent = message;
+      const tm = document.getElementById('toastMessage');
+      if (!toast || !tm) return;
+      tm.textContent = message;
       toast.classList.remove('translate-y-20', 'opacity-0');
       toast.classList.add('translate-y-0', 'opacity-100');
 
@@ -2069,153 +2537,223 @@
 
     let confirmCallback = null;
     function showConfirmModal(title, desc, onConfirm) {
-      document.getElementById('confirmTitle').textContent = title;
-      document.getElementById('confirmDesc').textContent = desc;
+      const ct = document.getElementById('confirmTitle');
+      if (ct) ct.textContent = title;
+      const cd = document.getElementById('confirmDesc');
+      if (cd) cd.textContent = desc;
       confirmCallback = onConfirm;
-      document.getElementById('modalConfirm').classList.remove('hidden');
+      const mc = document.getElementById('modalConfirm');
+      if (mc) mc.classList.remove('hidden');
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    function safeAddListener(id, event, handler) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener(event, handler);
+      }
+    }
+
+    function initApp() {
       loadState();
 
+      // Configuración de pestañas
       const tabs = [
         { btn: 'tabBtnCalendar', view: 'viewCalendar' },
         { btn: 'tabBtnFieldOverview', view: 'viewFieldOverview' },
         { btn: 'tabBtnDaily', view: 'viewDaily' },
+        { btn: 'tabBtnRelevos', view: 'viewRelevos' },
         { btn: 'tabBtnWorkers', view: 'viewWorkers' }
       ];
 
       tabs.forEach(t => {
         const btn = document.getElementById(t.btn);
+        if (!btn) return;
         btn.addEventListener('click', () => {
           tabs.forEach(o => {
-            document.getElementById(o.btn).className = 'nav-tab flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition';
-            document.getElementById(o.view).classList.add('hidden');
+            const ob = document.getElementById(o.btn);
+            const ov = document.getElementById(o.view);
+            if (ob) ob.className = 'nav-tab flex-1 py-3 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center gap-1.5 transition whitespace-nowrap';
+            if (ov) ov.classList.add('hidden');
           });
-          btn.className = 'nav-tab active-tab flex-1 py-3 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition';
-          document.getElementById(t.view).classList.remove('hidden');
+          btn.className = 'nav-tab active-tab flex-1 py-3 px-2 border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5 transition whitespace-nowrap';
+          const targetView = document.getElementById(t.view);
+          if (targetView) targetView.classList.remove('hidden');
 
           if (t.view === 'viewFieldOverview') renderFieldOverview();
           if (t.view === 'viewDaily') renderDailyView();
+          if (t.view === 'viewRelevos') renderRelevosView();
           if (t.view === 'viewWorkers') renderWorkersAdminList();
           if (t.view === 'viewCalendar') renderPersonalCalendar();
         });
       });
 
-      document.getElementById('workerSelect').addEventListener('change', (e) => {
+      // Navegación Calendario Personal
+      safeAddListener('workerSelect', 'change', (e) => {
         activeWorkerId = e.target.value;
         renderWorkerSelector();
         renderPersonalCalendar();
       });
 
-      document.getElementById('btnPrevMonth').addEventListener('click', () => {
+      safeAddListener('btnPrevMonth', 'click', () => {
         activeViewDate.setMonth(activeViewDate.getMonth() - 1);
         renderPersonalCalendar();
         renderFieldOverview();
       });
 
-      document.getElementById('btnNextMonth').addEventListener('click', () => {
+      safeAddListener('btnNextMonth', 'click', () => {
         activeViewDate.setMonth(activeViewDate.getMonth() + 1);
         renderPersonalCalendar();
         renderFieldOverview();
       });
 
-      document.getElementById('btnToday').addEventListener('click', () => {
-        activeViewDate = new Date();
+      safeAddListener('btnToday', 'click', () => {
+        activeViewDate = new Date(2026, 8, 1);
         renderPersonalCalendar();
         renderFieldOverview();
       });
 
-      document.getElementById('filterFieldBrigade').addEventListener('change', renderFieldOverview);
+      safeAddListener('filterFieldBrigade', 'change', renderFieldOverview);
 
-      document.getElementById('dailyDatePicker').addEventListener('change', (e) => {
+      // Control Diario
+      safeAddListener('dailyDatePicker', 'change', (e) => {
         activeDailyDate = parseDateString(e.target.value);
         renderDailyView();
       });
 
-      document.getElementById('btnDailyPrev').addEventListener('click', () => {
+      safeAddListener('btnDailyPrev', 'click', () => {
         activeDailyDate.setDate(activeDailyDate.getDate() - 1);
         renderDailyView();
       });
 
-      document.getElementById('btnDailyNext').addEventListener('click', () => {
+      safeAddListener('btnDailyNext', 'click', () => {
         activeDailyDate.setDate(activeDailyDate.getDate() + 1);
         renderDailyView();
       });
 
-      document.getElementById('btnDailyToday').addEventListener('click', () => {
-        activeDailyDate = new Date();
+      safeAddListener('btnDailyToday', 'click', () => {
+        activeDailyDate = new Date(2026, 8, 14);
         renderDailyView();
       });
 
-      document.getElementById('btnCloseDayModal').addEventListener('click', () => {
-        document.getElementById('modalDayAction').classList.add('hidden');
+      // Módulo de Relevos
+      safeAddListener('relevoDatePicker', 'change', (e) => {
+        activeRelevosDate = parseDateString(e.target.value);
+        renderRelevosView();
       });
-      document.getElementById('btnCancelDayModal').addEventListener('click', () => {
-        document.getElementById('modalDayAction').classList.add('hidden');
-      });
-      document.getElementById('btnSaveDayOverride').addEventListener('click', saveDayOverride);
-      document.getElementById('btnRemoveOverride').addEventListener('click', removeDayOverride);
 
-      document.getElementById('btnCloseFieldDayModal').addEventListener('click', () => {
+      safeAddListener('btnRelevoPrevDay', 'click', () => {
+        activeRelevosDate.setDate(activeRelevosDate.getDate() - 1);
+        renderRelevosView();
+      });
+
+      safeAddListener('btnRelevoNextDay', 'click', () => {
+        activeRelevosDate.setDate(activeRelevosDate.getDate() + 1);
+        renderRelevosView();
+      });
+
+      safeAddListener('btnRelevoQuickToday', 'click', () => {
+        activeRelevosDate = new Date(2026, 8, 14);
+        renderRelevosView();
+      });
+
+      safeAddListener('btnRelevoQuickTomorrow', 'click', () => {
+        activeRelevosDate = new Date(2026, 8, 15);
+        renderRelevosView();
+      });
+
+      safeAddListener('btnRelevoQuickPlus2', 'click', () => {
+        activeRelevosDate = new Date(2026, 8, 16);
+        renderRelevosView();
+      });
+
+      safeAddListener('btnRelevoQuickPlus3', 'click', () => {
+        activeRelevosDate = new Date(2026, 8, 17);
+        renderRelevosView();
+      });
+
+      // Modales y formularios
+      safeAddListener('btnCloseDayModal', 'click', () => {
+        document.getElementById('modalDayAction').classList.add('hidden');
+      });
+      safeAddListener('btnCancelDayModal', 'click', () => {
+        document.getElementById('modalDayAction').classList.add('hidden');
+      });
+      safeAddListener('btnSaveDayOverride', 'click', saveDayOverride);
+      safeAddListener('btnRemoveOverride', 'click', removeDayOverride);
+
+      safeAddListener('btnCloseFieldDayModal', 'click', () => {
         document.getElementById('modalFieldDayDetail').classList.add('hidden');
       });
 
-      document.getElementById('btnOpenNewWorkerModal').addEventListener('click', openNewWorkerModal);
-      document.getElementById('btnCloseWorkerModal').addEventListener('click', () => {
+      safeAddListener('btnOpenNewWorkerModal', 'click', openNewWorkerModal);
+      safeAddListener('btnCloseWorkerModal', 'click', () => {
         document.getElementById('modalWorker').classList.add('hidden');
       });
-      document.getElementById('btnCancelWorkerModal').addEventListener('click', () => {
+      safeAddListener('btnCancelWorkerModal', 'click', () => {
         document.getElementById('modalWorker').classList.add('hidden');
       });
-      document.getElementById('formWorker').addEventListener('submit', saveWorkerForm);
+      safeAddListener('formWorker', 'submit', saveWorkerForm);
 
       document.querySelectorAll('.btnRegimePreset').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.getElementById('workerWorkDays').value = btn.getAttribute('data-work');
-          document.getElementById('workerRestDays').value = btn.getAttribute('data-rest');
+          const wInp = document.getElementById('workerWorkDays');
+          const rInp = document.getElementById('workerRestDays');
+          if (wInp) wInp.value = btn.getAttribute('data-work');
+          if (rInp) rInp.value = btn.getAttribute('data-rest');
         });
       });
 
-      document.getElementById('btnDatabaseModal').addEventListener('click', () => {
+      safeAddListener('btnDatabaseModal', 'click', () => {
         document.getElementById('modalDatabase').classList.remove('hidden');
       });
-      document.getElementById('btnCloseDatabaseModal').addEventListener('click', () => {
+      safeAddListener('btnCloseDatabaseModal', 'click', () => {
         document.getElementById('modalDatabase').classList.add('hidden');
       });
-      document.getElementById('btnExportExcel').addEventListener('click', exportToExcel);
-      document.getElementById('btnExportBackupJson').addEventListener('click', exportBackupJson);
-      document.getElementById('btnDownloadSeptJson').addEventListener('click', downloadOfficialSeptJson);
-      document.getElementById('btnApplySeptDirectly').addEventListener('click', applySeptDataDirectly);
-      document.getElementById('inputFileImport').addEventListener('change', handleFileImport);
+      safeAddListener('btnExportExcel', 'click', exportToExcel);
+      safeAddListener('btnExportBackupJson', 'click', exportBackupJson);
+      safeAddListener('btnDownloadSeptJson', 'click', downloadOfficialSeptJson);
+      safeAddListener('btnApplySeptDirectly', 'click', applySeptDataDirectly);
+      safeAddListener('inputFileImport', 'change', handleFileImport);
 
-      document.getElementById('btnManualSave').addEventListener('click', () => {
+      safeAddListener('btnManualSave', 'click', () => {
         saveState();
       });
 
-      document.getElementById('btnQuickAddException').addEventListener('click', () => {
+      safeAddListener('btnQuickAddException', 'click', () => {
         const currentWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
         if (currentWorker) {
           openDayActionModal(currentWorker, activeDailyDate, getDayStatus(currentWorker, activeDailyDate));
         }
       });
 
-      document.getElementById('btnConfirmCancel').addEventListener('click', () => {
+      safeAddListener('btnConfirmCancel', 'click', () => {
         document.getElementById('modalConfirm').classList.add('hidden');
       });
-      document.getElementById('btnConfirmAccept').addEventListener('click', () => {
+      safeAddListener('btnConfirmAccept', 'click', () => {
         if (confirmCallback) confirmCallback();
         document.getElementById('modalConfirm').classList.add('hidden');
       });
 
-      document.getElementById('formLogin').addEventListener('submit', handleLogin);
-      document.getElementById('btnGuestMode').addEventListener('click', enterGuestMode);
-      document.getElementById('btnLogout').addEventListener('click', handleLogout);
-      document.getElementById('btnToggleTheme').addEventListener('click', toggleTheme);
+      // EVENTOS DE AUTENTICACIÓN (LOGIN)
+      safeAddListener('formLogin', 'submit', (e) => {
+        e.preventDefault();
+        executeLogin();
+      });
+      safeAddListener('btnSubmitLogin', 'click', (e) => {
+        e.preventDefault();
+        executeLogin();
+      });
+      safeAddListener('btnGuestMode', 'click', (e) => {
+        e.preventDefault();
+        enterGuestMode();
+      });
+      safeAddListener('btnLogout', 'click', handleLogout);
+      safeAddListener('btnToggleTheme', 'click', toggleTheme);
 
-      document.getElementById('btnTogglePassword').addEventListener('click', () => {
+      safeAddListener('btnTogglePassword', 'click', () => {
         const passInput = document.getElementById('loginPassword');
         const eyeIcon = document.getElementById('eyeIcon');
+        if (!passInput || !eyeIcon) return;
         if (passInput.type === 'password') {
           passInput.type = 'text';
           eyeIcon.setAttribute('data-lucide', 'eye-off');
@@ -2223,12 +2761,19 @@
           passInput.type = 'password';
           eyeIcon.setAttribute('data-lucide', 'eye');
         }
-        if (window.lucide) lucide.createIcons();
+        if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
       });
 
       initTheme();
       checkAuthentication();
-    });
+    }
+
+    // Arranque a prueba de fallos
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   </script>
 </body>
 </html>
