@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <!-- Directivas anti-caché estrictas para Safari iOS y navegadores móviles -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RODASER">
   <title>Roster RODASER - Control de Turnos & Relevos</title>
 
   <!-- Tailwind CSS CDN -->
@@ -55,6 +57,14 @@
       min-height: 44px;
       min-width: 44px;
     }
+    /* Estilo de animación de giro para el botón de recarga */
+    .spin-once {
+      animation: spin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
@@ -69,17 +79,20 @@
         </div>
         <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Roster RODASER</h2>
         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Control de Turnos, Relevos & Campo</p>
+        <span class="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+          Versión 2.4.0 (Actualizada)
+        </span>
       </div>
 
       <!-- Botón Modo Invitado -->
-      <div class="mb-6">
+      <div class="mb-5">
         <button id="btnGuestMode" type="button" class="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition border border-slate-200 dark:border-slate-700">
           <i data-lucide="eye" class="w-4 h-4 text-indigo-500"></i>
           <span>Ingresar en Modo Invitado (Solo Lectura)</span>
         </button>
       </div>
 
-      <div class="relative flex items-center justify-center mb-6">
+      <div class="relative flex items-center justify-center mb-5">
         <div class="border-t border-slate-200 dark:border-slate-800 w-full"></div>
         <span class="bg-white dark:bg-slate-900 px-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase absolute">Acceso Administrador</span>
       </div>
@@ -87,11 +100,11 @@
       <form id="loginForm" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Usuario Administrador</label>
-          <input type="text" id="loginUsername" required placeholder="admin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          <input type="text" id="loginUsername" required placeholder="admin" autocomplete="username" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
-          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
         </div>
 
         <div id="loginError" class="hidden text-xs text-rose-500 font-semibold text-center pt-1">
@@ -103,6 +116,14 @@
           <span>Ingresar como Administrador</span>
         </button>
       </form>
+
+      <!-- Botón para forzar actualización de caché en iPhone -->
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-center">
+        <button id="btnLoginForceRefresh" type="button" class="text-[11px] text-slate-400 hover:text-indigo-500 flex items-center justify-center gap-1.5 mx-auto transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>¿No ves los cambios? Toca aquí para recargar</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -110,11 +131,14 @@
   <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-600/30">
+        <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-600/30 shrink-0">
           R
         </div>
         <div>
-          <h1 class="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white leading-tight">ROSTER RODASER</h1>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white leading-tight">ROSTER RODASER</h1>
+            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-500 font-bold hidden sm:inline">v2.4</span>
+          </div>
           <div class="flex items-center gap-2">
             <span id="roleBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Invitado</span>
             <span id="cloudBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">○ Local</span>
@@ -123,7 +147,12 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button id="btnToggleTheme" title="Cambiar tema claro/oscuro" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+        <!-- Botón para Forzar Actualización en iPhone / Móvil -->
+        <button id="btnForceRefresh" title="Actualizar aplicación a la última versión" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" aria-label="Actualizar">
+          <i id="refreshIcon" data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+
+        <button id="btnToggleTheme" title="Cambiar tema claro/oscuro" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" aria-label="Tema">
           <i id="themeIcon" data-lucide="sun" class="w-4 h-4"></i>
         </button>
 
@@ -132,7 +161,7 @@
           <span class="hidden sm:inline">Guardar</span>
         </button>
 
-        <button id="btnLogout" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Cerrar sesión">
+        <button id="btnLogout" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Cerrar sesión" aria-label="Salir">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
@@ -344,7 +373,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Matriz General de Guardias</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Verde = Guardia en mina | Rojo = Bajada / descanso</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Verde (G) = Guardia en mina | Rojo (D) = Bajada / descanso</p>
           </div>
         </div>
 
@@ -420,6 +449,18 @@
             <p class="text-xs text-slate-500">Cargar un archivo .json de respaldo</p>
             <input type="file" id="inputImportJSON" accept=".json" class="hidden">
           </label>
+        </div>
+
+        <!-- Botón de Sincronización y Limpieza de Caché Local -->
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300">Diagnóstico del Sistema & Memoria</h4>
+            <p class="text-[11px] text-slate-400">Si un dispositivo móvil muestra datos desactualizados, pulsa para refrescar.</p>
+          </div>
+          <button id="btnResetLocalStorage" type="button" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5">
+            <i data-lucide="database" class="w-4 h-4 text-indigo-500"></i>
+            <span>Restablecer Datos Base / Sincronizar</span>
+          </button>
         </div>
       </div>
     </section>
@@ -576,6 +617,9 @@
   </div>
 
   <script>
+    // Versión de la Aplicación para control de caché y migraciones automáticas
+    const RODASER_APP_VERSION = "2.4.0";
+
     const customFirebaseConfig = {
       apiKey: "AIzaSyCDFDuw0xCmsUDho5SxD55uIG2fmvAbzSg",
       authDomain: "roster-rodaser.firebaseapp.com",
@@ -677,6 +721,7 @@
       return true;
     }
 
+    // Cálculo inmutable y seguro contra variaciones horarias en móviles
     function getWorkerStatusForDate(worker, targetDate) {
       const dateKey = formatDateToKey(targetDate);
       
@@ -689,7 +734,10 @@
       }
 
       const anchor = parseDateKey(worker.anchorDate);
-      const diffMs = targetDate.setHours(0,0,0,0) - anchor.setHours(0,0,0,0);
+      const dTarget = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+      const dAnchor = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate());
+
+      const diffMs = dTarget.getTime() - dAnchor.getTime();
       const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
       const cycleLength = (worker.workDays || 16) + (worker.restDays || 5);
@@ -720,12 +768,24 @@
       }
     }
 
+    // Carga de estado local con validación de versión para no quedar atrapado en caché vieja
     function loadLocalState() {
       try {
+        const savedVer = localStorage.getItem('RODASER_VERSION');
         const localW = localStorage.getItem('RODASER_WORKERS');
         const localE = localStorage.getItem('RODASER_EXCEPTIONS');
-        workers = localW ? JSON.parse(localW) : JSON.parse(JSON.stringify(INITIAL_WORKERS));
-        exceptions = localE ? JSON.parse(localE) : {};
+
+        // Si la versión de la app cambió, refrescamos con los datos base actualizados
+        if (savedVer !== RODASER_APP_VERSION || !localW) {
+          workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
+          exceptions = localE ? JSON.parse(localE) : {};
+          localStorage.setItem('RODASER_VERSION', RODASER_APP_VERSION);
+          saveLocalState();
+        } else {
+          workers = JSON.parse(localW);
+          exceptions = localE ? JSON.parse(localE) : {};
+        }
+
         if (workers.length > 0) activeWorkerId = workers[0].id;
       } catch (e) {
         workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
@@ -736,11 +796,27 @@
 
     function saveLocalState() {
       try {
+        localStorage.setItem('RODASER_VERSION', RODASER_APP_VERSION);
         localStorage.setItem('RODASER_WORKERS', JSON.stringify(workers));
         localStorage.setItem('RODASER_EXCEPTIONS', JSON.stringify(exceptions));
       } catch (e) {
         console.error("Error localStorage:", e);
       }
+    }
+
+    // Forzar actualización total (útil para iPhone WebClip / PWA)
+    function forceApplicationRefresh() {
+      const icon = document.getElementById('refreshIcon');
+      if (icon) icon.classList.add('spin-once');
+
+      showToast("Actualizando Roster...", "refresh-cw");
+
+      setTimeout(() => {
+        // Añade parámetro dinámico para destruir la caché de Safari/iOS
+        const cacheBuster = `?t=${Date.now()}`;
+        const cleanUrl = window.location.origin + window.location.pathname + cacheBuster;
+        window.location.replace(cleanUrl);
+      }, 400);
     }
 
     async function initFirebase() {
@@ -836,6 +912,10 @@
                w.brigade.toLowerCase().includes(q);
       });
 
+      if (filteredWorkers.length > 0 && !filteredWorkers.some(w => w.id === activeWorkerId)) {
+        activeWorkerId = filteredWorkers[0].id;
+      }
+
       select.innerHTML = '';
       if (filteredWorkers.length === 0) {
         const opt = document.createElement('option');
@@ -857,7 +937,6 @@
 
       const colorMeta = ROLE_COLORS[activeWorker.color] || ROLE_COLORS.slate;
 
-      // Cálculo de fecha de inicio de guardia y bajada para mostrar en cabecera
       heroCard.innerHTML = `
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-base flex items-center justify-center shadow-md shadow-indigo-600/20">
@@ -919,7 +998,7 @@
           isToday ? 'ring-2 ring-indigo-500 shadow-md' : ''
         }`;
 
-        // Coloración del día en calendario: DÍAS DE BAJADA (D) EN ROJO
+        // DÍAS DE BAJADA EN ROJO / DÍAS DE GUARDIA EN VERDE
         if (status.isException) {
           if (status.code === 'DM') {
             cell.className += ' bg-rose-700/10 border-rose-700/30 text-rose-800 dark:text-rose-200';
@@ -931,7 +1010,6 @@
             cell.className += ' bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300';
           }
         } else if (status.isWork) {
-          // GUARDIA -> VERDE
           cell.className += ' bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-700 dark:text-emerald-300';
         } else {
           // BAJADA / DESCANSO -> ROJO
@@ -1468,7 +1546,6 @@
       filtered.forEach(w => {
         const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
         
-        // Calcular próximo inicio de guardia y bajada
         const todayRef = new Date();
         let nextWorkDate = null;
         let nextRestDate = null;
@@ -1537,7 +1614,6 @@
       }
     }
 
-    // Modal de edición avanzada de trabajadores
     function openWorkerEditModal(workerId = null) {
       if (currentUserRole !== 'admin') {
         showToast("Solo el administrador puede configurar trabajadores", "lock");
@@ -1562,7 +1638,6 @@
         document.getElementById('editWorkerWorkDays').value = worker.workDays || 16;
         document.getElementById('editWorkerRestDays').value = worker.restDays || 5;
 
-        // Modo por defecto: inicio de guardia
         document.getElementById('modeStartWork').checked = true;
         document.getElementById('editWorkerReferenceDate').value = worker.anchorDate;
         updateAnchorExplanation();
@@ -1634,7 +1709,6 @@
       }, 3000);
     }
 
-    // Exportación CSV (Solo Admin)
     function exportToCSV() {
       if (!checkAdminAccess("la exportación a Excel")) return;
 
@@ -1666,12 +1740,12 @@
       showToast("Descarga de CSV completada", "download");
     }
 
-    // Exportación JSON (Solo Admin)
     function exportToJSON() {
       if (!checkAdminAccess("la copia de seguridad")) return;
 
       const backup = {
         app: "Roster_RODASER",
+        version: RODASER_APP_VERSION,
         exportedAt: new Date().toISOString(),
         workers,
         exceptions
@@ -1715,6 +1789,10 @@
 
     function initApp() {
       loadLocalState();
+
+      // Botón Forzar Actualización en iPhone y móvil
+      safeAddListener('btnForceRefresh', 'click', forceApplicationRefresh);
+      safeAddListener('btnLoginForceRefresh', 'click', forceApplicationRefresh);
 
       // Modo Oscuro / Claro
       const savedTheme = localStorage.getItem('RODASER_THEME') || 'dark';
@@ -1897,6 +1975,20 @@
       safeAddListener('modeStartWork', 'change', updateAnchorExplanation);
       safeAddListener('modeStartRest', 'change', updateAnchorExplanation);
 
+      // Restablecer Datos / Limpiar Caché Local
+      safeAddListener('btnResetLocalStorage', 'click', () => {
+        if (confirm("¿Deseas restaurar la lista de trabajadores a los valores base actualizados y limpiar la memoria temporal?")) {
+          localStorage.removeItem('RODASER_WORKERS');
+          localStorage.removeItem('RODASER_EXCEPTIONS');
+          localStorage.setItem('RODASER_VERSION', RODASER_APP_VERSION);
+          workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
+          exceptions = {};
+          saveLocalState();
+          renderAllViews();
+          showToast("Datos restaurados a la versión oficial", "database");
+        }
+      });
+
       // Formulario de edición de trabajador
       const workerForm = document.getElementById('workerEditForm');
       if (workerForm) {
@@ -1916,7 +2008,6 @@
 
           let calculatedAnchorDate = refDateStr;
 
-          // Si el usuario eligió "Cuándo empieza su bajada", calculamos el anclaje matemático hacia atrás
           if (!isStartWork) {
             const restStartDate = parseDateKey(refDateStr);
             restStartDate.setDate(restStartDate.getDate() - workDays);
@@ -1928,7 +2019,6 @@
           else if (role === 'Coordinador') color = 'amber';
 
           if (workerId) {
-            // Actualizar existente
             const idx = workers.findIndex(w => w.id === workerId);
             if (idx !== -1) {
               workers[idx] = {
@@ -1945,7 +2035,6 @@
             }
             showToast("Trabajador actualizado correctamente", "check");
           } else {
-            // Nuevo trabajador
             const newId = `w_${Date.now()}`;
             workers.push({
               id: newId,
@@ -2047,7 +2136,6 @@
       lucide.createIcons();
     }
 
-    // Exponer función para botones dinámicos
     window.openWorkerEditModal = openWorkerEditModal;
 
     if (document.readyState === 'loading') {
