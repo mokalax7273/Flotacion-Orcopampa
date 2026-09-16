@@ -37,7 +37,6 @@
   </script>
 
   <style>
-    /* Estilos base y scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -110,7 +109,6 @@
   <!-- Barra Superior de Navegación -->
   <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
-      <!-- Logo y Rol -->
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-600/30">
           R
@@ -124,20 +122,16 @@
         </div>
       </div>
 
-      <!-- Acciones Rápidas del Header -->
       <div class="flex items-center gap-1.5">
-        <!-- Toggle Modo Claro / Oscuro -->
         <button id="btnToggleTheme" title="Cambiar tema claro/oscuro" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
           <i id="themeIcon" data-lucide="sun" class="w-4 h-4"></i>
         </button>
 
-        <!-- Botón Guardar en Nube (Solo Admin) -->
         <button id="btnSaveCloud" type="button" class="hidden px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition items-center gap-1.5">
           <i data-lucide="cloud-upload" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Guardar</span>
         </button>
 
-        <!-- Botón Cerrar Sesión -->
         <button id="btnLogout" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Cerrar sesión">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
@@ -179,7 +173,7 @@
     <section id="tabCalendar" class="tab-content space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm">
         
-        <!-- Barra de Búsqueda Predictiva de Trabajadores -->
+        <!-- Buscador Rápido -->
         <div class="mb-4">
           <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Buscador Rápido de Trabajador</label>
           <div class="relative">
@@ -191,11 +185,10 @@
           </div>
         </div>
 
-        <!-- Selector de Trabajador y Navegación de Mes -->
+        <!-- Selector y Navegación de Mes -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div class="w-full lg:w-1/2">
             <select id="workerSelect" class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-bold text-sm border border-slate-300 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500">
-              <!-- Opciones dinámicas -->
             </select>
           </div>
 
@@ -213,12 +206,11 @@
           </div>
         </div>
 
-        <!-- Tarjeta Informativa del Trabajador Seleccionado -->
+        <!-- Tarjeta Informativa -->
         <div id="workerHeroCard" class="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <!-- Inyectado dinámicamente -->
         </div>
 
-        <!-- Grilla de Calendario Mensual -->
+        <!-- Grilla de Calendario -->
         <div class="mt-4">
           <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-400 uppercase py-2">
             <span>Dom</span>
@@ -230,22 +222,21 @@
             <span>Sáb</span>
           </div>
           <div id="calendarGrid" class="grid grid-cols-7 gap-1 sm:gap-1.5">
-            <!-- Celdas dinámicas -->
           </div>
         </div>
 
-        <!-- Leyenda de Colores -->
+        <!-- Leyenda de Colores Oficial -->
         <div class="flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded bg-emerald-500"></span>
-            <span>Guardia Activa (G)</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded bg-slate-400 dark:bg-slate-600"></span>
-            <span>Bajada / Descanso (D)</span>
+            <span class="font-bold text-slate-700 dark:text-slate-300">Guardia Activa (G)</span>
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded bg-rose-500"></span>
+            <span class="font-bold text-rose-600 dark:text-rose-400">Bajada / Descanso (D)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-rose-700"></span>
             <span>Descanso Médico (DM)</span>
           </div>
           <div class="flex items-center gap-1.5">
@@ -260,7 +251,6 @@
     <section id="tabRelevos" class="tab-content hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
         
-        <!-- Cabecera de Relevos con Navegación y Selector -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -281,18 +271,14 @@
           </div>
         </div>
 
-        <!-- Botones de Horizonte Rápido Dinámicos -->
         <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
           <div id="relevoHorizonButtonsContainer" class="flex flex-wrap items-center gap-1.5"></div>
           <span id="relevoFormattedDateLabel" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto capitalize"></span>
         </div>
 
-        <!-- Alertas y Recomendaciones Operativas -->
         <div id="relevosAlertsContainer" class="space-y-2"></div>
 
-        <!-- Listas de Movimiento: Suben y Bajan -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
-          
           <!-- Columna SUBEN -->
           <div class="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col">
             <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-200 dark:border-slate-800">
@@ -301,9 +287,7 @@
                 <h3 class="text-sm font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Suben a Mina / Inician Guardia</h3>
               </div>
             </div>
-            <div id="relevosListUp" class="space-y-2.5 flex-1">
-              <!-- Inyectado dinámicamente -->
-            </div>
+            <div id="relevosListUp" class="space-y-2.5 flex-1"></div>
           </div>
 
           <!-- Columna BAJAN -->
@@ -314,11 +298,8 @@
                 <h3 class="text-sm font-black uppercase tracking-wider text-rose-600 dark:text-rose-400">Bajan a Ciudad / Fin de Guardia</h3>
               </div>
             </div>
-            <div id="relevosListDown" class="space-y-2.5 flex-1">
-              <!-- Inyectado dinámicamente -->
-            </div>
+            <div id="relevosListDown" class="space-y-2.5 flex-1"></div>
           </div>
-
         </div>
 
       </div>
@@ -351,13 +332,8 @@
           </div>
         </div>
 
-        <div id="dailyStatsCards" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <!-- Inyectado dinámicamente -->
-        </div>
-
-        <div id="dailyBrigadesContainer" class="space-y-3">
-          <!-- Brigadas dinámicas -->
-        </div>
+        <div id="dailyStatsCards" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+        <div id="dailyBrigadesContainer" class="space-y-3"></div>
 
       </div>
     </section>
@@ -368,69 +344,80 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Matriz General de Guardias</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Visualización continua del personal para el mes seleccionado</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Verde = Guardia en mina | Rojo = Bajada / descanso</p>
           </div>
         </div>
 
         <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
           <table class="w-full text-xs text-left">
-            <thead id="overviewTableHead" class="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
-              <!-- Encabezado dinámico -->
-            </thead>
-            <tbody id="overviewTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
-              <!-- Filas dinámicas -->
-            </tbody>
+            <thead id="overviewTableHead" class="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800"></thead>
+            <tbody id="overviewTableBody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- 5. PESTAÑA: PERSONAL (ADMINISTRACIÓN) -->
+    <!-- 5. PESTAÑA: PERSONAL (ADMINISTRACIÓN Y PROGRAMACIÓN) -->
     <section id="tabAdminWorkers" class="tab-content hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Directorio del Personal</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Gestión de datos de contacto, brigadas y regímenes</p>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Directorio y Programación del Personal</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Configura cuándo inicia su guardia o cuándo empieza su bajada</p>
           </div>
-          <!-- Buscador en Personal -->
-          <div class="relative w-full sm:w-64">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="workersAdminSearch" placeholder="Buscar trabajador..." class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500">
+
+          <div class="flex items-center gap-2">
+            <div class="relative w-full sm:w-56">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="workersAdminSearch" placeholder="Buscar trabajador..." class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <!-- Botón Agregar Trabajador (Solo Admin) -->
+            <button id="btnAddWorker" type="button" class="hidden px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shrink-0">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>Nuevo</span>
+            </button>
           </div>
         </div>
 
-        <div id="adminWorkersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          <!-- Tarjetas del personal dinámicas -->
-        </div>
+        <div id="adminWorkersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
       </div>
     </section>
 
-    <!-- 6. PESTAÑA: EXCEL & COPIA DE SEGURIDAD -->
+    <!-- 6. PESTAÑA: EXCEL & COPIA DE SEGURIDAD (SOLO ADMIN) -->
     <section id="tabExcel" class="tab-content hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
         <div>
           <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Exportación & Respaldo</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Descarga y restauración de datos del Roster</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Descarga de reportes en Excel y copias completas</p>
+        </div>
+
+        <!-- Banner informativo si no es Admin -->
+        <div id="excelGuestLockNotice" class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 flex items-center gap-3">
+          <i data-lucide="lock" class="w-5 h-5 shrink-0 text-amber-500"></i>
+          <div class="text-xs">
+            <span class="font-black">Acceso Exclusivo para Administrador:</span>
+            <span>Las descargas a Excel y la restauración de copias de seguridad están restringidas en modo invitado para proteger la información operativa.</span>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button id="btnExportCSV" type="button" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1">
             <i data-lucide="download" class="w-5 h-5 text-indigo-500 mb-2"></i>
             <h4 class="font-bold text-sm text-slate-900 dark:text-white">Exportar a Excel (CSV)</h4>
-            <p class="text-xs text-slate-500">Descarga la programación del mes para abrir en Microsoft Excel</p>
+            <p class="text-xs text-slate-500">Descarga la programación del mes seleccionado</p>
           </button>
 
           <button id="btnExportJSON" type="button" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1">
             <i data-lucide="file-code" class="w-5 h-5 text-emerald-500 mb-2"></i>
             <h4 class="font-bold text-sm text-slate-900 dark:text-white">Copia Completa (JSON)</h4>
-            <p class="text-xs text-slate-500">Guarda una copia de seguridad íntegra de todos los registros</p>
+            <p class="text-xs text-slate-500">Guarda un archivo de respaldo íntegro</p>
           </button>
 
-          <label class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1 cursor-pointer">
+          <label id="lblImportJSON" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1 cursor-pointer">
             <i data-lucide="upload" class="w-5 h-5 text-amber-500 mb-2"></i>
             <h4 class="font-bold text-sm text-slate-900 dark:text-white">Restaurar Copia</h4>
-            <p class="text-xs text-slate-500">Cargar un archivo .json previamente guardado</p>
+            <p class="text-xs text-slate-500">Cargar un archivo .json de respaldo</p>
             <input type="file" id="inputImportJSON" accept=".json" class="hidden">
           </label>
         </div>
@@ -439,7 +426,118 @@
 
   </main>
 
-  <!-- Modal de Edición de Días / Excepciones (Solo Admin) -->
+  <!-- Modal de Configuración / Edición de Trabajador -->
+  <div id="workerEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 id="workerModalTitle" class="text-base font-black text-slate-900 dark:text-white">Configurar Trabajador</h3>
+          <p class="text-xs text-slate-400">Ajuste de régimen, inicio de guardia o inicio de bajada</p>
+        </div>
+        <button id="btnCloseWorkerModal" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="workerEditForm" class="space-y-3.5">
+        <input type="hidden" id="editWorkerId">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre Completo</label>
+            <input type="text" id="editWorkerName" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cargo / Rol</label>
+            <select id="editWorkerRole" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="Supervisor">Supervisor</option>
+              <option value="Asistente">Asistente</option>
+              <option value="Coordinador">Coordinador</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Brigada Asignada</label>
+            <select id="editWorkerBrigade" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="Brigada 1">Brigada 1</option>
+              <option value="Brigada 2">Brigada 2</option>
+              <option value="Brigada 3">Brigada 3</option>
+              <option value="Brigada 4">Brigada 4</option>
+              <option value="Brigada 5">Brigada 5</option>
+              <option value="Brigada 6">Brigada 6</option>
+              <option value="Brigada Volante">Brigada Volante</option>
+              <option value="Coordinación">Coordinación</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Celular / WhatsApp</label>
+            <input type="tel" id="editWorkerPhone" placeholder="987654321" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Días Guardia (G)</label>
+            <input type="number" id="editWorkerWorkDays" min="1" max="40" required value="16" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Días Bajada (D)</label>
+            <input type="number" id="editWorkerRestDays" min="1" max="30" required value="5" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Programación por Inicio de Guardia o Inicio de Bajada -->
+        <div class="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/30 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 space-y-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="calendar-range" class="w-4 h-4 text-indigo-500"></i>
+            <span class="text-xs font-black text-indigo-950 dark:text-indigo-200 uppercase tracking-wide">Programación de Turno</span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-2 text-slate-700 dark:text-slate-300 cursor-pointer">
+              <input type="radio" name="anchorMode" value="START_WORK" id="modeStartWork" checked class="text-indigo-600 focus:ring-indigo-500">
+              <span class="font-bold">Indicar cuándo empieza su GUARDIA (Turno 1 en mina)</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-slate-700 dark:text-slate-300 cursor-pointer">
+              <input type="radio" name="anchorMode" value="START_REST" id="modeStartRest" class="text-indigo-600 focus:ring-indigo-500">
+              <span class="font-bold">Indicar cuándo empieza su BAJADA (Día 1 de descanso)</span>
+            </label>
+          </div>
+
+          <div>
+            <label id="anchorDateInputLabel" class="block text-xs font-bold text-indigo-900 dark:text-indigo-300 mb-1">Fecha de Inicio de Guardia</label>
+            <input type="date" id="editWorkerReferenceDate" required class="w-full bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-800 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+            <p id="anchorDateExplanation" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">El sistema tomará este día exacto como su Turno 1 en mina.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 gap-2">
+          <button id="btnDeleteWorker" type="button" class="hidden px-3.5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs transition">
+            Eliminar
+          </button>
+          
+          <div class="flex items-center gap-2 ml-auto">
+            <button id="btnCancelWorkerEdit" type="button" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition">
+              Cancelar
+            </button>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Guardar</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Excepciones de Día (Solo Admin) -->
   <div id="dayActionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
@@ -453,10 +551,10 @@
         <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs text-left transition hover:bg-emerald-500/20" data-type="WORK">
           ● Marcar como Guardia / Trabajo Efectivo
         </button>
-        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-300 font-bold text-xs text-left transition hover:bg-slate-500/20" data-type="REST">
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs text-left transition hover:bg-rose-500/20" data-type="REST">
           ○ Marcar como Bajada / Descanso
         </button>
-        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs text-left transition hover:bg-rose-500/20" data-type="MEDICAL">
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-rose-700/30 bg-rose-700/10 text-rose-700 dark:text-rose-300 font-bold text-xs text-left transition hover:bg-rose-700/20" data-type="MEDICAL">
           ▲ Registrar Descanso Médico (DM)
         </button>
         <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs text-left transition hover:bg-amber-500/20" data-type="PERMISSION">
@@ -478,7 +576,6 @@
   </div>
 
   <script>
-    // Configuración oficial de Firebase Realtime Database
     const customFirebaseConfig = {
       apiKey: "AIzaSyCDFDuw0xCmsUDho5SxD55uIG2fmvAbzSg",
       authDomain: "roster-rodaser.firebaseapp.com",
@@ -489,7 +586,6 @@
       appId: "1:279997001401:web:909d192b9b4c32e4e3f568"
     };
 
-    // Paleta de colores por rol
     const ROLE_COLORS = {
       amber: {
         avatarBg: 'from-amber-500 to-amber-600',
@@ -517,7 +613,6 @@
       }
     };
 
-    // Plantilla inicial oficial del personal RODASER
     const INITIAL_WORKERS = [
       { id: "w_coord_cdavila", name: "Christian Dávila", role: "Coordinador", brigade: "Coordinación", color: "amber", workDays: 6, restDays: 1, anchorDate: "2026-08-31", phone: "987654321" },
       { id: "w_gr1_pventura", name: "Paul Ventura", role: "Supervisor", brigade: "Brigada 1", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-08-27", phone: "951234567" },
@@ -542,8 +637,7 @@
       { id: "w_grv_gpancca", name: "Gonzalo Pancca", role: "Supervisor", brigade: "Brigada Volante", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-09-08", phone: "969012345" }
     ];
 
-    // Variables de Estado de la Aplicación
-    let currentUserRole = null; // 'admin' | 'guest'
+    let currentUserRole = null;
     let workers = [];
     let exceptions = {};
     let activeWorkerId = null;
@@ -557,7 +651,6 @@
     let firebaseSet = null;
     let isCloudConnected = false;
 
-    // Formateo de fechas a formato YYYY-MM-DD local
     function formatDateToKey(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -576,11 +669,17 @@
              d1.getDate() === d2.getDate();
     }
 
-    // Cálculo matemático del turno para un día específico
+    function checkAdminAccess(actionName = "esta acción") {
+      if (currentUserRole !== 'admin') {
+        showToast(`Acceso restringido: Solo el Administrador puede usar ${actionName}`, "lock");
+        return false;
+      }
+      return true;
+    }
+
     function getWorkerStatusForDate(worker, targetDate) {
       const dateKey = formatDateToKey(targetDate);
       
-      // 1. Verificar excepciones manuales
       if (exceptions[worker.id] && exceptions[worker.id][dateKey]) {
         const exc = exceptions[worker.id][dateKey];
         if (exc === 'WORK') return { isWork: true, label: 'Guardia (G)', code: 'G', subLabel: 'Turno manual', isException: true };
@@ -589,7 +688,6 @@
         if (exc === 'PERMISSION') return { isWork: false, label: 'Permiso (P)', code: 'P', subLabel: 'Permiso autorizado', isException: true };
       }
 
-      // 2. Cálculo regular por régimen de turno
       const anchor = parseDateKey(worker.anchorDate);
       const diffMs = targetDate.setHours(0,0,0,0) - anchor.setHours(0,0,0,0);
       const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
@@ -630,7 +728,6 @@
         exceptions = localE ? JSON.parse(localE) : {};
         if (workers.length > 0) activeWorkerId = workers[0].id;
       } catch (e) {
-        console.error("Error al cargar localStorage:", e);
         workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
         exceptions = {};
         activeWorkerId = workers[0]?.id;
@@ -642,7 +739,7 @@
         localStorage.setItem('RODASER_WORKERS', JSON.stringify(workers));
         localStorage.setItem('RODASER_EXCEPTIONS', JSON.stringify(exceptions));
       } catch (e) {
-        console.error("Error al guardar en localStorage:", e);
+        console.error("Error localStorage:", e);
       }
     }
 
@@ -671,7 +768,7 @@
         isCloudConnected = true;
         updateCloudStatusBadge(true);
       } catch (err) {
-        console.warn("Modo local activo (sin conexión a Firebase):", err);
+        console.warn("Modo local activo:", err);
         updateCloudStatusBadge(false);
       }
     }
@@ -698,7 +795,6 @@
 
           showToast("Sincronizado con la nube exitosamente", "cloud-check");
         } catch (e) {
-          console.error("Error al guardar en Firebase:", e);
           showToast("Guardado localmente (Error en la nube)", "alert-circle");
         } finally {
           const btn = document.getElementById('btnSaveCloud');
@@ -732,7 +828,6 @@
 
       if (!select || !heroCard || !grid || !monthLabel) return;
 
-      // Actualizar listado desplegable con filtro
       const filteredWorkers = workers.filter(w => {
         if (!calendarFilterQuery) return true;
         const q = calendarFilterQuery.toLowerCase();
@@ -745,7 +840,7 @@
       if (filteredWorkers.length === 0) {
         const opt = document.createElement('option');
         opt.value = '';
-        opt.textContent = 'Sin resultados para la búsqueda';
+        opt.textContent = 'Sin resultados';
         select.appendChild(opt);
       } else {
         filteredWorkers.forEach(w => {
@@ -762,7 +857,7 @@
 
       const colorMeta = ROLE_COLORS[activeWorker.color] || ROLE_COLORS.slate;
 
-      // Tarjeta informativa del trabajador
+      // Cálculo de fecha de inicio de guardia y bajada para mostrar en cabecera
       heroCard.innerHTML = `
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-base flex items-center justify-center shadow-md shadow-indigo-600/20">
@@ -775,7 +870,7 @@
                 ${activeWorker.role}
               </span>
             </div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
               <span>${activeWorker.brigade}</span>
               <span>•</span>
               <span class="font-semibold text-slate-700 dark:text-slate-300">Régimen: ${activeWorker.workDays}x${activeWorker.restDays}</span>
@@ -783,24 +878,28 @@
             </div>
           </div>
         </div>
-        <div class="text-right ml-auto">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Fecha de Anclaje</span>
-          <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">${activeWorker.anchorDate}</span>
+        <div class="text-right ml-auto flex items-center gap-2">
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Fecha Base</span>
+            <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">${activeWorker.anchorDate}</span>
+          </div>
+          ${currentUserRole === 'admin' ? `
+            <button type="button" onclick="openWorkerEditModal('${activeWorker.id}')" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition" title="Configurar turno de este trabajador">
+              <i data-lucide="settings-2" class="w-4 h-4"></i>
+            </button>
+          ` : ''}
         </div>
       `;
 
-      // Etiqueta del mes
       const formatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
       monthLabel.textContent = formatter.format(activeViewDate);
 
-      // Renderizar grilla de días
       grid.innerHTML = '';
       const year = activeViewDate.getFullYear();
       const month = activeViewDate.getMonth();
       const firstDayIndex = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      // Días vacíos del mes anterior
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'h-16 sm:h-20 rounded-2xl bg-slate-100/40 dark:bg-slate-900/40 border border-transparent';
@@ -809,7 +908,6 @@
 
       const today = new Date();
 
-      // Días del mes
       for (let day = 1; day <= daysInMonth; day++) {
         const cellDate = new Date(year, month, day);
         const status = getWorkerStatusForDate(activeWorker, cellDate);
@@ -821,27 +919,30 @@
           isToday ? 'ring-2 ring-indigo-500 shadow-md' : ''
         }`;
 
+        // Coloración del día en calendario: DÍAS DE BAJADA (D) EN ROJO
         if (status.isException) {
           if (status.code === 'DM') {
-            cell.className += ' bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300';
+            cell.className += ' bg-rose-700/10 border-rose-700/30 text-rose-800 dark:text-rose-200';
           } else if (status.code === 'P') {
             cell.className += ' bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300';
           } else if (status.code === 'G') {
             cell.className += ' bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300';
           } else {
-            cell.className += ' bg-slate-500/10 border-slate-500/30 text-slate-700 dark:text-slate-300';
+            cell.className += ' bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300';
           }
         } else if (status.isWork) {
+          // GUARDIA -> VERDE
           cell.className += ' bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-700 dark:text-emerald-300';
         } else {
-          cell.className += ' bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400';
+          // BAJADA / DESCANSO -> ROJO
+          cell.className += ' bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30 text-rose-700 dark:text-rose-300';
         }
 
         cell.innerHTML = `
           <div class="flex items-center justify-between w-full">
             <span class="text-xs font-black">${day}</span>
             <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${
-              status.isWork ? 'bg-emerald-500 text-white' : 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+              status.isWork ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
             }">${status.code}</span>
           </div>
           <div class="mt-auto">
@@ -849,7 +950,6 @@
           </div>
         `;
 
-        // Solo Admin puede abrir el modal para alterar días
         cell.addEventListener('click', () => {
           if (currentUserRole === 'admin') {
             openDayActionModal(activeWorker, cellDate);
@@ -889,35 +989,22 @@
           }
         }
 
-        // Sube HOY (primer día de trabajo)
+        // Inicia HOY guardia
         if (!prevStatus.isWork && todayStatus.isWork) {
-          goingUp.push({
-            worker: w,
-            todayStatus,
-            prevStatus
-          });
+          goingUp.push({ worker: w, todayStatus, prevStatus });
         }
 
         // BAJA HOY (hoy es su último día de trabajo, mañana descansa)
         if (todayStatus.isWork && !nextStatus.isWork) {
-          goingDown.push({
-            worker: w,
-            todayStatus,
-            nextStatus
-          });
+          goingDown.push({ worker: w, todayStatus, nextStatus });
         }
 
         // SUBE MAÑANA (hoy es su último día de descanso, mañana empieza su turno 1)
         if (!todayStatus.isWork && nextStatus.isWork) {
-          scheduledForTomorrow.push({
-            worker: w,
-            todayStatus,
-            nextStatus
-          });
+          scheduledForTomorrow.push({ worker: w, todayStatus, nextStatus });
         }
       });
 
-      // Diagnóstico de brigadas desatendidas
       const alerts = [];
       const recommendations = [];
       const regularBrigades = ['Brigada 1', 'Brigada 2', 'Brigada 3', 'Brigada 4', 'Brigada 5', 'Brigada 6'];
@@ -961,7 +1048,6 @@
       const dateLabel = document.getElementById('relevoFormattedDateLabel');
       if (dateLabel) dateLabel.textContent = dFormatter.format(activeRelevosDate);
 
-      // Renderizar botones de horizonte rápido dinámicos según el día real
       const horizonContainer = document.getElementById('relevoHorizonButtonsContainer');
       if (horizonContainer) {
         horizonContainer.innerHTML = '';
@@ -995,7 +1081,6 @@
 
       const data = computeRelevosData(activeRelevosDate);
 
-      // Renderizar Alertas Operativas
       const alertsContainer = document.getElementById('relevosAlertsContainer');
       if (alertsContainer) {
         alertsContainer.innerHTML = '';
@@ -1043,7 +1128,7 @@
         }
       }
 
-      // Lista SUBEN
+      // SUBEN
       const listUp = document.getElementById('relevosListUp');
       if (listUp) {
         listUp.innerHTML = '';
@@ -1052,11 +1137,10 @@
           listUp.innerHTML = `
             <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
               <i data-lucide="info" class="w-7 h-7 mx-auto mb-1.5 opacity-40 text-emerald-500"></i>
-              <span>Sin subidas ni relevos programados para esta fecha.</span>
+              <span>Sin subidas programadas para esta fecha.</span>
             </div>
           `;
         } else {
-          // 1. Quienes tienen que subir MAÑANA (están en su último día de bajada)
           data.scheduledForTomorrow.forEach(({ worker, todayStatus }) => {
             const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
             const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
@@ -1091,19 +1175,16 @@
                 ${waLink ? `
                 <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
                   <i data-lucide="message-circle" class="w-4 h-4"></i>
-                </a>
-                ` : ''}
+                </a>` : ''}
                 ${phoneLink ? `
-                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition">
                   <i data-lucide="phone" class="w-4 h-4"></i>
-                </a>
-                ` : ''}
+                </a>` : ''}
               </div>
             `;
             listUp.appendChild(item);
           });
 
-          // 2. Quienes suben o inician HOY
           data.goingUp.forEach(({ worker }) => {
             const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
             const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
@@ -1138,13 +1219,11 @@
                 ${waLink ? `
                 <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
                   <i data-lucide="message-circle" class="w-4 h-4"></i>
-                </a>
-                ` : ''}
+                </a>` : ''}
                 ${phoneLink ? `
-                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition">
                   <i data-lucide="phone" class="w-4 h-4"></i>
-                </a>
-                ` : ''}
+                </a>` : ''}
               </div>
             `;
             listUp.appendChild(item);
@@ -1152,7 +1231,7 @@
         }
       }
 
-      // Lista BAJAN
+      // BAJAN
       const listDown = document.getElementById('relevosListDown');
       if (listDown) {
         listDown.innerHTML = '';
@@ -1198,13 +1277,11 @@
                 ${waLink ? `
                 <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
                   <i data-lucide="message-circle" class="w-4 h-4"></i>
-                </a>
-                ` : ''}
+                </a>` : ''}
                 ${phoneLink ? `
-                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition">
                   <i data-lucide="phone" class="w-4 h-4"></i>
-                </a>
-                ` : ''}
+                </a>` : ''}
               </div>
             `;
             listDown.appendChild(item);
@@ -1239,7 +1316,6 @@
         else if (status.code === 'P') totalPerm++;
       });
 
-      // Estadísticas
       const stats = document.getElementById('dailyStatsCards');
       if (stats) {
         stats.innerHTML = `
@@ -1247,11 +1323,11 @@
             <span class="text-[10px] font-bold uppercase tracking-wider block">En Guardia</span>
             <span class="text-xl font-black">${totalWork}</span>
           </div>
-          <div class="p-3 rounded-2xl bg-slate-500/10 border border-slate-500/20 text-slate-700 dark:text-slate-300">
+          <div class="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300">
             <span class="text-[10px] font-bold uppercase tracking-wider block">En Bajada</span>
             <span class="text-xl font-black">${totalRest}</span>
           </div>
-          <div class="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300">
+          <div class="p-3 rounded-2xl bg-rose-700/10 border border-rose-700/20 text-rose-800 dark:text-rose-200">
             <span class="text-[10px] font-bold uppercase tracking-wider block">D. Médico</span>
             <span class="text-xl font-black">${totalMedical}</span>
           </div>
@@ -1262,7 +1338,6 @@
         `;
       }
 
-      // Brigadas
       const container = document.getElementById('dailyBrigadesContainer');
       if (container) {
         container.innerHTML = '';
@@ -1290,7 +1365,7 @@
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded ${
                   status.isWork 
                     ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' 
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
                 }">
                   ${status.label}
                 </span>
@@ -1351,9 +1426,17 @@
         for (let day = 1; day <= daysInMonth; day++) {
           const cDate = new Date(year, month, day);
           const st = getWorkerStatusForDate(w, cDate);
-          const colorClass = st.isWork 
-            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold' 
-            : (st.code === 'DM' ? 'bg-rose-500/20 text-rose-700 font-bold' : (st.code === 'P' ? 'bg-amber-500/20 text-amber-700 font-bold' : 'text-slate-400'));
+          
+          let colorClass = 'text-slate-400';
+          if (st.isWork) {
+            colorClass = 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black';
+          } else if (st.code === 'D') {
+            colorClass = 'bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black';
+          } else if (st.code === 'DM') {
+            colorClass = 'bg-rose-700/25 text-rose-800 dark:text-rose-200 font-black';
+          } else if (st.code === 'P') {
+            colorClass = 'bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black';
+          }
 
           bodyHtml += `<td class="p-1 text-center text-[9px] ${colorClass}">${st.code}</td>`;
         }
@@ -1367,7 +1450,10 @@
     function renderAdminWorkersList() {
       const container = document.getElementById('adminWorkersList');
       const searchInput = document.getElementById('workersAdminSearch');
+      const addBtn = document.getElementById('btnAddWorker');
       if (!container) return;
+
+      if (addBtn) addBtn.classList.toggle('hidden', currentUserRole !== 'admin');
 
       const q = (searchInput?.value || '').toLowerCase();
       const filtered = workers.filter(w => {
@@ -1381,8 +1467,23 @@
       container.innerHTML = '';
       filtered.forEach(w => {
         const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
+        
+        // Calcular próximo inicio de guardia y bajada
+        const todayRef = new Date();
+        let nextWorkDate = null;
+        let nextRestDate = null;
+
+        for (let i = 0; i < 30; i++) {
+          const testD = new Date(todayRef);
+          testD.setDate(todayRef.getDate() + i);
+          const st = getWorkerStatusForDate(w, testD);
+          if (!nextWorkDate && st.isWork && st.dayIndex === 1) nextWorkDate = testD;
+          if (!nextRestDate && !st.isWork && st.dayIndex === 1) nextRestDate = testD;
+          if (nextWorkDate && nextRestDate) break;
+        }
+
         const card = document.createElement('div');
-        card.className = 'p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2';
+        card.className = 'p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2.5 relative';
         card.innerHTML = `
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 min-w-0">
@@ -1397,9 +1498,25 @@
             <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">${w.workDays}x${w.restDays}</span>
           </div>
 
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+            <div class="p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+              <span class="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block">Próx. Guardia</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">${nextWorkDate ? formatDateToKey(nextWorkDate).slice(5) : 'En curso'}</span>
+            </div>
+            <div class="p-2 rounded-xl bg-rose-500/5 border border-rose-500/20">
+              <span class="text-[9px] uppercase font-bold text-rose-600 dark:text-rose-400 block">Próx. Bajada</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">${nextRestDate ? formatDateToKey(nextRestDate).slice(5) : 'En curso'}</span>
+            </div>
+          </div>
+
           <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px]">
             <span class="text-slate-400 font-mono">📞 ${w.phone || 'Sin celular'}</span>
-            <span class="text-slate-400 font-mono text-[10px]">Anclaje: ${w.anchorDate}</span>
+            ${currentUserRole === 'admin' ? `
+              <button type="button" onclick="openWorkerEditModal('${w.id}')" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] transition flex items-center gap-1">
+                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                <span>Configurar</span>
+              </button>
+            ` : ''}
           </div>
         `;
         container.appendChild(card);
@@ -1413,6 +1530,75 @@
       renderDailyView();
       renderFieldOverview();
       renderAdminWorkersList();
+
+      const excelNotice = document.getElementById('excelGuestLockNotice');
+      if (excelNotice) {
+        excelNotice.classList.toggle('hidden', currentUserRole === 'admin');
+      }
+    }
+
+    // Modal de edición avanzada de trabajadores
+    function openWorkerEditModal(workerId = null) {
+      if (currentUserRole !== 'admin') {
+        showToast("Solo el administrador puede configurar trabajadores", "lock");
+        return;
+      }
+
+      const modal = document.getElementById('workerEditModal');
+      const title = document.getElementById('workerModalTitle');
+      const deleteBtn = document.getElementById('btnDeleteWorker');
+      const form = document.getElementById('workerEditForm');
+      if (!modal || !form) return;
+
+      const worker = workers.find(w => w.id === workerId);
+
+      if (worker) {
+        title.textContent = `Configurar a ${worker.name}`;
+        document.getElementById('editWorkerId').value = worker.id;
+        document.getElementById('editWorkerName').value = worker.name;
+        document.getElementById('editWorkerRole').value = worker.role;
+        document.getElementById('editWorkerBrigade').value = worker.brigade;
+        document.getElementById('editWorkerPhone').value = worker.phone || '';
+        document.getElementById('editWorkerWorkDays').value = worker.workDays || 16;
+        document.getElementById('editWorkerRestDays').value = worker.restDays || 5;
+
+        // Modo por defecto: inicio de guardia
+        document.getElementById('modeStartWork').checked = true;
+        document.getElementById('editWorkerReferenceDate').value = worker.anchorDate;
+        updateAnchorExplanation();
+        if (deleteBtn) deleteBtn.classList.remove('hidden');
+      } else {
+        title.textContent = "Nuevo Trabajador";
+        form.reset();
+        document.getElementById('editWorkerId').value = '';
+        document.getElementById('editWorkerWorkDays').value = 16;
+        document.getElementById('editWorkerRestDays').value = 5;
+        document.getElementById('modeStartWork').checked = true;
+        document.getElementById('editWorkerReferenceDate').value = formatDateToKey(new Date());
+        updateAnchorExplanation();
+        if (deleteBtn) deleteBtn.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeWorkerEditModal() {
+      const modal = document.getElementById('workerEditModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateAnchorExplanation() {
+      const isStartWork = document.getElementById('modeStartWork').checked;
+      const label = document.getElementById('anchorDateInputLabel');
+      const exp = document.getElementById('anchorDateExplanation');
+      if (isStartWork) {
+        label.textContent = "Fecha de Inicio de Guardia (Turno 1 en mina)";
+        exp.textContent = "El sistema tomará esta fecha exacta como el Día 1 de trabajo en mina.";
+      } else {
+        label.textContent = "Fecha de Inicio de Bajada (Día 1 de descanso)";
+        exp.textContent = "El sistema ajustará el régimen para que su descanso/bajada comience exactamente en esta fecha.";
+      }
     }
 
     function openDayActionModal(worker, date) {
@@ -1448,8 +1634,10 @@
       }, 3000);
     }
 
-    // Exportar CSV
+    // Exportación CSV (Solo Admin)
     function exportToCSV() {
+      if (!checkAdminAccess("la exportación a Excel")) return;
+
       const year = activeViewDate.getFullYear();
       const month = activeViewDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -1478,8 +1666,10 @@
       showToast("Descarga de CSV completada", "download");
     }
 
-    // Exportar JSON
+    // Exportación JSON (Solo Admin)
     function exportToJSON() {
+      if (!checkAdminAccess("la copia de seguridad")) return;
+
       const backup = {
         app: "Roster_RODASER",
         exportedAt: new Date().toISOString(),
@@ -1517,6 +1707,7 @@
         }
         if (btnSaveCloud) btnSaveCloud.classList.remove('hidden');
         showToast("Bienvenido Administrador", "shield-check");
+        renderAllViews();
       } else {
         if (errorMsg) errorMsg.classList.remove('hidden');
       }
@@ -1525,7 +1716,7 @@
     function initApp() {
       loadLocalState();
 
-      // Configuración de Tema Claro / Oscuro
+      // Modo Oscuro / Claro
       const savedTheme = localStorage.getItem('RODASER_THEME') || 'dark';
       if (savedTheme === 'light') {
         document.documentElement.classList.remove('dark');
@@ -1565,6 +1756,7 @@
           roleBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500';
         }
         showToast("Acceso en Modo Invitado (Solo Lectura)", "eye");
+        renderAllViews();
       });
 
       // Cerrar Sesión
@@ -1574,6 +1766,7 @@
         const btnSaveCloud = document.getElementById('btnSaveCloud');
         if (loginModal) loginModal.classList.remove('hidden');
         if (btnSaveCloud) btnSaveCloud.classList.add('hidden');
+        renderAllViews();
       });
 
       // Guardar en la Nube
@@ -1630,13 +1823,12 @@
         });
       }
 
-      // Selector de Trabajador
       safeAddListener('workerSelect', 'change', (e) => {
         activeWorkerId = e.target.value;
         renderPersonalCalendar();
       });
 
-      // Navegación de Meses en Calendario
+      // Navegación de Meses
       safeAddListener('btnPrevMonth', 'click', () => {
         activeViewDate.setMonth(activeViewDate.getMonth() - 1);
         renderPersonalCalendar();
@@ -1655,7 +1847,7 @@
         renderFieldOverview();
       });
 
-      // Relevos - Navegación
+      // Relevos
       safeAddListener('relevosDatePicker', 'change', (e) => {
         if (e.target.value) {
           activeRelevosDate = parseDateKey(e.target.value);
@@ -1673,7 +1865,7 @@
         renderRelevosView();
       });
 
-      // Control Diario - Navegación
+      // Control Diario
       safeAddListener('dailyDatePicker', 'change', (e) => {
         if (e.target.value) {
           activeDailyDate = parseDateKey(e.target.value);
@@ -1696,10 +1888,104 @@
         renderDailyView();
       });
 
-      // Búsqueda en Directorio de Personal
+      // Personal
       safeAddListener('workersAdminSearch', 'input', () => renderAdminWorkersList());
+      safeAddListener('btnAddWorker', 'click', () => openWorkerEditModal(null));
+      safeAddListener('btnCloseWorkerModal', 'click', closeWorkerEditModal);
+      safeAddListener('btnCancelWorkerEdit', 'click', closeWorkerEditModal);
 
-      // Acciones del modal de días
+      safeAddListener('modeStartWork', 'change', updateAnchorExplanation);
+      safeAddListener('modeStartRest', 'change', updateAnchorExplanation);
+
+      // Formulario de edición de trabajador
+      const workerForm = document.getElementById('workerEditForm');
+      if (workerForm) {
+        workerForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (currentUserRole !== 'admin') return;
+
+          const workerId = document.getElementById('editWorkerId').value;
+          const name = document.getElementById('editWorkerName').value.trim();
+          const role = document.getElementById('editWorkerRole').value;
+          const brigade = document.getElementById('editWorkerBrigade').value;
+          const phone = document.getElementById('editWorkerPhone').value.trim();
+          const workDays = parseInt(document.getElementById('editWorkerWorkDays').value, 10) || 16;
+          const restDays = parseInt(document.getElementById('editWorkerRestDays').value, 10) || 5;
+          const refDateStr = document.getElementById('editWorkerReferenceDate').value;
+          const isStartWork = document.getElementById('modeStartWork').checked;
+
+          let calculatedAnchorDate = refDateStr;
+
+          // Si el usuario eligió "Cuándo empieza su bajada", calculamos el anclaje matemático hacia atrás
+          if (!isStartWork) {
+            const restStartDate = parseDateKey(refDateStr);
+            restStartDate.setDate(restStartDate.getDate() - workDays);
+            calculatedAnchorDate = formatDateToKey(restStartDate);
+          }
+
+          let color = 'emerald';
+          if (role === 'Supervisor') color = 'purple';
+          else if (role === 'Coordinador') color = 'amber';
+
+          if (workerId) {
+            // Actualizar existente
+            const idx = workers.findIndex(w => w.id === workerId);
+            if (idx !== -1) {
+              workers[idx] = {
+                ...workers[idx],
+                name,
+                role,
+                brigade,
+                phone,
+                workDays,
+                restDays,
+                anchorDate: calculatedAnchorDate,
+                color
+              };
+            }
+            showToast("Trabajador actualizado correctamente", "check");
+          } else {
+            // Nuevo trabajador
+            const newId = `w_${Date.now()}`;
+            workers.push({
+              id: newId,
+              name,
+              role,
+              brigade,
+              phone,
+              workDays,
+              restDays,
+              anchorDate: calculatedAnchorDate,
+              color
+            });
+            activeWorkerId = newId;
+            showToast("Nuevo trabajador registrado", "user-check");
+          }
+
+          saveLocalState();
+          closeWorkerEditModal();
+          renderAllViews();
+        });
+      }
+
+      // Eliminar trabajador
+      safeAddListener('btnDeleteWorker', 'click', () => {
+        if (currentUserRole !== 'admin') return;
+        const workerId = document.getElementById('editWorkerId').value;
+        if (!workerId) return;
+
+        if (confirm("¿Estás seguro de eliminar este trabajador del Roster?")) {
+          workers = workers.filter(w => w.id !== workerId);
+          delete exceptions[workerId];
+          if (workers.length > 0) activeWorkerId = workers[0].id;
+          saveLocalState();
+          closeWorkerEditModal();
+          renderAllViews();
+          showToast("Trabajador eliminado del Roster", "trash-2");
+        }
+      });
+
+      // Modal de Días
       safeAddListener('btnCloseDayModal', 'click', closeDayActionModal);
       document.querySelectorAll('.btnDayActionOption').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1723,14 +2009,18 @@
         });
       });
 
-      // Exportación
+      // Exportación e Importación (Protegidos)
       safeAddListener('btnExportCSV', 'click', exportToCSV);
       safeAddListener('btnExportJSON', 'click', exportToJSON);
 
-      // Importación
       const importInput = document.getElementById('inputImportJSON');
       if (importInput) {
         importInput.addEventListener('change', (e) => {
+          if (!checkAdminAccess("la restauración de copias de seguridad")) {
+            e.target.value = '';
+            return;
+          }
+
           const file = e.target.files[0];
           if (!file) return;
           const reader = new FileReader();
@@ -1752,11 +2042,13 @@
         });
       }
 
-      // Render inicial y conexión Firebase
       renderAllViews();
       initFirebase();
       lucide.createIcons();
     }
+
+    // Exponer función para botones dinámicos
+    window.openWorkerEditModal = openWorkerEditModal;
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initApp);
