@@ -1,315 +1,1768 @@
---- a/index.html
-+++ b/index.html
-@@ -348,7 +348,7 @@
-         <div class="flex items-center gap-2">
-           <button id="btnDailyPrev" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-             <i data-lucide="chevron-left" class="w-4 h-4"></i>
-           </button>
-           <input type="date" id="dailyDatePicker" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500">
-           <button id="btnDailyNext" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-             <i data-lucide="chevron-right" class="w-4 h-4"></i>
-           </button>
-         </div>
-@@ -409,23 +409,10 @@
-           </div>
-         </div>
- 
--        <!-- Botones de Horizonte Rápido -->
--        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
--          <button id="btnRelevoQuickToday" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
--            14 Set (Hoy)
--          </button>
--          <button id="btnRelevoQuickTomorrow" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">
--            15 Set (+1 Día)
--          </button>
--          <button id="btnRelevoQuickPlus2" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">
--            16 Set (+2 Días)
--          </button>
--          <button id="btnRelevoQuickPlus3" type="button" class="btnRelevoHorizon px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">
--            17 Set (+3 Días)
--          </button>
--          <span id="relevoFormattedDateLabel" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto capitalize">
--            Lunes, 14 de Setiembre 2026
--          </span>
-+        <!-- Botones de Horizonte Rápido Dinámicos -->
-+        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
-+          <div id="relevoHorizonButtonsContainer" class="flex flex-wrap items-center gap-2"></div>
-+          <span id="relevoFormattedDateLabel" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto capitalize"></span>
-         </div>
-       </div>
- 
-@@ -829,9 +816,9 @@
-     let workers = [];
-     let exceptions = {};
-     let activeWorkerId = null;
--    let activeViewDate = new Date(2026, 8, 1);
--    let activeDailyDate = new Date(2026, 8, 14);
--    let activeRelevosDate = new Date(2026, 8, 14);
-+    let activeViewDate = new Date();
-+    let activeDailyDate = new Date();
-+    let activeRelevosDate = new Date();
-     let selectedDateForAction = null;
-     let activeBrigadeAdminFilter = 'ALL';
-     let calendarFilterQuery = '';
-@@ -1187,6 +1174,7 @@
-       const nextDate = new Date(targetDate);
-       nextDate.setDate(nextDate.getDate() + 1);
- 
-+      const scheduledForTomorrow = [];
-       const goingUp = [];
-       const goingDown = [];
-       const activeInField = [];
-@@ -1219,6 +1207,7 @@
-           }
-         }
- 
-+        // Sube HOY (primer día de trabajo)
-         if (!prevStatus.isWork && todayStatus.isWork) {
-           goingUp.push({
-             worker: w,
-@@ -1227,11 +1216,21 @@
-           });
-         }
- 
-+        // BAJA HOY (hoy es su último día de trabajo, mañana descansa)
-         if (todayStatus.isWork && !nextStatus.isWork) {
-           goingDown.push({
-             worker: w,
-             todayStatus,
-             nextStatus
-+          });
-+        }
-+
-+        // SUBE MAÑANA (hoy es su último día de descanso, mañana empieza su turno 1)
-+        if (!todayStatus.isWork && nextStatus.isWork) {
-+          scheduledForTomorrow.push({
-+            worker: w,
-+            todayStatus,
-+            nextStatus
-           });
-         }
-       });
-@@ -1270,7 +1269,7 @@
-         }
-       });
- 
--      return { goingUp, goingDown, activeInField, alerts, recommendations, availableVolantes };
-+      return { goingUp, goingDown, scheduledForTomorrow, activeInField, alerts, recommendations, availableVolantes };
-     }
- 
-     function renderRelevosView() {
-@@ -1281,6 +1280,44 @@
-       const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-       const dateLabel = document.getElementById('relevoFormattedDateLabel');
-       if (dateLabel) dateLabel.textContent = dFormatter.format(activeRelevosDate);
-+
-+      // Renderizar botones de horizonte rápido dinámicos según el día de hoy real
-+      const horizonContainer = document.getElementById('relevoHorizonButtonsContainer');
-+      if (horizonContainer) {
-+        horizonContainer.innerHTML = '';
-+        const todayBase = new Date();
-+        const dayNames = ['Hoy', '+1 Día', '+2 Días', '+3 Días'];
-+
-+        for (let i = 0; i < 4; i++) {
-+          const hDate = new Date(todayBase);
-+          hDate.setDate(todayBase.getDate() + i);
-+
-+          const isSelected = isSameDate(hDate, activeRelevosDate);
-+          const btn = document.createElement('button');
-+          btn.type = 'button';
-+          btn.className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-+            isSelected 
-+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' 
-+              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-+          }`;
-+
-+          const shortMonth = hDate.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '');
-+          btn.textContent = `${hDate.getDate()} ${shortMonth} (${dayNames[i]})`;
-+
-+          btn.addEventListener('click', () => {
-+            activeRelevosDate = new Date(hDate);
-+            renderRelevosView();
-+          });
-+
-+          horizonContainer.appendChild(btn);
-+        }
-+      }
- 
-       const data = computeRelevosData(activeRelevosDate);
- 
-@@ -1341,12 +1378,13 @@
-       // Lista SUBEN
-       const listUp = document.getElementById('relevosListUp');
-       if (listUp) {
-         listUp.innerHTML = '';
--        if (data.goingUp.length === 0) {
-+        const totalUpSection = data.goingUp.length + data.scheduledForTomorrow.length;
-+        if (totalUpSection === 0) {
-           listUp.innerHTML = `
-             <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
-               <i data-lucide="info" class="w-7 h-7 mx-auto mb-1.5 opacity-40 text-emerald-500"></i>
--              <span>Nadie tiene programada subida a mina en esta fecha.</span>
-+              <span>Sin subidas ni relevos programados para esta fecha.</span>
-             </div>
-           `;
-         } else {
-+          // 1. Quienes tienen que subir MAÑANA (están en su último día de bajada)
-+          data.scheduledForTomorrow.forEach(({ worker, todayStatus }) => {
-+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
-+            const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
-+            const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
-+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER. Hoy culmina tu descanso y mañana te toca subir a mina para iniciar tu turno 1. ¿Todo coordinado con tu movilidad?`);
-+            const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
-+
-+            const item = document.createElement('div');
-+            item.className = 'p-3 sm:p-3.5 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2 transition hover:border-amber-500 shadow-sm';
-+            item.innerHTML = `
-+              <div class="flex items-center gap-3 min-w-0">
-+                <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
-+                  ${worker.name.charAt(0)}
-+                </span>
-+                <div class="min-w-0">
-+                  <div class="flex items-center gap-1.5 flex-wrap">
-+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
-+                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
-+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">Sube Mañana</span>
-+                  </div>
-+                  <p class="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-medium leading-tight">
-+                    Cumple hoy su último día de bajada (${todayStatus.dayIndex || worker.restDays}/${worker.restDays}). <span class="text-amber-600 dark:text-amber-400 font-bold">Le toca subir a mina mañana y empezar su turno 1.</span>
-+                  </p>
-+                  <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-+                    <span>${worker.brigade}</span>
-+                    ${worker.phone ? `<span>•</span><span class="font-mono">📞 ${worker.phone}</span>` : ''}
-+                  </div>
-+                </div>
-+              </div>
-+
-+              <div class="flex items-center gap-1 shrink-0">
-+                ${waLink ? `
-+                <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
-+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
-+                </a>
-+                ` : ''}
-+                ${phoneLink ? `
-+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
-+                  <i data-lucide="phone" class="w-4 h-4"></i>
-+                </a>
-+                ` : ''}
-+              </div>
-+            `;
-+            listUp.appendChild(item);
-+          });
-+
-+          // 2. Quienes suben o inician HOY
-           data.goingUp.forEach(({ worker }) => {
-             const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
-             const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
-             const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
--            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER para coordinar tu subida a mina para la fecha.`);
-+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER. Hoy inicias tu turno 1 en mina. ¡Buena guardia!`);
-             const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
- 
-             const item = document.createElement('div');
-@@ -1358,6 +1434,7 @@
-                 <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
-                   ${worker.name.charAt(0)}
-                 </span>
-                 <div class="min-w-0">
-                   <div class="flex items-center gap-1.5 flex-wrap">
-                     <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
-                     <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
-+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">Inicia Hoy</span>
-                   </div>
--                  <div class="flex items-center gap-2 mt-0.5 flex-wrap text-[10px]">
--                    <span class="font-semibold text-slate-600 dark:text-slate-400">${worker.brigade}</span>
--                    <span class="text-slate-300 dark:text-slate-700">•</span>
--                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">Inicia guardia (Día 1)</span>
--                    ${worker.phone ? `
--                    <span class="text-slate-300 dark:text-slate-700">•</span>
--                    <span class="font-mono text-slate-500 dark:text-slate-400">📞 ${worker.phone}</span>
--                    ` : ''}
-+                  <p class="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-medium leading-tight">
-+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">Inicia hoy su turno 1 (Día 1/${worker.workDays})</span> en mina tras culminar su descanso.
-+                  </p>
-+                  <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-+                    <span>${worker.brigade}</span>
-+                    ${worker.phone ? `<span>•</span><span class="font-mono">📞 ${worker.phone}</span>` : ''}
-                   </div>
-                 </div>
-               </div>
-@@ -1390,7 +1467,7 @@
-             const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
-             const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
-             const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
--            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER sobre la finalización de tu guardia.`);
-+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER. Hoy cumples tu último día de trabajo (${worker.workDays}/${worker.workDays}) y te vas de bajada después del turno. Coordinemos tu movilidad.`);
-             const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
- 
-             const item = document.createElement('div');
-@@ -1404,6 +1481,7 @@
-                   <div class="flex items-center gap-1.5 flex-wrap">
-                     <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
-                     <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
-+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30">Baja Hoy</span>
-                   </div>
--                  <div class="flex items-center gap-2 mt-0.5 flex-wrap text-[10px]">
--                    <span class="font-semibold text-slate-600 dark:text-slate-400">${worker.brigade}</span>
--                    <span class="text-slate-300 dark:text-slate-700">•</span>
--                    <span class="text-rose-600 dark:text-rose-400 font-bold">${todayStatus.subLabel || 'Fin de guardia (T-16)'}</span>
--                    ${worker.phone ? `
--                    <span class="text-slate-300 dark:text-slate-700">•</span>
--                    <span class="font-mono text-slate-500 dark:text-slate-400">📞 ${worker.phone}</span>
--                    ` : ''}
-+                  <p class="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-medium leading-tight">
-+                    Está cumpliendo su último día de trabajo (<span class="font-bold text-rose-600 dark:text-rose-400">Día ${todayStatus.dayIndex || worker.workDays}/${worker.workDays}</span>) y <span class="text-rose-600 dark:text-rose-400 font-bold">hoy se va de bajada después del turno</span>.
-+                  </p>
-+                  <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-+                    <span>${worker.brigade}</span>
-+                    ${worker.phone ? `<span>•</span><span class="font-mono">📞 ${worker.phone}</span>` : ''}
-                   </div>
-                 </div>
-               </div>
-@@ -1737,7 +1815,7 @@
-       });
- 
-       safeAddListener('btnToday', 'click', () => {
--        activeViewDate = new Date(2026, 8, 1);
-+        activeViewDate = new Date();
-         renderPersonalCalendar();
-         renderFieldOverview();
-       });
-@@ -1761,7 +1839,7 @@
-       });
- 
-       safeAddListener('btnDailyToday', 'click', () => {
--        activeDailyDate = new Date(2026, 8, 14);
-+        activeDailyDate = new Date();
-         renderDailyView();
-       });
- 
-@@ -1777,26 +1855,6 @@
- 
-       safeAddListener('btnRelevoNextDay', 'click', () => {
-         activeRelevosDate.setDate(activeRelevosDate.getDate() + 1);
--        renderRelevosView();
--      });
--
--      safeAddListener('btnRelevoQuickToday', 'click', () => {
--        activeRelevosDate = new Date(2026, 8, 14);
--        renderRelevosView();
--      });
--
--      safeAddListener('btnRelevoQuickTomorrow', 'click', () => {
--        activeRelevosDate = new Date(2026, 8, 15);
--        renderRelevosView();
--      });
--
--      safeAddListener('btnRelevoQuickPlus2', 'click', () => {
--        activeRelevosDate = new Date(2026, 8, 16);
--        renderRelevosView();
--      });
--
--      safeAddListener('btnRelevoQuickPlus3', 'click', () => {
--        activeRelevosDate = new Date(2026, 8, 17);
-         renderRelevosView();
-       });
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Roster RODASER - Control de Turnos & Relevos</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Estilos base y scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
+    }
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Modal de Login / Acceso -->
+  <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-indigo-600/30 text-white font-black text-2xl">
+          R
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Roster RODASER</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Control de Turnos, Relevos & Campo</p>
+      </div>
+
+      <!-- Botón Modo Invitado -->
+      <div class="mb-6">
+        <button id="btnGuestMode" type="button" class="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition border border-slate-200 dark:border-slate-700">
+          <i data-lucide="eye" class="w-4 h-4 text-indigo-500"></i>
+          <span>Ingresar en Modo Invitado (Solo Lectura)</span>
+        </button>
+      </div>
+
+      <div class="relative flex items-center justify-center mb-6">
+        <div class="border-t border-slate-200 dark:border-slate-800 w-full"></div>
+        <span class="bg-white dark:bg-slate-900 px-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase absolute">Acceso Administrador</span>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Usuario Administrador</label>
+          <input type="text" id="loginUsername" required placeholder="admin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div id="loginError" class="hidden text-xs text-rose-500 font-semibold text-center pt-1">
+          Credenciales incorrectas. Intente nuevamente.
+        </div>
+
+        <button type="submit" id="btnLoginSubmit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Ingresar como Administrador</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Barra Superior de Navegación -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <!-- Logo y Rol -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-600/30">
+          R
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white leading-tight">ROSTER RODASER</h1>
+          <div class="flex items-center gap-2">
+            <span id="roleBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Invitado</span>
+            <span id="cloudBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">○ Local</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas del Header -->
+      <div class="flex items-center gap-1.5">
+        <!-- Toggle Modo Claro / Oscuro -->
+        <button id="btnToggleTheme" title="Cambiar tema claro/oscuro" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+          <i id="themeIcon" data-lucide="sun" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Botón Guardar en Nube (Solo Admin) -->
+        <button id="btnSaveCloud" type="button" class="hidden px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition items-center gap-1.5">
+          <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Guardar</span>
+        </button>
+
+        <!-- Botón Cerrar Sesión -->
+        <button id="btnLogout" type="button" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Cerrar sesión">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menú de Pestañas -->
+    <nav class="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto pt-2 mt-1 border-t border-slate-100 dark:border-slate-800/60 no-scrollbar">
+      <button class="nav-tab active px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-sm" data-tab="tabCalendar">
+        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+        <span>Calendario</span>
+      </button>
+      <button class="nav-tab px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tabRelevos">
+        <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
+        <span>Relevos</span>
+      </button>
+      <button class="nav-tab px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tabDaily">
+        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+        <span>Control Diario</span>
+      </button>
+      <button class="nav-tab px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tabOverview">
+        <i data-lucide="users-2" class="w-3.5 h-3.5"></i>
+        <span>En Campo</span>
+      </button>
+      <button class="nav-tab px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tabAdminWorkers">
+        <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
+        <span>Personal</span>
+      </button>
+      <button class="nav-tab px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tabExcel">
+        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+        <span>Excel</span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto w-full p-3 sm:p-6 flex-1">
+
+    <!-- 1. PESTAÑA: CALENDARIO -->
+    <section id="tabCalendar" class="tab-content space-y-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm">
+        
+        <!-- Barra de Búsqueda Predictiva de Trabajadores -->
+        <div class="mb-4">
+          <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Buscador Rápido de Trabajador</label>
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="workerCalendarSearch" placeholder="Buscar por nombre, apellido, cargo o brigada..." class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs sm:text-sm border border-slate-300 dark:border-slate-700 rounded-2xl pl-10 pr-9 py-2.5 focus:outline-none focus:border-indigo-500">
+            <button id="btnClearCalendarSearch" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selector de Trabajador y Navegación de Mes -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div class="w-full lg:w-1/2">
+            <select id="workerSelect" class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-bold text-sm border border-slate-300 dark:border-slate-700 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-500">
+              <!-- Opciones dinámicas -->
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between lg:justify-end gap-2">
+            <button id="btnPrevMonth" type="button" class="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <h3 id="currentMonthYearLabel" class="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wide px-2 min-w-[140px] text-center"></h3>
+            <button id="btnNextMonth" type="button" class="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <button id="btnToday" type="button" class="px-3.5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition">
+              Hoy
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjeta Informativa del Trabajador Seleccionado -->
+        <div id="workerHeroCard" class="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <!-- Inyectado dinámicamente -->
+        </div>
+
+        <!-- Grilla de Calendario Mensual -->
+        <div class="mt-4">
+          <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-400 uppercase py-2">
+            <span>Dom</span>
+            <span>Lun</span>
+            <span>Mar</span>
+            <span>Mié</span>
+            <span>Jue</span>
+            <span>Vie</span>
+            <span>Sáb</span>
+          </div>
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1 sm:gap-1.5">
+            <!-- Celdas dinámicas -->
+          </div>
+        </div>
+
+        <!-- Leyenda de Colores -->
+        <div class="flex flex-wrap items-center gap-3 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-emerald-500"></span>
+            <span>Guardia Activa (G)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-slate-400 dark:bg-slate-600"></span>
+            <span>Bajada / Descanso (D)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-rose-500"></span>
+            <span>Descanso Médico (DM)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-amber-500"></span>
+            <span>Permiso Autorizado (P)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. PESTAÑA: RELEVOS Y MOVILIDAD -->
+    <section id="tabRelevos" class="tab-content hidden space-y-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+        
+        <!-- Cabecera de Relevos con Navegación y Selector -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="arrow-left-right" class="w-5 h-5 text-indigo-500"></i>
+              <span>Relevos & Movilidad</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Coordinación de subidas, bajadas y cobertura de frentes</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnRelevoPrevDay" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <input type="date" id="relevosDatePicker" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs sm:text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500">
+            <button id="btnRelevoNextDay" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones de Horizonte Rápido Dinámicos -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div id="relevoHorizonButtonsContainer" class="flex flex-wrap items-center gap-1.5"></div>
+          <span id="relevoFormattedDateLabel" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto capitalize"></span>
+        </div>
+
+        <!-- Alertas y Recomendaciones Operativas -->
+        <div id="relevosAlertsContainer" class="space-y-2"></div>
+
+        <!-- Listas de Movimiento: Suben y Bajan -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
+          
+          <!-- Columna SUBEN -->
+          <div class="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col">
+            <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 class="text-sm font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Suben a Mina / Inician Guardia</h3>
+              </div>
+            </div>
+            <div id="relevosListUp" class="space-y-2.5 flex-1">
+              <!-- Inyectado dinámicamente -->
+            </div>
+          </div>
+
+          <!-- Columna BAJAN -->
+          <div class="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col">
+            <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <h3 class="text-sm font-black uppercase tracking-wider text-rose-600 dark:text-rose-400">Bajan a Ciudad / Fin de Guardia</h3>
+              </div>
+            </div>
+            <div id="relevosListDown" class="space-y-2.5 flex-1">
+              <!-- Inyectado dinámicamente -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. PESTAÑA: CONTROL DIARIO -->
+    <section id="tabDaily" class="tab-content hidden space-y-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-500"></i>
+              <span>Control Diario de Guardia</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Verificación de asistencia y estado de dotación por brigada</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnDailyPrev" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <input type="date" id="dailyDatePicker" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs sm:text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500">
+            <button id="btnDailyNext" type="button" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <button id="btnDailyToday" type="button" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition">
+              Hoy
+            </button>
+          </div>
+        </div>
+
+        <div id="dailyStatsCards" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <!-- Inyectado dinámicamente -->
+        </div>
+
+        <div id="dailyBrigadesContainer" class="space-y-3">
+          <!-- Brigadas dinámicas -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. PESTAÑA: EN CAMPO (MATRIZ GENERAL) -->
+    <section id="tabOverview" class="tab-content hidden space-y-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Matriz General de Guardias</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Visualización continua del personal para el mes seleccionado</p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+          <table class="w-full text-xs text-left">
+            <thead id="overviewTableHead" class="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
+              <!-- Encabezado dinámico -->
+            </thead>
+            <tbody id="overviewTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PESTAÑA: PERSONAL (ADMINISTRACIÓN) -->
+    <section id="tabAdminWorkers" class="tab-content hidden space-y-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Directorio del Personal</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Gestión de datos de contacto, brigadas y regímenes</p>
+          </div>
+          <!-- Buscador en Personal -->
+          <div class="relative w-full sm:w-64">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="workersAdminSearch" placeholder="Buscar trabajador..." class="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div id="adminWorkersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <!-- Tarjetas del personal dinámicas -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PESTAÑA: EXCEL & COPIA DE SEGURIDAD -->
+    <section id="tabExcel" class="tab-content hidden space-y-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+        <div>
+          <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Exportación & Respaldo</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Descarga y restauración de datos del Roster</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button id="btnExportCSV" type="button" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1">
+            <i data-lucide="download" class="w-5 h-5 text-indigo-500 mb-2"></i>
+            <h4 class="font-bold text-sm text-slate-900 dark:text-white">Exportar a Excel (CSV)</h4>
+            <p class="text-xs text-slate-500">Descarga la programación del mes para abrir en Microsoft Excel</p>
+          </button>
+
+          <button id="btnExportJSON" type="button" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1">
+            <i data-lucide="file-code" class="w-5 h-5 text-emerald-500 mb-2"></i>
+            <h4 class="font-bold text-sm text-slate-900 dark:text-white">Copia Completa (JSON)</h4>
+            <p class="text-xs text-slate-500">Guarda una copia de seguridad íntegra de todos los registros</p>
+          </button>
+
+          <label class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left transition space-y-1 cursor-pointer">
+            <i data-lucide="upload" class="w-5 h-5 text-amber-500 mb-2"></i>
+            <h4 class="font-bold text-sm text-slate-900 dark:text-white">Restaurar Copia</h4>
+            <p class="text-xs text-slate-500">Cargar un archivo .json previamente guardado</p>
+            <input type="file" id="inputImportJSON" accept=".json" class="hidden">
+          </label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal de Edición de Días / Excepciones (Solo Admin) -->
+  <div id="dayActionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="modalDayTitle" class="text-sm font-black text-slate-900 dark:text-white">Gestionar Día</h3>
+        <button id="btnCloseDayModal" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs text-left transition hover:bg-emerald-500/20" data-type="WORK">
+          ● Marcar como Guardia / Trabajo Efectivo
+        </button>
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-300 font-bold text-xs text-left transition hover:bg-slate-500/20" data-type="REST">
+          ○ Marcar como Bajada / Descanso
+        </button>
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs text-left transition hover:bg-rose-500/20" data-type="MEDICAL">
+          ▲ Registrar Descanso Médico (DM)
+        </button>
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs text-left transition hover:bg-amber-500/20" data-type="PERMISSION">
+          ◆ Registrar Permiso Autorizado (P)
+        </button>
+        <button type="button" class="btnDayActionOption w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-transparent text-slate-500 font-medium text-xs text-left transition hover:bg-slate-100 dark:hover:bg-slate-800" data-type="CLEAR">
+          ✕ Restablecer al Cálculo Regular
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-xl border border-slate-700 text-xs font-bold flex items-center gap-2">
+      <i id="toastIcon" data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+      <span id="toastMessage">Operación realizada con éxito</span>
+    </div>
+  </div>
+
+  <script>
+    // Configuración oficial de Firebase Realtime Database
+    const customFirebaseConfig = {
+      apiKey: "AIzaSyCDFDuw0xCmsUDho5SxD55uIG2fmvAbzSg",
+      authDomain: "roster-rodaser.firebaseapp.com",
+      databaseURL: "https://roster-rodaser-default-rtdb.firebaseio.com",
+      projectId: "roster-rodaser",
+      storageBucket: "roster-rodaser.firebasestorage.app",
+      messagingSenderId: "279997001401",
+      appId: "1:279997001401:web:909d192b9b4c32e4e3f568"
+    };
+
+    // Paleta de colores por rol
+    const ROLE_COLORS = {
+      amber: {
+        avatarBg: 'from-amber-500 to-amber-600',
+        badgeBg: 'bg-amber-500/10',
+        badgeText: 'text-amber-600 dark:text-amber-400',
+        badgeBorder: 'border-amber-500/20'
+      },
+      purple: {
+        avatarBg: 'from-indigo-500 to-purple-600',
+        badgeBg: 'bg-purple-500/10',
+        badgeText: 'text-purple-600 dark:text-purple-400',
+        badgeBorder: 'border-purple-500/20'
+      },
+      emerald: {
+        avatarBg: 'from-emerald-500 to-teal-600',
+        badgeBg: 'bg-emerald-500/10',
+        badgeText: 'text-emerald-600 dark:text-emerald-400',
+        badgeBorder: 'border-emerald-500/20'
+      },
+      slate: {
+        avatarBg: 'from-slate-500 to-slate-600',
+        badgeBg: 'bg-slate-500/10',
+        badgeText: 'text-slate-600 dark:text-slate-400',
+        badgeBorder: 'border-slate-500/20'
+      }
+    };
+
+    // Plantilla inicial oficial del personal RODASER
+    const INITIAL_WORKERS = [
+      { id: "w_coord_cdavila", name: "Christian Dávila", role: "Coordinador", brigade: "Coordinación", color: "amber", workDays: 6, restDays: 1, anchorDate: "2026-08-31", phone: "987654321" },
+      { id: "w_gr1_pventura", name: "Paul Ventura", role: "Supervisor", brigade: "Brigada 1", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-08-27", phone: "951234567" },
+      { id: "w_gr1_jjolazabal", name: "Juan Jose Olazabal", role: "Asistente", brigade: "Brigada 1", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-08-29", phone: "952345678" },
+      { id: "w_gr1_emalache", name: "Eddy Malache", role: "Asistente", brigade: "Brigada 1", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-03", phone: "953456789" },
+      { id: "w_gr2_mvalle", name: "Marco Valle", role: "Supervisor", brigade: "Brigada 2", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-09-08", phone: "954567890" },
+      { id: "w_gr2_mholgado", name: "Marco Holgado", role: "Asistente", brigade: "Brigada 2", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-15", phone: "955678901" },
+      { id: "w_gr2_hlazo", name: "Hugo Lazo", role: "Asistente", brigade: "Brigada 2", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-08-27", phone: "956789012" },
+      { id: "w_gr3_ecarpio", name: "Eduardo Carpio", role: "Supervisor", brigade: "Brigada 3", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-09-04", phone: "957890123" },
+      { id: "w_gr3_pendiente", name: "Pendiente (Asistente)", role: "Asistente", brigade: "Brigada 3", color: "slate", workDays: 16, restDays: 5, anchorDate: "2026-09-12", phone: "" },
+      { id: "w_gr3_esolis", name: "Estalin Solís", role: "Asistente", brigade: "Brigada 3", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-15", phone: "958901234" },
+      { id: "w_grv_mticona", name: "Milwar Ticona", role: "Supervisor", brigade: "Brigada Volante", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-08-30", phone: "959012345" },
+      { id: "w_gr4_gduran", name: "Grabiel Duran", role: "Supervisor", brigade: "Brigada 4", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-09-14", phone: "960123456" },
+      { id: "w_gr4_mguevara", name: "Marcos Guevara", role: "Asistente", brigade: "Brigada 4", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-08-27", phone: "961234567" },
+      { id: "w_gr4_dgarcia", name: "Diego García", role: "Asistente", brigade: "Brigada 4", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-04", phone: "962345678" },
+      { id: "w_gr5_wcampos", name: "Walter Campos", role: "Supervisor", brigade: "Brigada 5", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-08-30", phone: "963456789" },
+      { id: "w_gr5_kmanrique", name: "Kenneth Manrique", role: "Asistente", brigade: "Brigada 5", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-04", phone: "964567890" },
+      { id: "w_gr5_aaguero", name: "Andrés Agüero", role: "Asistente", brigade: "Brigada 5", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-12", phone: "965678901" },
+      { id: "w_gr6_eroque", name: "Elvis Roque", role: "Supervisor", brigade: "Brigada 6", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-09-04", phone: "966789012" },
+      { id: "w_gr6_dquispe", name: "Daniel Quispe", role: "Asistente", brigade: "Brigada 6", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-12", phone: "967890123" },
+      { id: "w_gr6_dcarpio", name: "Diberly Carpio", role: "Asistente", brigade: "Brigada 6", color: "emerald", workDays: 16, restDays: 5, anchorDate: "2026-09-15", phone: "968901234" },
+      { id: "w_grv_gpancca", name: "Gonzalo Pancca", role: "Supervisor", brigade: "Brigada Volante", color: "purple", workDays: 16, restDays: 5, anchorDate: "2026-09-08", phone: "969012345" }
+    ];
+
+    // Variables de Estado de la Aplicación
+    let currentUserRole = null; // 'admin' | 'guest'
+    let workers = [];
+    let exceptions = {};
+    let activeWorkerId = null;
+    let activeViewDate = new Date();
+    let activeDailyDate = new Date();
+    let activeRelevosDate = new Date();
+    let selectedDateForAction = null;
+    let calendarFilterQuery = '';
+    let firebaseDB = null;
+    let firebaseRef = null;
+    let firebaseSet = null;
+    let isCloudConnected = false;
+
+    // Formateo de fechas a formato YYYY-MM-DD local
+    function formatDateToKey(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function parseDateKey(key) {
+      const [y, m, d] = key.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function isSameDate(d1, d2) {
+      return d1.getFullYear() === d2.getFullYear() &&
+             d1.getMonth() === d2.getMonth() &&
+             d1.getDate() === d2.getDate();
+    }
+
+    // Cálculo matemático del turno para un día específico
+    function getWorkerStatusForDate(worker, targetDate) {
+      const dateKey = formatDateToKey(targetDate);
+      
+      // 1. Verificar excepciones manuales
+      if (exceptions[worker.id] && exceptions[worker.id][dateKey]) {
+        const exc = exceptions[worker.id][dateKey];
+        if (exc === 'WORK') return { isWork: true, label: 'Guardia (G)', code: 'G', subLabel: 'Turno manual', isException: true };
+        if (exc === 'REST') return { isWork: false, label: 'Bajada (D)', code: 'D', subLabel: 'Descanso manual', isException: true };
+        if (exc === 'MEDICAL') return { isWork: false, label: 'D. Médico (DM)', code: 'DM', subLabel: 'Descanso médico', isException: true };
+        if (exc === 'PERMISSION') return { isWork: false, label: 'Permiso (P)', code: 'P', subLabel: 'Permiso autorizado', isException: true };
+      }
+
+      // 2. Cálculo regular por régimen de turno
+      const anchor = parseDateKey(worker.anchorDate);
+      const diffMs = targetDate.setHours(0,0,0,0) - anchor.setHours(0,0,0,0);
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+      const cycleLength = (worker.workDays || 16) + (worker.restDays || 5);
+      let dayInCycle = ((diffDays % cycleLength) + cycleLength) % cycleLength;
+
+      if (dayInCycle < worker.workDays) {
+        const turnNum = dayInCycle + 1;
+        return {
+          isWork: true,
+          label: `Turno ${turnNum}`,
+          code: 'G',
+          dayIndex: turnNum,
+          totalWork: worker.workDays,
+          subLabel: `Día ${turnNum} de ${worker.workDays}`,
+          isException: false
+        };
+      } else {
+        const restNum = dayInCycle - worker.workDays + 1;
+        return {
+          isWork: false,
+          label: `Descanso ${restNum}`,
+          code: 'D',
+          dayIndex: restNum,
+          totalRest: worker.restDays,
+          subLabel: `Día ${restNum} de ${worker.restDays}`,
+          isException: false
+        };
+      }
+    }
+
+    function loadLocalState() {
+      try {
+        const localW = localStorage.getItem('RODASER_WORKERS');
+        const localE = localStorage.getItem('RODASER_EXCEPTIONS');
+        workers = localW ? JSON.parse(localW) : JSON.parse(JSON.stringify(INITIAL_WORKERS));
+        exceptions = localE ? JSON.parse(localE) : {};
+        if (workers.length > 0) activeWorkerId = workers[0].id;
+      } catch (e) {
+        console.error("Error al cargar localStorage:", e);
+        workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
+        exceptions = {};
+        activeWorkerId = workers[0]?.id;
+      }
+    }
+
+    function saveLocalState() {
+      try {
+        localStorage.setItem('RODASER_WORKERS', JSON.stringify(workers));
+        localStorage.setItem('RODASER_EXCEPTIONS', JSON.stringify(exceptions));
+      } catch (e) {
+        console.error("Error al guardar en localStorage:", e);
+      }
+    }
+
+    async function initFirebase() {
+      if (!customFirebaseConfig || !customFirebaseConfig.apiKey) return;
+      try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js");
+        const { getDatabase, ref, onValue, set } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js");
+
+        const app = initializeApp(customFirebaseConfig);
+        firebaseDB = getDatabase(app);
+        firebaseRef = ref;
+        firebaseSet = set;
+
+        const rosterRef = ref(firebaseDB, 'rosterData');
+        onValue(rosterRef, (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            if (val.workers && Array.isArray(val.workers)) workers = val.workers;
+            if (val.exceptions) exceptions = val.exceptions;
+            saveLocalState();
+            renderAllViews();
+          }
+        });
+
+        isCloudConnected = true;
+        updateCloudStatusBadge(true);
+      } catch (err) {
+        console.warn("Modo local activo (sin conexión a Firebase):", err);
+        updateCloudStatusBadge(false);
+      }
+    }
+
+    async function saveToCloud() {
+      if (currentUserRole !== 'admin') {
+        showToast("Solo los administradores pueden guardar cambios", "lock");
+        return;
+      }
+
+      saveLocalState();
+
+      if (isCloudConnected && firebaseDB && firebaseSet && firebaseRef) {
+        try {
+          const btn = document.getElementById('btnSaveCloud');
+          if (btn) btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Guardando...</span>`;
+          lucide.createIcons();
+
+          await firebaseSet(firebaseRef(firebaseDB, 'rosterData'), {
+            workers: workers,
+            exceptions: exceptions,
+            updatedAt: new Date().toISOString()
+          });
+
+          showToast("Sincronizado con la nube exitosamente", "cloud-check");
+        } catch (e) {
+          console.error("Error al guardar en Firebase:", e);
+          showToast("Guardado localmente (Error en la nube)", "alert-circle");
+        } finally {
+          const btn = document.getElementById('btnSaveCloud');
+          if (btn) {
+            btn.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i><span class="hidden sm:inline">Guardar</span>`;
+            lucide.createIcons();
+          }
+        }
+      } else {
+        showToast("Cambios guardados localmente", "save");
+      }
+    }
+
+    function updateCloudStatusBadge(connected) {
+      const badge = document.getElementById('cloudBadge');
+      if (!badge) return;
+      if (connected) {
+        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+        badge.textContent = "● Nube Activa";
+      } else {
+        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-500";
+        badge.textContent = "○ Modo Local";
+      }
+    }
+
+    function renderPersonalCalendar() {
+      const select = document.getElementById('workerSelect');
+      const heroCard = document.getElementById('workerHeroCard');
+      const grid = document.getElementById('calendarGrid');
+      const monthLabel = document.getElementById('currentMonthYearLabel');
+
+      if (!select || !heroCard || !grid || !monthLabel) return;
+
+      // Actualizar listado desplegable con filtro
+      const filteredWorkers = workers.filter(w => {
+        if (!calendarFilterQuery) return true;
+        const q = calendarFilterQuery.toLowerCase();
+        return w.name.toLowerCase().includes(q) ||
+               w.role.toLowerCase().includes(q) ||
+               w.brigade.toLowerCase().includes(q);
+      });
+
+      select.innerHTML = '';
+      if (filteredWorkers.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Sin resultados para la búsqueda';
+        select.appendChild(opt);
+      } else {
+        filteredWorkers.forEach(w => {
+          const opt = document.createElement('option');
+          opt.value = w.id;
+          opt.textContent = `${w.name} (${w.role} - ${w.brigade})`;
+          if (w.id === activeWorkerId) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+
+      const activeWorker = workers.find(w => w.id === activeWorkerId) || workers[0];
+      if (!activeWorker) return;
+
+      const colorMeta = ROLE_COLORS[activeWorker.color] || ROLE_COLORS.slate;
+
+      // Tarjeta informativa del trabajador
+      heroCard.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-base flex items-center justify-center shadow-md shadow-indigo-600/20">
+            ${activeWorker.name.charAt(0)}
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white">${activeWorker.name}</h3>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">
+                ${activeWorker.role}
+              </span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <span>${activeWorker.brigade}</span>
+              <span>•</span>
+              <span class="font-semibold text-slate-700 dark:text-slate-300">Régimen: ${activeWorker.workDays}x${activeWorker.restDays}</span>
+              ${activeWorker.phone ? `<span>•</span><span class="font-mono">📞 ${activeWorker.phone}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="text-right ml-auto">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Fecha de Anclaje</span>
+          <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">${activeWorker.anchorDate}</span>
+        </div>
+      `;
+
+      // Etiqueta del mes
+      const formatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+      monthLabel.textContent = formatter.format(activeViewDate);
+
+      // Renderizar grilla de días
+      grid.innerHTML = '';
+      const year = activeViewDate.getFullYear();
+      const month = activeViewDate.getMonth();
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Días vacíos del mes anterior
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'h-16 sm:h-20 rounded-2xl bg-slate-100/40 dark:bg-slate-900/40 border border-transparent';
+        grid.appendChild(emptyCell);
+      }
+
+      const today = new Date();
+
+      // Días del mes
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cellDate = new Date(year, month, day);
+        const status = getWorkerStatusForDate(activeWorker, cellDate);
+        const isToday = isSameDate(cellDate, today);
+
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = `h-16 sm:h-20 p-1.5 sm:p-2 rounded-2xl flex flex-col justify-between text-left transition relative border ${
+          isToday ? 'ring-2 ring-indigo-500 shadow-md' : ''
+        }`;
+
+        if (status.isException) {
+          if (status.code === 'DM') {
+            cell.className += ' bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300';
+          } else if (status.code === 'P') {
+            cell.className += ' bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300';
+          } else if (status.code === 'G') {
+            cell.className += ' bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300';
+          } else {
+            cell.className += ' bg-slate-500/10 border-slate-500/30 text-slate-700 dark:text-slate-300';
+          }
+        } else if (status.isWork) {
+          cell.className += ' bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-700 dark:text-emerald-300';
+        } else {
+          cell.className += ' bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400';
+        }
+
+        cell.innerHTML = `
+          <div class="flex items-center justify-between w-full">
+            <span class="text-xs font-black">${day}</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${
+              status.isWork ? 'bg-emerald-500 text-white' : 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+            }">${status.code}</span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[10px] font-bold block truncate leading-tight">${status.label}</span>
+          </div>
+        `;
+
+        // Solo Admin puede abrir el modal para alterar días
+        cell.addEventListener('click', () => {
+          if (currentUserRole === 'admin') {
+            openDayActionModal(activeWorker, cellDate);
+          } else {
+            showToast(`${status.subLabel} (${status.label})`, "info");
+          }
+        });
+
+        grid.appendChild(cell);
+      }
+
+      lucide.createIcons();
+    }
+
+    function computeRelevosData(targetDate) {
+      const prevDate = new Date(targetDate);
+      prevDate.setDate(prevDate.getDate() - 1);
+
+      const nextDate = new Date(targetDate);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      const scheduledForTomorrow = [];
+      const goingUp = [];
+      const goingDown = [];
+      const activeInField = [];
+      const availableVolantes = [];
+
+      workers.forEach(w => {
+        const prevStatus = getWorkerStatusForDate(w, prevDate);
+        const todayStatus = getWorkerStatusForDate(w, targetDate);
+        const nextStatus = getWorkerStatusForDate(w, nextDate);
+
+        if (todayStatus.isWork) {
+          activeInField.push({ worker: w, status: todayStatus });
+          if (w.brigade.toLowerCase().includes('volante')) {
+            availableVolantes.push(w);
+          }
+        }
+
+        // Sube HOY (primer día de trabajo)
+        if (!prevStatus.isWork && todayStatus.isWork) {
+          goingUp.push({
+            worker: w,
+            todayStatus,
+            prevStatus
+          });
+        }
+
+        // BAJA HOY (hoy es su último día de trabajo, mañana descansa)
+        if (todayStatus.isWork && !nextStatus.isWork) {
+          goingDown.push({
+            worker: w,
+            todayStatus,
+            nextStatus
+          });
+        }
+
+        // SUBE MAÑANA (hoy es su último día de descanso, mañana empieza su turno 1)
+        if (!todayStatus.isWork && nextStatus.isWork) {
+          scheduledForTomorrow.push({
+            worker: w,
+            todayStatus,
+            nextStatus
+          });
+        }
+      });
+
+      // Diagnóstico de brigadas desatendidas
+      const alerts = [];
+      const recommendations = [];
+      const regularBrigades = ['Brigada 1', 'Brigada 2', 'Brigada 3', 'Brigada 4', 'Brigada 5', 'Brigada 6'];
+
+      regularBrigades.forEach(bName => {
+        const brigadeActive = activeInField.filter(item => item.worker.brigade === bName);
+        const sups = brigadeActive.filter(item => item.worker.role === 'Supervisor');
+        const assts = brigadeActive.filter(item => item.worker.role === 'Asistente');
+
+        if (brigadeActive.length === 0) {
+          alerts.push({
+            type: 'danger',
+            title: `${bName} sin dotación en mina`,
+            message: `No hay personal asignado activo para esta fecha.`
+          });
+        } else if (sups.length === 0) {
+          const volanteName = availableVolantes.length > 0 ? availableVolantes[0].name : 'Supervisor Volante';
+          alerts.push({
+            type: 'warning',
+            title: `${bName} sin Supervisor`,
+            message: `Cuenta con ${assts.length} asistente(s) pero sin supervisor a cargo.`
+          });
+          recommendations.push(`Asignar a ${volanteName} para liderar los frentes de ${bName}.`);
+        } else if (assts.length === 0) {
+          alerts.push({
+            type: 'info',
+            title: `${bName} requiere apoyo`,
+            message: `Supervisor ${sups[0].worker.name} se encuentra sin asistente en turno.`
+          });
+        }
+      });
+
+      return { goingUp, goingDown, scheduledForTomorrow, activeInField, alerts, recommendations, availableVolantes };
+    }
+
+    function renderRelevosView() {
+      const picker = document.getElementById('relevosDatePicker');
+      if (picker) picker.value = formatDateToKey(activeRelevosDate);
+
+      const dFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const dateLabel = document.getElementById('relevoFormattedDateLabel');
+      if (dateLabel) dateLabel.textContent = dFormatter.format(activeRelevosDate);
+
+      // Renderizar botones de horizonte rápido dinámicos según el día real
+      const horizonContainer = document.getElementById('relevoHorizonButtonsContainer');
+      if (horizonContainer) {
+        horizonContainer.innerHTML = '';
+        const todayBase = new Date();
+        const dayNames = ['Hoy', '+1 Día', '+2 Días', '+3 Días'];
+
+        for (let i = 0; i < 4; i++) {
+          const hDate = new Date(todayBase);
+          hDate.setDate(todayBase.getDate() + i);
+
+          const isSelected = isSameDate(hDate, activeRelevosDate);
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            isSelected 
+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' 
+              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+          }`;
+
+          const shortMonth = hDate.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '');
+          btn.textContent = `${hDate.getDate()} ${shortMonth} (${dayNames[i]})`;
+
+          btn.addEventListener('click', () => {
+            activeRelevosDate = new Date(hDate);
+            renderRelevosView();
+          });
+
+          horizonContainer.appendChild(btn);
+        }
+      }
+
+      const data = computeRelevosData(activeRelevosDate);
+
+      // Renderizar Alertas Operativas
+      const alertsContainer = document.getElementById('relevosAlertsContainer');
+      if (alertsContainer) {
+        alertsContainer.innerHTML = '';
+        if (data.alerts.length === 0) {
+          alertsContainer.innerHTML = `
+            <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center gap-3">
+              <i data-lucide="check-circle" class="w-5 h-5 shrink-0 text-emerald-500"></i>
+              <div class="text-xs">
+                <span class="font-black">Cuadrillas Balanceadas:</span>
+                <span>Todas las brigadas activas cuentan con supervisión y personal adecuado.</span>
+              </div>
+            </div>
+          `;
+        } else {
+          data.alerts.forEach(al => {
+            const card = document.createElement('div');
+            const isDanger = al.type === 'danger';
+            card.className = `p-3 rounded-2xl flex items-center gap-3 text-xs ${
+              isDanger 
+                ? 'bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300'
+                : 'bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300'
+            }`;
+            card.innerHTML = `
+              <i data-lucide="${isDanger ? 'alert-octagon' : 'alert-triangle'}" class="w-4 h-4 shrink-0"></i>
+              <div>
+                <span class="font-black">${al.title}:</span>
+                <span>${al.message}</span>
+              </div>
+            `;
+            alertsContainer.appendChild(card);
+          });
+
+          if (data.recommendations.length > 0) {
+            const recCard = document.createElement('div');
+            recCard.className = 'p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs flex items-center gap-2.5';
+            recCard.innerHTML = `
+              <i data-lucide="lightbulb" class="w-4 h-4 shrink-0 text-indigo-500"></i>
+              <div>
+                <span class="font-black">Recomendación de Relevo:</span>
+                <span>${data.recommendations.join(' ')}</span>
+              </div>
+            `;
+            alertsContainer.appendChild(recCard);
+          }
+        }
+      }
+
+      // Lista SUBEN
+      const listUp = document.getElementById('relevosListUp');
+      if (listUp) {
+        listUp.innerHTML = '';
+        const totalUpSection = data.goingUp.length + data.scheduledForTomorrow.length;
+        if (totalUpSection === 0) {
+          listUp.innerHTML = `
+            <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+              <i data-lucide="info" class="w-7 h-7 mx-auto mb-1.5 opacity-40 text-emerald-500"></i>
+              <span>Sin subidas ni relevos programados para esta fecha.</span>
+            </div>
+          `;
+        } else {
+          // 1. Quienes tienen que subir MAÑANA (están en su último día de bajada)
+          data.scheduledForTomorrow.forEach(({ worker, todayStatus }) => {
+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+            const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
+            const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER. Hoy culmina tu descanso y mañana te toca subir a mina para iniciar tu turno 1. ¿Todo coordinado con tu movilidad?`);
+            const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
+
+            const item = document.createElement('div');
+            item.className = 'p-3 sm:p-3.5 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2 transition hover:border-amber-500 shadow-sm';
+            item.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  ${worker.name.charAt(0)}
+                </span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">Sube Mañana</span>
+                  </div>
+                  <p class="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-medium leading-tight">
+                    Cumple hoy su último día de bajada (${todayStatus.dayIndex || worker.restDays}/${worker.restDays}). <span class="text-amber-600 dark:text-amber-400 font-bold">Le toca subir a mina mañana y empezar su turno 1.</span>
+                  </p>
+                  <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    <span>${worker.brigade}</span>
+                    ${worker.phone ? `<span>•</span><span class="font-mono">📞 ${worker.phone}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                ${waLink ? `
+                <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+                ${phoneLink ? `
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                  <i data-lucide="phone" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+              </div>
+            `;
+            listUp.appendChild(item);
+          });
+
+          // 2. Quienes suben o inician HOY
+          data.goingUp.forEach(({ worker }) => {
+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+            const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
+            const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER. Hoy inicias tu turno 1 en mina. ¡Buena guardia!`);
+            const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
+
+            const item = document.createElement('div');
+            item.className = 'p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 transition hover:border-emerald-500 shadow-sm';
+            item.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  ${worker.name.charAt(0)}
+                </span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">Inicia Hoy</span>
+                  </div>
+                  <p class="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-medium leading-tight">
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">Inicia hoy su turno 1 (Día 1/${worker.workDays})</span> en mina tras culminar su descanso.
+                  </p>
+                  <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    <span>${worker.brigade}</span>
+                    ${worker.phone ? `<span>•</span><span class="font-mono">📞 ${worker.phone}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                ${waLink ? `
+                <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+                ${phoneLink ? `
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                  <i data-lucide="phone" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+              </div>
+            `;
+            listUp.appendChild(item);
+          });
+        }
+      }
+
+      // Lista BAJAN
+      const listDown = document.getElementById('relevosListDown');
+      if (listDown) {
+        listDown.innerHTML = '';
+        if (data.goingDown.length === 0) {
+          listDown.innerHTML = `
+            <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+              <i data-lucide="info" class="w-7 h-7 mx-auto mb-1.5 opacity-40 text-rose-500"></i>
+              <span>Nadie culmina guardia en esta fecha.</span>
+            </div>
+          `;
+        } else {
+          data.goingDown.forEach(({ worker, todayStatus }) => {
+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+            const phoneLink = worker.phone ? `tel:${worker.phone}` : null;
+            const cleanPhone = worker.phone ? worker.phone.replace(/[^0-9]/g, '') : '';
+            const waMsg = encodeURIComponent(`Hola ${worker.name}, te escribo de RODASER. Hoy cumples tu último día de trabajo (${worker.workDays}/${worker.workDays}) y te vas de bajada después del turno. Coordinemos tu movilidad.`);
+            const waLink = cleanPhone ? `https://wa.me/51${cleanPhone}?text=${waMsg}` : null;
+
+            const item = document.createElement('div');
+            item.className = 'p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 transition hover:border-rose-500 shadow-sm';
+            item.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-9 h-9 rounded-2xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  ${worker.name.charAt(0)}
+                </span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${worker.name}</h4>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${colorMeta.badgeBg} ${colorMeta.badgeText} ${colorMeta.badgeBorder}">${worker.role}</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30">Baja Hoy</span>
+                  </div>
+                  <p class="text-[11px] text-slate-700 dark:text-slate-300 mt-1 font-medium leading-tight">
+                    Está cumpliendo su último día de trabajo (<span class="font-bold text-rose-600 dark:text-rose-400">Día ${todayStatus.dayIndex || worker.workDays}/${worker.workDays}</span>) y <span class="text-rose-600 dark:text-rose-400 font-bold">hoy se va de bajada después del turno</span>.
+                  </p>
+                  <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    <span>${worker.brigade}</span>
+                    ${worker.phone ? `<span>•</span><span class="font-mono">📞 ${worker.phone}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                ${waLink ? `
+                <a href="${waLink}" target="_blank" title="Avisar por WhatsApp" class="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+                ${phoneLink ? `
+                <a href="${phoneLink}" title="Llamar" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+                  <i data-lucide="phone" class="w-4 h-4"></i>
+                </a>
+                ` : ''}
+              </div>
+            `;
+            listDown.appendChild(item);
+          });
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function renderDailyView() {
+      const picker = document.getElementById('dailyDatePicker');
+      if (picker) picker.value = formatDateToKey(activeDailyDate);
+
+      let totalWork = 0;
+      let totalRest = 0;
+      let totalMedical = 0;
+      let totalPerm = 0;
+
+      const brigadesMap = {};
+
+      workers.forEach(w => {
+        const b = w.brigade || 'Sin Brigada';
+        if (!brigadesMap[b]) brigadesMap[b] = [];
+
+        const status = getWorkerStatusForDate(w, activeDailyDate);
+        brigadesMap[b].push({ worker: w, status });
+
+        if (status.code === 'G') totalWork++;
+        else if (status.code === 'D') totalRest++;
+        else if (status.code === 'DM') totalMedical++;
+        else if (status.code === 'P') totalPerm++;
+      });
+
+      // Estadísticas
+      const stats = document.getElementById('dailyStatsCards');
+      if (stats) {
+        stats.innerHTML = `
+          <div class="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+            <span class="text-[10px] font-bold uppercase tracking-wider block">En Guardia</span>
+            <span class="text-xl font-black">${totalWork}</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-500/10 border border-slate-500/20 text-slate-700 dark:text-slate-300">
+            <span class="text-[10px] font-bold uppercase tracking-wider block">En Bajada</span>
+            <span class="text-xl font-black">${totalRest}</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300">
+            <span class="text-[10px] font-bold uppercase tracking-wider block">D. Médico</span>
+            <span class="text-xl font-black">${totalMedical}</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300">
+            <span class="text-[10px] font-bold uppercase tracking-wider block">Permisos</span>
+            <span class="text-xl font-black">${totalPerm}</span>
+          </div>
+        `;
+      }
+
+      // Brigadas
+      const container = document.getElementById('dailyBrigadesContainer');
+      if (container) {
+        container.innerHTML = '';
+        Object.keys(brigadesMap).forEach(bName => {
+          const list = brigadesMap[bName];
+          const activeCount = list.filter(i => i.status.isWork).length;
+
+          const card = document.createElement('div');
+          card.className = 'bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 space-y-2.5';
+          
+          let workersHtml = '';
+          list.forEach(({ worker, status }) => {
+            const colorMeta = ROLE_COLORS[worker.color] || ROLE_COLORS.slate;
+            workersHtml += `
+              <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-7 h-7 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-[10px] flex items-center justify-center shrink-0">
+                    ${worker.name.charAt(0)}
+                  </span>
+                  <div class="min-w-0">
+                    <span class="text-xs font-bold text-slate-900 dark:text-white truncate block">${worker.name}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">${worker.role}</span>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${
+                  status.isWork 
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' 
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                }">
+                  ${status.label}
+                </span>
+              </div>
+            `;
+          });
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <h4 class="font-black text-xs sm:text-sm text-slate-900 dark:text-white">${bName}</h4>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                  ${activeCount}/${list.length} en labor
+                </span>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              ${workersHtml}
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+      }
+
+      lucide.createIcons();
+    }
+
+    function renderFieldOverview() {
+      const thead = document.getElementById('overviewTableHead');
+      const tbody = document.getElementById('overviewTableBody');
+      if (!thead || !tbody) return;
+
+      const year = activeViewDate.getFullYear();
+      const month = activeViewDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let headerHtml = `
+        <tr>
+          <th class="p-3 sticky left-0 z-20 bg-slate-100 dark:bg-slate-800 text-xs font-black min-w-[150px]">Trabajador</th>
+          <th class="p-3 text-xs font-bold min-w-[80px]">Rol</th>
+      `;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        headerHtml += `<th class="p-2 text-center text-[10px] font-bold min-w-[28px]">${day}</th>`;
+      }
+      headerHtml += `</tr>`;
+      thead.innerHTML = headerHtml;
+
+      let bodyHtml = '';
+      workers.forEach(w => {
+        bodyHtml += `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+            <td class="p-2.5 sticky left-0 z-10 bg-white dark:bg-slate-900 font-bold text-xs truncate max-w-[150px] border-r border-slate-100 dark:border-slate-800">${w.name}</td>
+            <td class="p-2.5 text-[11px] text-slate-500">${w.role}</td>
+        `;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const cDate = new Date(year, month, day);
+          const st = getWorkerStatusForDate(w, cDate);
+          const colorClass = st.isWork 
+            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold' 
+            : (st.code === 'DM' ? 'bg-rose-500/20 text-rose-700 font-bold' : (st.code === 'P' ? 'bg-amber-500/20 text-amber-700 font-bold' : 'text-slate-400'));
+
+          bodyHtml += `<td class="p-1 text-center text-[9px] ${colorClass}">${st.code}</td>`;
+        }
+
+        bodyHtml += `</tr>`;
+      });
+
+      tbody.innerHTML = bodyHtml;
+    }
+
+    function renderAdminWorkersList() {
+      const container = document.getElementById('adminWorkersList');
+      const searchInput = document.getElementById('workersAdminSearch');
+      if (!container) return;
+
+      const q = (searchInput?.value || '').toLowerCase();
+      const filtered = workers.filter(w => {
+        if (!q) return true;
+        return w.name.toLowerCase().includes(q) ||
+               w.role.toLowerCase().includes(q) ||
+               w.brigade.toLowerCase().includes(q) ||
+               (w.phone && w.phone.includes(q));
+      });
+
+      container.innerHTML = '';
+      filtered.forEach(w => {
+        const colorMeta = ROLE_COLORS[w.color] || ROLE_COLORS.slate;
+        const card = document.createElement('div');
+        card.className = 'p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2';
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr ${colorMeta.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0">
+                ${w.name.charAt(0)}
+              </span>
+              <div class="min-w-0">
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">${w.name}</h4>
+                <span class="text-[10px] text-slate-400 block">${w.role} - ${w.brigade}</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800">${w.workDays}x${w.restDays}</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px]">
+            <span class="text-slate-400 font-mono">📞 ${w.phone || 'Sin celular'}</span>
+            <span class="text-slate-400 font-mono text-[10px]">Anclaje: ${w.anchorDate}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function renderAllViews() {
+      renderPersonalCalendar();
+      renderRelevosView();
+      renderDailyView();
+      renderFieldOverview();
+      renderAdminWorkersList();
+    }
+
+    function openDayActionModal(worker, date) {
+      selectedDateForAction = { worker, date };
+      const modal = document.getElementById('dayActionModal');
+      const title = document.getElementById('modalDayTitle');
+      if (!modal || !title) return;
+
+      const f = new Intl.DateTimeFormat('es-ES', { dateStyle: 'full' });
+      title.textContent = `${worker.name} (${f.format(date)})`;
+      modal.classList.remove('hidden');
+    }
+
+    function closeDayActionModal() {
+      const modal = document.getElementById('dayActionModal');
+      if (modal) modal.classList.add('hidden');
+      selectedDateForAction = null;
+    }
+
+    function showToast(msg, iconName = 'check') {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastMessage');
+      const icon = document.getElementById('toastIcon');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      if (icon) icon.setAttribute('data-lucide', iconName);
+      lucide.createIcons();
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    // Exportar CSV
+    function exportToCSV() {
+      const year = activeViewDate.getFullYear();
+      const month = activeViewDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let csv = 'Trabajador,Rol,Brigada,Regimen';
+      for (let d = 1; d <= daysInMonth; d++) csv += `,${d}/${month+1}`;
+      csv += '\n';
+
+      workers.forEach(w => {
+        let row = `"${w.name}","${w.role}","${w.brigade}","${w.workDays}x${w.restDays}"`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const st = getWorkerStatusForDate(w, new Date(year, month, d));
+          row += `,"${st.code}"`;
+        }
+        csv += row + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Roster_RODASER_${month+1}_${year}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Descarga de CSV completada", "download");
+    }
+
+    // Exportar JSON
+    function exportToJSON() {
+      const backup = {
+        app: "Roster_RODASER",
+        exportedAt: new Date().toISOString(),
+        workers,
+        exceptions
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Backup_RODASER_${formatDateToKey(new Date())}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Copia de seguridad guardada", "file-code");
+    }
+
+    function safeAddListener(id, event, handler) {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(event, handler);
+    }
+
+    function executeLogin(username, password) {
+      const errorMsg = document.getElementById('loginError');
+      const loginModal = document.getElementById('loginModal');
+      const roleBadge = document.getElementById('roleBadge');
+      const btnSaveCloud = document.getElementById('btnSaveCloud');
+
+      if (username === 'admin' && password === 'rod1234') {
+        currentUserRole = 'admin';
+        if (loginModal) loginModal.classList.add('hidden');
+        if (roleBadge) {
+          roleBadge.textContent = 'Administrador';
+          roleBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400';
+        }
+        if (btnSaveCloud) btnSaveCloud.classList.remove('hidden');
+        showToast("Bienvenido Administrador", "shield-check");
+      } else {
+        if (errorMsg) errorMsg.classList.remove('hidden');
+      }
+    }
+
+    function initApp() {
+      loadLocalState();
+
+      // Configuración de Tema Claro / Oscuro
+      const savedTheme = localStorage.getItem('RODASER_THEME') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        const themeIcon = document.getElementById('themeIcon');
+        if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
+      }
+
+      safeAddListener('btnToggleTheme', 'click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('RODASER_THEME', isDark ? 'dark' : 'light');
+        const themeIcon = document.getElementById('themeIcon');
+        if (themeIcon) {
+          themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+          lucide.createIcons();
+        }
+      });
+
+      // Login Admin
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const u = document.getElementById('loginUsername')?.value.trim();
+          const p = document.getElementById('loginPassword')?.value.trim();
+          executeLogin(u, p);
+        });
+      }
+
+      // Login Invitado
+      safeAddListener('btnGuestMode', 'click', () => {
+        currentUserRole = 'guest';
+        const loginModal = document.getElementById('loginModal');
+        const roleBadge = document.getElementById('roleBadge');
+        if (loginModal) loginModal.classList.add('hidden');
+        if (roleBadge) {
+          roleBadge.textContent = 'Modo Invitado';
+          roleBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500';
+        }
+        showToast("Acceso en Modo Invitado (Solo Lectura)", "eye");
+      });
+
+      // Cerrar Sesión
+      safeAddListener('btnLogout', 'click', () => {
+        currentUserRole = null;
+        const loginModal = document.getElementById('loginModal');
+        const btnSaveCloud = document.getElementById('btnSaveCloud');
+        if (loginModal) loginModal.classList.remove('hidden');
+        if (btnSaveCloud) btnSaveCloud.classList.add('hidden');
+      });
+
+      // Guardar en la Nube
+      safeAddListener('btnSaveCloud', 'click', () => saveToCloud());
+
+      // Pestañas
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.nav-tab').forEach(t => {
+            t.classList.remove('active', 'bg-indigo-600', 'text-white');
+            t.classList.add('text-slate-600', 'dark:text-slate-400');
+          });
+          tab.classList.add('active', 'bg-indigo-600', 'text-white');
+          tab.classList.remove('text-slate-600', 'dark:text-slate-400');
+
+          const target = tab.dataset.tab;
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          const targetContent = document.getElementById(target);
+          if (targetContent) targetContent.classList.remove('hidden');
+
+          if (target === 'tabCalendar') renderPersonalCalendar();
+          if (target === 'tabRelevos') renderRelevosView();
+          if (target === 'tabDaily') renderDailyView();
+          if (target === 'tabOverview') renderFieldOverview();
+          if (target === 'tabAdminWorkers') renderAdminWorkersList();
+          lucide.createIcons();
+        });
+      });
+
+      // Búsqueda en Calendario
+      const calSearch = document.getElementById('workerCalendarSearch');
+      const btnClearCalSearch = document.getElementById('btnClearCalendarSearch');
+      if (calSearch) {
+        calSearch.addEventListener('input', (e) => {
+          calendarFilterQuery = e.target.value.trim();
+          if (btnClearCalSearch) {
+            btnClearCalSearch.classList.toggle('hidden', !calendarFilterQuery);
+          }
+          const matched = workers.find(w => {
+            const q = calendarFilterQuery.toLowerCase();
+            return w.name.toLowerCase().includes(q) || w.brigade.toLowerCase().includes(q) || w.role.toLowerCase().includes(q);
+          });
+          if (matched) activeWorkerId = matched.id;
+          renderPersonalCalendar();
+        });
+      }
+
+      if (btnClearCalSearch) {
+        btnClearCalSearch.addEventListener('click', () => {
+          calSearch.value = '';
+          calendarFilterQuery = '';
+          btnClearCalSearch.classList.add('hidden');
+          renderPersonalCalendar();
+        });
+      }
+
+      // Selector de Trabajador
+      safeAddListener('workerSelect', 'change', (e) => {
+        activeWorkerId = e.target.value;
+        renderPersonalCalendar();
+      });
+
+      // Navegación de Meses en Calendario
+      safeAddListener('btnPrevMonth', 'click', () => {
+        activeViewDate.setMonth(activeViewDate.getMonth() - 1);
+        renderPersonalCalendar();
+        renderFieldOverview();
+      });
+
+      safeAddListener('btnNextMonth', 'click', () => {
+        activeViewDate.setMonth(activeViewDate.getMonth() + 1);
+        renderPersonalCalendar();
+        renderFieldOverview();
+      });
+
+      safeAddListener('btnToday', 'click', () => {
+        activeViewDate = new Date();
+        renderPersonalCalendar();
+        renderFieldOverview();
+      });
+
+      // Relevos - Navegación
+      safeAddListener('relevosDatePicker', 'change', (e) => {
+        if (e.target.value) {
+          activeRelevosDate = parseDateKey(e.target.value);
+          renderRelevosView();
+        }
+      });
+
+      safeAddListener('btnRelevoPrevDay', 'click', () => {
+        activeRelevosDate.setDate(activeRelevosDate.getDate() - 1);
+        renderRelevosView();
+      });
+
+      safeAddListener('btnRelevoNextDay', 'click', () => {
+        activeRelevosDate.setDate(activeRelevosDate.getDate() + 1);
+        renderRelevosView();
+      });
+
+      // Control Diario - Navegación
+      safeAddListener('dailyDatePicker', 'change', (e) => {
+        if (e.target.value) {
+          activeDailyDate = parseDateKey(e.target.value);
+          renderDailyView();
+        }
+      });
+
+      safeAddListener('btnDailyPrev', 'click', () => {
+        activeDailyDate.setDate(activeDailyDate.getDate() - 1);
+        renderDailyView();
+      });
+
+      safeAddListener('btnDailyNext', 'click', () => {
+        activeDailyDate.setDate(activeDailyDate.getDate() + 1);
+        renderDailyView();
+      });
+
+      safeAddListener('btnDailyToday', 'click', () => {
+        activeDailyDate = new Date();
+        renderDailyView();
+      });
+
+      // Búsqueda en Directorio de Personal
+      safeAddListener('workersAdminSearch', 'input', () => renderAdminWorkersList());
+
+      // Acciones del modal de días
+      safeAddListener('btnCloseDayModal', 'click', closeDayActionModal);
+      document.querySelectorAll('.btnDayActionOption').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!selectedDateForAction) return;
+          const { worker, date } = selectedDateForAction;
+          const type = btn.dataset.type;
+          const key = formatDateToKey(date);
+
+          if (!exceptions[worker.id]) exceptions[worker.id] = {};
+
+          if (type === 'CLEAR') {
+            delete exceptions[worker.id][key];
+          } else {
+            exceptions[worker.id][key] = type;
+          }
+
+          saveLocalState();
+          closeDayActionModal();
+          renderAllViews();
+          showToast("Día actualizado correctamente", "check");
+        });
+      });
+
+      // Exportación
+      safeAddListener('btnExportCSV', 'click', exportToCSV);
+      safeAddListener('btnExportJSON', 'click', exportToJSON);
+
+      // Importación
+      const importInput = document.getElementById('inputImportJSON');
+      if (importInput) {
+        importInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              const data = JSON.parse(evt.target.result);
+              if (data.workers && Array.isArray(data.workers)) {
+                workers = data.workers;
+                exceptions = data.exceptions || {};
+                saveLocalState();
+                renderAllViews();
+                showToast("Datos restaurados correctamente", "check-circle");
+              }
+            } catch (err) {
+              showToast("Archivo JSON no válido", "alert-circle");
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      // Render inicial y conexión Firebase
+      renderAllViews();
+      initFirebase();
+      lucide.createIcons();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
